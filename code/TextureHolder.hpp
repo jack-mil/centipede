@@ -8,8 +8,7 @@
  *
  * Stolen from Chapter 18 code.
  */
-class TextureHolder
-{
+class TextureHolder {
 private:
     // A map container from the STL,
     // that holds related pairs of String and Texture
@@ -21,5 +20,5 @@ private:
 
 public:
     TextureHolder();
-    static sf::Texture &GetTexture(std::string const &filename);
+    static sf::Texture& GetTexture(std::string const& filename);
 };

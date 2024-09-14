@@ -6,6 +6,8 @@
 #define WIDTH 1036
 #define HEIGHT 569
 
+#define BOTTOM_HEIGHT HEIGHT / 5.f
+
 static const auto worldColor = sf::Color(12, 24, 30, 255);
 
 Engine::Engine() {
@@ -18,9 +20,10 @@ Engine::Engine() {
     m_Window.setPosition(sf::Vector2i((desktop.width / 2) - (vm.width / 2),
                                       (desktop.height / 2) - (vm.height / 2)));
 
-    m_startTex = TextureHolder::GetTexture("graphics/startup-screen-background.png");
-    m_startSprite.setTexture(m_startTex);
+    m_startSprite.setTexture(TextureHolder::GetTexture("graphics/startup-screen-background.png"));
     m_startSprite.setPosition(0.0, 0.0);
+
+    m_playerBounds = sf::FloatRect(0, HEIGHT - BOTTOM_HEIGHT, WIDTH, BOTTOM_HEIGHT);
 }
 
 void Engine::run() {
@@ -51,7 +54,7 @@ void Engine::input() {
             // Start game from "menu" with "ENTER"
             if (event.key.code == sf::Keyboard::Return && state == State::START) {
                 // Position the player in bounds
-                m_player.spawn(sf::IntRect(0, 0, WIDTH, HEIGHT / 3));
+                m_player.spawn(m_playerBounds);
                 state = State::PLAYING;
                 std::cout << "Started" << std::endl;
             }
@@ -76,7 +79,7 @@ void Engine::input() {
     } // end input while playing
 }
 
-void Engine::update(float dtSeconds) {
+void Engine::update(const float dtSeconds) {
     if (state == State::PLAYING) {
         m_player.update(dtSeconds);
     }

@@ -18,13 +18,13 @@ private:
     // A regular RenderWindow
     sf::RenderWindow m_Window;
 
+    sf::FloatRect m_playerBounds;
+
     // The main Views
     // sf::View m_MainView;
 
     // sf::View m_HudView;
 
-    /** Start/Game over screen texture */
-	sf::Texture m_startTex;
     /** Start/Game over screen sprite */
     sf::Sprite m_startSprite;
 
@@ -36,7 +36,7 @@ private:
 	/** Poll player input and to set state */
     void input();
 	/** Update all game objects in the scene (and detect collisions) */
-    void update(float dtAsSeconds);
+    void update(const float dtAsSeconds);
 	/** Draw all objects the the frame-buffer */
     void draw();
 

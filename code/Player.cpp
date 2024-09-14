@@ -6,57 +6,19 @@
 Player::Player() {
     m_Sprite = sf::Sprite(TextureHolder::GetTexture("graphics/starship.png"));
 
-    size = m_Sprite.getLocalBounds();
-    m_Sprite.setOrigin(size.width / 2.f, size.height / 2.f);
+    m_size = m_Sprite.getLocalBounds();
+    m_Sprite.setOrigin(m_size.width / 2.f, m_size.height / 2.f);
 }
-// void Player::moveLeft() {
-//     std::cout << "Moving left" << std::endl;
-//     m_LeftPressed = true;
-// }
 
-// void Player::moveRight() {
-//     std::cout << "Moving right" << std::endl;
-//     m_RightPressed = true;
-// }
+void Player::spawn(const sf::FloatRect& playerArea) {
+    m_pos.x = playerArea.left + (playerArea.width / 2);
+    m_pos.y = playerArea.top + (playerArea.height / 2);
 
-// void Player::moveUp() {
-//     std::cout << "Moving up" << std::endl;
-//     m_UpPressed = true;
-// }
+    m_bounds.left = playerArea.left + m_size.width / 2.f;
+    m_bounds.top = playerArea.top + m_size.height / 2.f;
 
-// void Player::moveDown() {
-//     std::cout << "Moving down" << std::endl;
-//     m_DownPressed = true;
-// }
-
-// void Player::stopLeft() {
-//     std::cout << "Stopping left" << std::endl;
-//     m_LeftPressed = false;
-// }
-
-// void Player::stopRight() {
-//     std::cout << "Stopping right" << std::endl;
-//     m_RightPressed = false;
-// }
-
-// void Player::stopUp() {
-//     std::cout << "Stopping up" << std::endl;
-//     m_UpPressed = false;
-// }
-
-// void Player::stopDown() {
-//     std::cout << "Stopping down" << std::endl;
-//     m_DownPressed = false;
-// }
-
-void Player::spawn(sf::IntRect playerArea) {
-    position.x = playerArea.width / 2;
-    position.y = playerArea.height / 2;
-
-    bounds.left = playerArea.left;
-    bounds.width = playerArea.width;
-    bounds.top = playerArea.top;
-    bounds.height = playerArea.height;
+    m_bounds.width = playerArea.width - m_size.width;
+    m_bounds.height = playerArea.height - m_size.height;
 }
 
 void Player::handleInput() {
@@ -66,36 +28,42 @@ void Player::handleInput() {
     m_RightPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
 }
 
-void Player::update(float deltaTime) {
+/**
+ * Move the player position according to movement direction.
+ * Prevent going out of set bounds.
+ * @param deltaTime time elapsed since last update in seconds
+ */
+void Player::update(const float deltaTime) {
+    // moves `m_speed` pixels every second.
+    // opposite directions cancel out.
+    const float distance = m_speed * deltaTime;
+    const auto old_pos = m_pos;
     if (m_UpPressed) {
-        position.y -= moveSpeed * deltaTime;
+        m_pos.y -= distance;
     }
 
     if (m_DownPressed) {
-        position.y += moveSpeed * deltaTime;
+        m_pos.y += distance;
     }
 
     if (m_RightPressed) {
-        position.x += moveSpeed * deltaTime;
+        m_pos.x += distance;
     }
 
     if (m_LeftPressed) {
-        position.x -= moveSpeed * deltaTime;
+        m_pos.x -= distance;
     }
 
-    // prevent movement out of bounds
-    if (position.x > bounds.width - size.width) {
-        position.x = bounds.width - size.width;
-    }
-    if (position.x < bounds.left + size.width) {
-        position.x = bounds.left + size.width;
-    }
-    if (position.y > bounds.height - size.height) {
-        position.y = bounds.height - size.height;
-    }
-    if (position.y < bounds.top + size.height) {
-        position.y = bounds.top + size.height;
-    }
+    // simple inplace saturation check
+    auto saturate = [](float v, float lo, float hi) {
+        return v < lo   ? lo
+               : v > hi ? hi
+                        : v;
+    };
+    // prevent movement out of the player bounding area.
+    // this method prevents "sticking" to the walls when using sf::Rec.contains()
+    m_pos.x = saturate(m_pos.x, m_bounds.left, m_bounds.width + m_bounds.left);
+    m_pos.y = saturate(m_pos.y, m_bounds.top, m_bounds.height + m_bounds.top);
 
-    m_Sprite.setPosition(position);
+    m_Sprite.setPosition(m_pos);
 }
