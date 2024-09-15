@@ -1,5 +1,5 @@
-#include "Engine.hpp"
 #include <iostream>
+#include "Engine.hpp"
 
 // Window size constants
 // Strange size to match given splash image
@@ -73,14 +73,28 @@ void Engine::input() {
         m_player.handleInput();
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-            std::cout << "Lazer fired" << std::endl;
-            // lazers[currentLazer].shoot()
+
+            if (m_TotalGameTime.asMilliseconds() - m_lastFired.asMilliseconds() > 1000 / m_fireRate) {
+                m_lasers[m_currentLaser].shoot(m_player.m_pos);
+                m_currentLaser++;
+                if (m_currentLaser > m_lasers.size()) {
+                    m_currentLaser = 0;
+                }
+                m_lastFired = m_TotalGameTime;
+            }
         }
     } // end input while playing
 }
 
 void Engine::update(const float dtSeconds) {
     if (state == State::PLAYING) {
+
+        for (auto& laser : m_lasers) {
+            if (laser.m_active) {
+                laser.update(dtSeconds);
+            }
+        }
+
         m_player.update(dtSeconds);
     }
 }
@@ -91,8 +105,16 @@ void Engine::draw() {
         m_Window.draw(m_startSprite);
     }
     if (state == State::PLAYING) {
+
+        // draw lasers
+        for (const auto& laser : m_lasers) {
+            if (laser.m_active) {
+                m_Window.draw(laser.m_shape);
+            }
+        }
+
+        // draw starship
         m_Window.draw(m_player.m_Sprite);
-        // window->draw()
     }
     m_Window.display();
 }

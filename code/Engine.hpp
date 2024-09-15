@@ -1,7 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <array>
 
 #include "Player.hpp"
+#include "Laser.hpp"
 #include "TextureHolder.hpp"
 
 enum class State { START,
@@ -20,11 +22,6 @@ private:
 
     sf::FloatRect m_playerBounds;
 
-    // The main Views
-    // sf::View m_MainView;
-
-    // sf::View m_HudView;
-
     /** Start/Game over screen sprite */
     sf::Sprite m_startSprite;
 
@@ -33,6 +30,14 @@ private:
 
 	/** Elapsed game time */
 	sf::Time m_TotalGameTime;
+
+    /** Time a laser was fired */
+    sf::Time m_lastFired;
+    /** Firerate of the player */
+    const int m_fireRate = 10;
+
+    std::array<Laser, 50> m_lasers;
+    int m_currentLaser = 0;
 	/** Poll player input and to set state */
     void input();
 	/** Update all game objects in the scene (and detect collisions) */

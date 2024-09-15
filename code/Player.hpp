@@ -9,8 +9,6 @@ private:
     bool m_LeftPressed;
     bool m_RightPressed;
 
-    /** The position of the player */
-    sf::Vector2f m_pos;
 
     /** The bounds of player movement */
     sf::FloatRect m_bounds;
@@ -22,6 +20,9 @@ private:
     const float m_speed = 600;
 
 public:
+    /** The position of the player */
+    sf::Vector2f m_pos;
+    /** Starship player to draw */
     sf::Sprite m_Sprite;
     /** Construct a new Player object */
     Player();
