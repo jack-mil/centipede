@@ -2,24 +2,41 @@
 #include <SFML/Graphics.hpp>
 #include <array>
 
-#include "Player.hpp"
 #include "Laser.hpp"
-#include "TextureHolder.hpp"
+#include "Player.hpp"
+#include "TextureManager.hpp"
 
-enum class State { START,
-                   PLAYING,
-                   GAME_OVER };
-
+enum class State {
+    START,
+    PLAYING,
+    GAME_OVER
+};
+/**
+ * The Engine is responsible for:
+ *  - setting up the game window,
+ *  - main event loop,
+ *  - getting user input,
+ *  - updating game objects,
+ *  - drawing to the frame
+ */
 class Engine {
-private:
-    // The texture holder
-    TextureHolder th;
 
+    /** Color for the game world background */
+    inline static const sf::Color WorldColor = sf::Color(12, 24, 30, 255);
+
+private:
+    /** A cache for all textures used on game sprites.
+     * default constructor sets up a static pointer to the only instance.
+     */
+    const TextureManager texMan;
+
+    /** The game RenderWindow */
+    sf::RenderWindow m_window;
+
+    /** The player-controlled starship */
     Player m_player;
 
-    // A regular RenderWindow
-    sf::RenderWindow m_Window;
-
+    /** The area the player can move in */
     sf::FloatRect m_playerBounds;
 
     /** Start/Game over screen sprite */
@@ -28,21 +45,23 @@ private:
     /** Game state machine */
     State state = State::START;
 
-	/** Elapsed game time */
-	sf::Time m_TotalGameTime;
+    /** Main game clock */
+    sf::Clock m_clock;
+
+    /** Elapsed game time */
+    sf::Time m_totalGameTime;
 
     /** Time a laser was fired */
     sf::Time m_lastFired;
-    /** Firerate of the player */
-    const int m_fireRate = 10;
 
-    std::array<Laser, 50> m_lasers;
+    /** A pool of 30 laser objects to recycle (should be plenty) */
+    std::array<Laser, 30> m_lasers;
     int m_currentLaser = 0;
-	/** Poll player input and to set state */
+    /** Poll player input and hand-off to objects */
     void input();
-	/** Update all game objects in the scene (and detect collisions) */
+    /** Update all game objects in the scene (and detect collisions) */
     void update(const float dtAsSeconds);
-	/** Draw all objects the the frame-buffer */
+    /** Draw all objects the the frame-buffer */
     void draw();
 
     // Load a new level
@@ -53,15 +72,11 @@ private:
 
     // Make a vector of the best places to emit sounds from
     // void populateEmitters(vector<Vector2f> &vSoundEmitters,
-                        //   int **arrayLevel);
-
-    // A vector of Vector2f for the fire emiiter locations
-    // vector<Vector2f> m_FireEmitters;
+    //   int **arrayLevel);
 
 public:
     /** Construct a new Engine object */
     Engine();
-
     /** Create a window and run the entire game loop */
     void run();
 };

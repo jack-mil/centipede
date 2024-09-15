@@ -3,12 +3,17 @@
 
 class Player {
 private:
-    // Which directions is the player currently moving in
-    bool m_UpPressed;
-    bool m_DownPressed;
-    bool m_LeftPressed;
-    bool m_RightPressed;
+    /** Player movement speed in pixels/second */
+    static inline const float Speed = 600;
 
+    /** Up movement key is pressed */
+    bool m_movingUp = false;
+    /** Down movement key is pressed */
+    bool m_movingDown = false;
+    /** Left movement key is pressed */
+    bool m_movingLeft = false;
+    /** Right movement key is pressed */
+    bool m_movingRight = false;
 
     /** The bounds of player movement */
     sf::FloatRect m_bounds;
@@ -16,14 +21,11 @@ private:
     /** The size of player sprite */
     sf::FloatRect m_size;
 
-    /** Player movement speed in pixels/second */
-    const float m_speed = 600;
-
 public:
     /** The position of the player */
     sf::Vector2f m_pos;
     /** Starship player to draw */
-    sf::Sprite m_Sprite;
+    sf::Sprite m_sprite;
     /** Construct a new Player object */
     Player();
 
@@ -35,5 +37,4 @@ public:
 
     /** Update player sprite position based on elapsed seconds */
     void update(const float deltaTime);
-
 };

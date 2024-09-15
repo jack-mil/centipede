@@ -1,15 +1,15 @@
 #include <assert.h>
 #include <iostream>
 
-#include "TextureHolder.hpp"
+#include "TextureManager.hpp"
 
-TextureHolder *TextureHolder::m_s_Instance = nullptr;
+TextureManager *TextureManager::m_s_Instance = nullptr;
 
 /**
- * @brief Construct a new Texture Holder:: Texture Holder object
- *
+ * Only one TextureManager should every be created.
+ * Constructor stores a static class reference to the first instance.
  */
-TextureHolder::TextureHolder() {
+TextureManager::TextureManager():m_textures(){
     assert(m_s_Instance == nullptr);
     m_s_Instance = this;
 }
@@ -20,9 +20,9 @@ TextureHolder::TextureHolder() {
  * @param filename the texture to load
  * @return sf::Texture&
  */
-sf::Texture& TextureHolder::GetTexture(const std::string& filename) {
-    // Get a reference to m_Textures using m_S_Instance
-    auto& texture_cache = m_s_Instance->m_Textures;
+sf::Texture& TextureManager::GetTexture(const std::string& filename) {
+    // Get a reference to m_textures using m_S_Instance
+    auto& texture_cache = m_s_Instance->m_textures;
     // auto is the equivalent of map<string, Texture>
 
     // Create an iterator to hold a key-value-pair (kvp)
@@ -47,7 +47,7 @@ sf::Texture& TextureHolder::GetTexture(const std::string& filename) {
             std::cerr << "Loading  \"" << filename << "\" failed." << std::endl;
         }
 
-        // Return the loaded texture
+        // Return the loaded texture reference
         return texture;
     }
 }

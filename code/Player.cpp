@@ -1,15 +1,26 @@
 #include <iostream>
 
 #include "Player.hpp"
-#include "TextureHolder.hpp"
+#include "TextureManager.hpp"
 
-Player::Player() {
-    m_Sprite = sf::Sprite(TextureHolder::GetTexture("graphics/starship.png"));
-
-    m_size = m_Sprite.getLocalBounds();
-    m_Sprite.setOrigin(m_size.width / 2.f, m_size.height / 2.f);
+/**
+ * Constructor initializes the sprites and other members,
+ * and sets the origin to the center
+ */
+Player::Player() : m_sprite(), m_bounds(), m_size(), m_pos() {
+    // load the texture from the texture manager
+    m_sprite.setTexture(TextureManager::GetTexture("graphics/starship.png"));
+    // get and save the size of the player sprite
+    m_size = m_sprite.getLocalBounds();
+    // use the sprite size to center the origin
+    m_sprite.setOrigin(m_size.width / 2.f, m_size.height / 2.f);
 }
 
+/**
+ * Move the player to the center of the given area,
+ * and setup bounds that account for the sprite size.
+ * @param playerArea Rectangle that the starship can move in.
+ */
 void Player::spawn(const sf::FloatRect& playerArea) {
     m_pos.x = playerArea.left + (playerArea.width / 2);
     m_pos.y = playerArea.top + (playerArea.height / 2);
@@ -21,36 +32,37 @@ void Player::spawn(const sf::FloatRect& playerArea) {
     m_bounds.height = playerArea.height - m_size.height;
 }
 
+/** Set movement flags based on current keyboard input */
 void Player::handleInput() {
-    m_UpPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::W);
-    m_DownPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::S);
-    m_LeftPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
-    m_RightPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
+    m_movingUp = sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
+    m_movingDown = sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
+    m_movingLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
+    m_movingRight = sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
 }
 
 /**
- * Move the player position according to movement direction.
- * Prevent going out of set bounds.
- * @param deltaTime time elapsed since last update in seconds
+ * Move the player position according to movement flags.
+ * Prevent going out of bounds.
+ * @param deltaTime time in seconds since last update
  */
 void Player::update(const float deltaTime) {
-    // moves `m_speed` pixels every second.
+    // moves `Speed` pixels every second.
     // opposite directions cancel out.
-    const float distance = m_speed * deltaTime;
+    const float distance = Player::Speed * deltaTime;
     const auto old_pos = m_pos;
-    if (m_UpPressed) {
+    if (m_movingUp) {
         m_pos.y -= distance;
     }
 
-    if (m_DownPressed) {
+    if (m_movingDown) {
         m_pos.y += distance;
     }
 
-    if (m_RightPressed) {
+    if (m_movingRight) {
         m_pos.x += distance;
     }
 
-    if (m_LeftPressed) {
+    if (m_movingLeft) {
         m_pos.x -= distance;
     }
 
@@ -60,10 +72,10 @@ void Player::update(const float deltaTime) {
                : v > hi ? hi
                         : v;
     };
-    // prevent movement out of the player bounding area.
-    // this method prevents "sticking" to the walls when using sf::Rec.contains()
+    // prevent movement out of the player bounding area
+    // not using sf::Rec.contains() because of 'sticky' walls issue
     m_pos.x = saturate(m_pos.x, m_bounds.left, m_bounds.width + m_bounds.left);
     m_pos.y = saturate(m_pos.y, m_bounds.top, m_bounds.height + m_bounds.top);
 
-    m_Sprite.setPosition(m_pos);
+    m_sprite.setPosition(m_pos);
 }

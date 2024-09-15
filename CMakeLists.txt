@@ -11,7 +11,7 @@ set(OPENAL_LIBRARY ${PROJECT_SOURCE_DIR}/../SFML/extlibs/libs-msvc/x64/openal32.
 
 
 # Add the executable
-add_executable(centipede code/main.cpp code/Engine.cpp code/TextureHolder.cpp code/Player.cpp)
+add_executable(centipede code/main.cpp code/Engine.cpp code/TextureManager.cpp code/Player.cpp code/Laser.cpp)
 
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/../SFML/include)
 

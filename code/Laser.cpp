@@ -1,33 +1,50 @@
 #include "Laser.hpp"
-#include "TextureHolder.hpp"
 
-Laser::Laser() {
-    sf::Vector2f size(3.0, 20.0);
-    m_shape.setSize(size);
-    m_shape.setFillColor(sf::Color(255, 0, 0, 255));
-
-    m_shape.setOrigin(size.x / 2.0, size.y / 2.0);
-    // m_sprite.setTexture(TextureHolder::GetTexture("graphics/"))
+/**
+ * Construct a new Laser object.
+ * Set the size and color, and set origin to center.
+ */
+Laser::Laser() : m_pos(), m_shape() {
+    m_shape.setSize(Laser::Size);
+    m_shape.setFillColor(Laser::Color);
+    m_shape.setOrigin(Laser::Size.x / 2.0, Laser::Size.y / 2.0);
 }
 
+/**
+ * Make this Laser active, and set it's position to (x,y)
+ * @param x pos of start
+ * @param y pos of start
+ */
+void Laser::shoot(float x, float y) {
+    active = true;
+    m_pos.x = x;
+    m_pos.y = y;
+
+    m_shape.setPosition(m_pos);
+}
+/**
+ * Override for vector type.
+ * @param start vector position to start from
+ */
 void Laser::shoot(sf::Vector2f start) {
     shoot(start.x, start.y);
 }
 
-void Laser::shoot(float xStart, float yStart) {
-    m_active = true;
-    m_pos.x = xStart;
-    m_pos.y = yStart;
-
-    m_shape.setPosition(m_pos);
-}
-
+/**
+ * Move the beam straight up (negative y).
+ *
+ * Automatically deactivates when reaching the top.
+ * @param deltaTime Elapsed time in seconds
+ */
 void Laser::update(float deltaTime) {
-    m_pos.y -= m_speed * deltaTime;
+    if (!active) {
+        return;
+    }
+    m_pos.y -= Laser::Speed * deltaTime;
 
     m_shape.setPosition(m_pos);
 
     if (m_pos.y < 0) {
-        m_active = false;
+        active = false;
     }
 }
