@@ -21,5 +21,5 @@ private:
 public:
     /** Constructor sets up the static reference. */
     TextureManager();
-    static sf::Texture& GetTexture(std::string const& filename);
+    static const sf::Texture& GetTexture(std::string const& filename);
 };

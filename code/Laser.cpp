@@ -1,3 +1,12 @@
+/*
+Author: Jackson Miller
+Class: ECE6122 A
+Last Date Modified: 2024-09-16
+
+Description:
+Laser object definition. These are instantiated once at runtime,
+then activated/moved when needed.
+*/
 #include "Laser.hpp"
 
 /**
@@ -22,9 +31,11 @@ void Laser::shoot(float x, float y) {
 
     m_shape.setPosition(m_pos);
 }
+
 /**
- * Override for vector type.
- * @param start vector position to start from
+ * Make this Laser active, and set it's position to `start`.
+ * Overload for vector start position
+ * @param start  position to start from
  */
 void Laser::shoot(sf::Vector2f start) {
     shoot(start.x, start.y);

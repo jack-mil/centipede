@@ -20,7 +20,7 @@ TextureManager::TextureManager():m_textures(){
  * @param filename the texture to load
  * @return sf::Texture&
  */
-sf::Texture& TextureManager::GetTexture(const std::string& filename) {
+const sf::Texture& TextureManager::GetTexture(const std::string& filename) {
     // Get a reference to m_textures using m_S_Instance
     auto& texture_cache = m_s_Instance->m_textures;
     // auto is the equivalent of map<string, Texture>
@@ -45,6 +45,7 @@ sf::Texture& TextureManager::GetTexture(const std::string& filename) {
         bool succeed = texture.loadFromFile(filename);
         if (!succeed) {
             std::cerr << "Loading  \"" << filename << "\" failed." << std::endl;
+            // TODO: Raise exception
         }
 
         // Return the loaded texture reference

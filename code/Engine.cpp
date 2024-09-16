@@ -1,3 +1,11 @@
+/*
+Author: Jackson Miller
+Class: ECE6122 A
+Last Date Modified: 2024-09-16
+
+Description:
+Defines the main game Engine and game loop logic.
+*/
 #include "Engine.hpp"
 #include <iostream>
 
@@ -10,17 +18,19 @@
 
 /** Default constructor sets up members and creates the game window */
 Engine::Engine() : texMan(), m_window(), m_player(), m_playerBounds(),
-                   m_startSprite(), m_clock(), m_totalGameTime(), m_lastFired(), m_lasers() {
+                   m_shroomMan(), m_shroomBounds(),
+                   m_lasers(), m_startSprite(),
+                   m_clock(), m_totalGameTime(), m_lastFired() {
     // load the sprite texture, and save it's size.
     m_startSprite.setTexture(TextureManager::GetTexture("graphics/startup-screen-background.png"));
-    m_startSprite.setPosition(0.0, 0.0);
-    auto sceneRect = m_startSprite.getLocalBounds();
+    const auto& sceneRect = m_startSprite.getLocalBounds();
 
     sf::VideoMode vm(sceneRect.width, sceneRect.height);
     m_window.create(vm, "Centipede", sf::Style::Close);
     m_window.setVerticalSyncEnabled(false);
+
     // place the window in the center of the screen
-    auto desktop = sf::VideoMode::getDesktopMode();
+    const auto& desktop = sf::VideoMode::getDesktopMode();
     m_window.setPosition(sf::Vector2i((desktop.width / 2) - (vm.width / 2),
                                       (desktop.height / 2) - (vm.height / 2)));
 
@@ -28,6 +38,11 @@ Engine::Engine() : texMan(), m_window(), m_player(), m_playerBounds(),
     m_playerBounds.top = sceneRect.height - sceneRect.height / 5.f;
     m_playerBounds.width = sceneRect.width;
     m_playerBounds.height = sceneRect.height / 5.f;
+
+    m_shroomBounds.left = sceneRect.left;
+    m_shroomBounds.top = sceneRect.top + 60; // 60px reserved at the top for info
+    m_shroomBounds.width = sceneRect.width;
+    m_shroomBounds.height = sceneRect.height - 60 - m_playerBounds.height;
 }
 
 /** Main entry-point into the game loop.
@@ -36,9 +51,9 @@ Engine::Engine() : texMan(), m_window(), m_player(), m_playerBounds(),
  */
 void Engine::run() {
     while (m_window.isOpen()) {
-        sf::Time dt = m_clock.restart();
+        const sf::Time dt = m_clock.restart();
         m_totalGameTime += dt;
-        float dtSeconds = dt.asSeconds();
+        const float dtSeconds = dt.asSeconds();
 
         input();
         update(dtSeconds);
@@ -65,7 +80,9 @@ void Engine::input() {
             // Start game from "menu" with "ENTER"
             if ((event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space) && state == State::START) {
                 // Position the player in bounds
+                m_shroomMan.spawn(m_shroomBounds);
                 m_player.spawn(m_playerBounds);
+
                 state = State::PLAYING;
                 std::cout << "Started" << std::endl;
                 m_clock.restart(); // restart clock to prevent frame skip
@@ -123,15 +140,25 @@ void Engine::update(const float dtSeconds) {
  * Implements the double buffering sequence of clear-draw-display from SFML.
  */
 void Engine::draw() {
+
     m_window.clear(Engine::WorldColor);
 
-    // draw the start screen at first
+    // draw the start screen at beginning
     if (state == State::START) {
         m_window.draw(m_startSprite);
     }
 
     // draw all the objects during game-play
     if (state == State::PLAYING) {
+
+        auto test = sf::RectangleShape(m_shroomBounds.getSize());
+        test.setPosition(m_shroomBounds.getPosition());
+        m_window.draw(test);
+
+        // draw mushrooms
+        for (const auto& shroom : m_shroomMan.m_shrooms) {
+            m_window.draw(shroom);
+        }
 
         // draw lasers
         for (const auto& laser : m_lasers) {

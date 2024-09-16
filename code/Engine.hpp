@@ -1,8 +1,17 @@
+/*
+Author: Jackson Miller
+Class: ECE6122 A
+Last Date Modified: 2024-09-16
+
+Description:
+Declare the Game Engine. Engine::run() is the main entrypoint into the game.
+*/
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <array>
 
 #include "Laser.hpp"
+#include "Mushrooms.hpp"
 #include "Player.hpp"
 #include "TextureManager.hpp"
 
@@ -22,7 +31,7 @@ enum class State {
 class Engine {
 
     /** Color for the game world background */
-    inline static const sf::Color WorldColor = sf::Color(12, 24, 30, 255);
+    static inline const sf::Color WorldColor = sf::Color(18, 32, 44, 255);
 
 private:
     /** A cache for all textures used on game sprites.
@@ -39,6 +48,16 @@ private:
     /** The area the player can move in */
     sf::FloatRect m_playerBounds;
 
+    /** Manager for all the mushrooms in the scene */
+    MushroomManager m_shroomMan;
+
+    /** The area mushrooms spawn in */
+    sf::FloatRect m_shroomBounds;
+
+    /** A pool of 30 laser objects to recycle (should be plenty) */
+    std::array<Laser, 30> m_lasers;
+    int m_currentLaser = 0;
+
     /** Start/Game over screen sprite */
     sf::Sprite m_startSprite;
 
@@ -54,13 +73,12 @@ private:
     /** Time a laser was fired */
     sf::Time m_lastFired;
 
-    /** A pool of 30 laser objects to recycle (should be plenty) */
-    std::array<Laser, 30> m_lasers;
-    int m_currentLaser = 0;
     /** Poll player input and hand-off to objects */
     void input();
+
     /** Update all game objects in the scene (and detect collisions) */
     void update(const float dtAsSeconds);
+
     /** Draw all objects the the frame-buffer */
     void draw();
 

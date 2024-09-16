@@ -1,3 +1,11 @@
+/*
+Author: Jackson Miller
+Class: ECE6122 A
+Last Date Modified: 2024-09-16
+
+Description:
+Player character declaration.
+*/
 #pragma once
 #include <SFML/Graphics.hpp>
 
@@ -29,7 +37,7 @@ public:
     /** Construct a new Player object */
     Player();
 
-    /** Show the player in the middle of defined player area */
+    /** Start the player in the middle of defined player area */
     void spawn(const sf::FloatRect& playerArea);
 
     /** Do player movement */
