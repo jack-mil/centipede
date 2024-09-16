@@ -11,15 +11,18 @@ Defines the main game Engine and game loop logic.
 
 // Window size constants
 // Strange size to match given splash image
-#define WIDTH 1036
-#define HEIGHT 569
+// This is the original Atari game size
+#define WIDTH 240
+#define HEIGHT 256  // 8 px on the top and bottom are reserved
+#define GRID_SIZE 8 // play area is split into a 30x30 grid of 8x8 pixels
 
 #define BOTTOM_HEIGHT HEIGHT / 5.f
 
 /** Default constructor sets up members and creates the game window */
 Engine::Engine()
     : texMan(),
-      m_window(sf::VideoMode(WIDTH, HEIGHT), "Centipede", sf::Style::Close),
+      m_window(sf::VideoMode(WIDTH * 4, HEIGHT * 4), "Centipede", sf::Style::Close),
+      m_view(sf::Vector2f(WIDTH / 2, HEIGHT / 2), sf::Vector2f(WIDTH, HEIGHT)),
       m_player(), m_playerBounds(),
       m_shroomMan(), m_shroomBounds(),
       m_lasers(), m_startSprite(),
@@ -29,26 +32,27 @@ Engine::Engine()
     m_window.setMouseCursorVisible(false);
     m_window.setFramerateLimit(60); // original game was 60fps
     m_window.setVerticalSyncEnabled(false);
-
     // place the window in the center of the screen
-    const auto& desktop = sf::VideoMode::getDesktopMode();
-    const auto& winSize = m_window.getSize();
-    m_window.setPosition(sf::Vector2i((desktop.width / 2) - (winSize.x / 2),
-                                      (desktop.height / 2) - (winSize.y / 2)));
+    m_window.setPosition(sf::Vector2i(
+        (sf::VideoMode::getDesktopMode().width / 2) - (m_window.getSize().x / 2),
+        (sf::VideoMode::getDesktopMode().height / 2) - (m_window.getSize().y / 2)));
+
+    // view centered so that 0,0 is still top left.
+    m_window.setView(m_view);
 
     // load the sprite texture, and save it's size.
-    m_startSprite.setTexture(TextureManager::GetTexture("graphics/startup-screen-background.png"));
-    const auto& sceneRect = m_startSprite.getLocalBounds();
+    // m_startSprite.setTexture(TextureManager::GetTexture("graphics/startup-screen-background.png"));
+    // const auto& sceneRect = m_startSprite.getLocalBounds();
 
-    m_playerBounds.left = sceneRect.left;
-    m_playerBounds.top = sceneRect.height - sceneRect.height / 5.f;
-    m_playerBounds.width = sceneRect.width;
-    m_playerBounds.height = sceneRect.height / 5.f;
+    m_playerBounds.left = 0.0;
+    m_playerBounds.top = m_view.getSize().y - GRID_SIZE * 4;
+    m_playerBounds.width = m_view.getSize().x;
+    m_playerBounds.height = GRID_SIZE * 4;
 
-    m_shroomBounds.left = sceneRect.left;
-    m_shroomBounds.top = sceneRect.top + 60; // 60px reserved at the top for info
-    m_shroomBounds.width = sceneRect.width;
-    m_shroomBounds.height = sceneRect.height - 60 - m_playerBounds.height;
+    m_shroomBounds.left = 0.0;
+    m_shroomBounds.top = GRID_SIZE; // One row reserved for score
+    m_shroomBounds.width = m_view.getSize().x;
+    m_shroomBounds.height = m_view.getSize().y - 2 * GRID_SIZE;
 }
 
 /** Main entry-point into the game loop.
@@ -81,6 +85,27 @@ void Engine::input() {
         // Close the window when "X" button clicked
         if (event.type == sf::Event::Closed) {
             m_window.close();
+        }
+
+        // preserve the aspect ratio when resizing
+        if (event.type == sf::Event::Resized) {
+            float windowRatio = static_cast<float>(event.size.width) / event.size.height;
+            float viewRatio = m_view.getSize().x / m_view.getSize().y;
+            float sizeX = 1;
+            float sizeY = 1;
+            float posX = 0;
+            float posY = 0;
+
+            if (windowRatio > viewRatio) {
+                sizeX = viewRatio / windowRatio;
+                posX = (1 - sizeX) / 2;
+            } else {
+                sizeY = windowRatio / viewRatio;
+                posY = (1 - sizeY) / 2;
+            }
+
+            m_view.setViewport(sf::FloatRect(posX, posY, sizeX, sizeY));
+            m_window.setView(m_view);
         }
 
         if (event.type == sf::Event::KeyPressed) {
