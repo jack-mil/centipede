@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <exception>
 #include <iostream>
 
 #include "TextureManager.hpp"
@@ -44,8 +45,7 @@ const sf::Texture& TextureManager::GetTexture(const std::string& filename) {
         // Load the texture from file in the usual way
         bool succeed = texture.loadFromFile(filename);
         if (!succeed) {
-            std::cerr << "Loading  \"" << filename << "\" failed." << std::endl;
-            // TODO: Raise exception
+            throw std::runtime_error("Could not load file: " + filename);
         }
 
         // Return the loaded texture reference

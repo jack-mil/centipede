@@ -56,8 +56,10 @@ Engine::Engine()
  * Calls the input-update-draw methods until the window is closed.
  */
 void Engine::run() {
+    // reset the clock for first run
+    m_clock.restart();
     while (m_window.isOpen()) {
-        const sf::Time dt = m_clock.restart();
+        const sf::Time& dt = m_clock.restart();
         m_totalGameTime += dt;
         const float dtSeconds = dt.asSeconds();
 
