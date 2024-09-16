@@ -17,22 +17,28 @@ Defines the main game Engine and game loop logic.
 #define BOTTOM_HEIGHT HEIGHT / 5.f
 
 /** Default constructor sets up members and creates the game window */
-Engine::Engine() : texMan(), m_window(), m_player(), m_playerBounds(),
-                   m_shroomMan(), m_shroomBounds(),
-                   m_lasers(), m_startSprite(),
-                   m_clock(), m_totalGameTime(), m_lastFired() {
-    // load the sprite texture, and save it's size.
-    m_startSprite.setTexture(TextureManager::GetTexture("graphics/startup-screen-background.png"));
-    const auto& sceneRect = m_startSprite.getLocalBounds();
+Engine::Engine()
+    : texMan(),
+      m_window(sf::VideoMode(WIDTH, HEIGHT), "Centipede", sf::Style::Close),
+      m_player(), m_playerBounds(),
+      m_shroomMan(), m_shroomBounds(),
+      m_lasers(), m_startSprite(),
+      m_clock(), m_totalGameTime(sf::Time::Zero), m_lastFired(sf::Time::Zero) {
 
-    sf::VideoMode vm(sceneRect.width, sceneRect.height);
-    m_window.create(vm, "Centipede", sf::Style::Close);
+    // set some OS window options
+    m_window.setMouseCursorVisible(false);
+    m_window.setFramerateLimit(60); // original game was 60fps
     m_window.setVerticalSyncEnabled(false);
 
     // place the window in the center of the screen
     const auto& desktop = sf::VideoMode::getDesktopMode();
-    m_window.setPosition(sf::Vector2i((desktop.width / 2) - (vm.width / 2),
-                                      (desktop.height / 2) - (vm.height / 2)));
+    const auto& winSize = m_window.getSize();
+    m_window.setPosition(sf::Vector2i((desktop.width / 2) - (winSize.x / 2),
+                                      (desktop.height / 2) - (winSize.y / 2)));
+
+    // load the sprite texture, and save it's size.
+    m_startSprite.setTexture(TextureManager::GetTexture("graphics/startup-screen-background.png"));
+    const auto& sceneRect = m_startSprite.getLocalBounds();
 
     m_playerBounds.left = sceneRect.left;
     m_playerBounds.top = sceneRect.height - sceneRect.height / 5.f;
