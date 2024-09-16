@@ -6,11 +6,9 @@
 
 TextureManager *TextureManager::m_s_Instance = nullptr;
 
-/**
- * Only one TextureManager should every be created.
- * Constructor stores a static class reference to the first instance.
- */
-TextureManager::TextureManager():m_textures(){
+/** Constructor sets up the static reference. */
+TextureManager::TextureManager() : m_texCache() {
+    // assert prevent's multiple TextureManagers for being created
     assert(m_s_Instance == nullptr);
     m_s_Instance = this;
 }
@@ -18,37 +16,29 @@ TextureManager::TextureManager():m_textures(){
 /**
  * @brief Return a texture reference, loading it from a file if necessary
  *
+ * This is a static method that makes it easy for any code to get a texture reference.
  * @param filename the texture to load
  * @return sf::Texture&
  */
 const sf::Texture& TextureManager::GetTexture(const std::string& filename) {
-    // Get a reference to m_textures using m_S_Instance
-    auto& texture_cache = m_s_Instance->m_textures;
-    // auto is the equivalent of map<string, Texture>
+    // reference to mapping in instance object
+    auto& texture_cache = m_s_Instance->m_texCache;
 
-    // Create an iterator to hold a key-value-pair (kvp)
-    // and search for the required kvp
-    // using the passed in file name
-    auto keyValuePair = texture_cache.find(filename);
-    // auto is equivalent of map<string, Texture>::iterator
+    // Check mapping for the filename, return value if found (C++17 init statement syntax)
+    if (auto got = texture_cache.find(filename); got != texture_cache.end()) {
 
-    // Did we find a match?
-    if (keyValuePair != texture_cache.end()) {
-        // Yes
-        // Return the texture,
-        // the second part of the kvp, the texture
-        return keyValuePair->second;
+        return got->second;
+
     } else {
-        // File name not found
+        // File not loaded yet!
         // Create a new key value pair using the filename
         auto& texture = texture_cache[filename];
-        // Load the texture from file in the usual way
-        bool succeed = texture.loadFromFile(filename);
-        if (!succeed) {
+
+        if (!texture.loadFromFile(filename)) {
+            // If file can't be found, abort
             throw std::runtime_error("Could not load file: " + filename);
         }
-
-        // Return the loaded texture reference
+        // texture is valid and loaded
         return texture;
     }
 }

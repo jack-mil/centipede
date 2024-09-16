@@ -5,21 +5,32 @@
 
 /**
  * Central cache of textures.
- * Stolen from Chapter 18 code.
+ * Prevents loading files from disks more than once,
+ * and allows many sprites to share the same texture.
+ * Modified from Chapter 18 code.
  */
 class TextureManager {
 private:
-    // A map container from the STL,
-    // that holds related pairs of String and Texture
-    std::unordered_map<std::string, sf::Texture> m_textures;
+    /** Mapping of filenames to Texture objects */
+    std::unordered_map<std::string, sf::Texture> m_texCache;
 
     /** Pointer of the same type as the class itself
-     * the one and only instance.
+     *  the one and only instance.
      * */
     static TextureManager *m_s_Instance;
 
 public:
-    /** Constructor sets up the static reference. */
+    /**
+     * Only one TextureManager should every be created.
+     * Constructor stores a static class reference to the first instance.
+     */
     TextureManager();
+    /**
+     * @brief Return a texture reference, loading it from a file if necessary
+     *
+     * This is a static method that makes it easy for any code to get a texture reference.
+     * @param filename the texture to load
+     * @return sf::Texture&
+     */
     static const sf::Texture& GetTexture(std::string const& filename);
 };
