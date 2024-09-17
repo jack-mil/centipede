@@ -37,6 +37,8 @@ set_target_properties(
 #      DESTINATION "${COMMON_OUTPUT_DIR}/bin")
 file(COPY ${PROJECT_SOURCE_DIR}/graphics
      DESTINATION "${COMMON_OUTPUT_DIR}/bin")
+file(COPY ${PROJECT_SOURCE_DIR}/shaders
+     DESTINATION "${COMMON_OUTPUT_DIR}/bin")
 #  file(COPY "${PROJECT_SOURCE_DIR}/low res"
 #  DESTINATION "${COMMON_OUTPUT_DIR}/bin")
 #  file(COPY ${PROJECT_SOURCE_DIR}/sound

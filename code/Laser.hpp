@@ -24,7 +24,7 @@ private:
     /** Color of all lasers (Red) */
     static inline const sf::Color Color = sf::Color::Red;
     /** Size of all lasers (px) */
-    static inline const sf::Vector2f Size = sf::Vector2f(1.0, 6.0);
+    static inline const sf::Vector2f Size{1.0, 6.0};
     /** Position of the center of the laser */
     sf::Vector2f m_pos;
 

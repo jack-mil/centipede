@@ -31,7 +31,7 @@ enum class State {
 class Engine {
 
     /** Color for the game world background */
-    static inline const sf::Color WorldColor = sf::Color(18, 32, 44, 255);
+    static inline const sf::Color WorldColor = sf::Color::Black;
 
 private:
     /** A cache for all textures used on game sprites.

@@ -21,7 +21,8 @@ Defines the main game Engine and game loop logic.
 /** Default constructor sets up members and creates the game window */
 Engine::Engine()
     : texMan(),
-      m_window(sf::VideoMode(WIDTH * 4, HEIGHT * 4), "Centipede", sf::Style::Close),
+      m_window(sf::VideoMode(WIDTH * 3.5, HEIGHT * 3.5), "Centipede", sf::Style::Close),
+      // view centered so that 0,0 is still top left.
       m_view(sf::Vector2f(WIDTH / 2, HEIGHT / 2), sf::Vector2f(WIDTH, HEIGHT)),
       m_player(), m_playerBounds(),
       m_shroomMan(), m_shroomBounds(),
@@ -32,25 +33,27 @@ Engine::Engine()
     m_window.setMouseCursorVisible(false);
     m_window.setFramerateLimit(60); // original game was 60fps
     m_window.setVerticalSyncEnabled(false);
-    // place the window in the center of the screen
+
+    // place the window in the center of the desktop
     m_window.setPosition(sf::Vector2i(
         (sf::VideoMode::getDesktopMode().width / 2) - (m_window.getSize().x / 2),
         (sf::VideoMode::getDesktopMode().height / 2) - (m_window.getSize().y / 2)));
 
-    // view centered so that 0,0 is still top left.
     m_window.setView(m_view);
 
     // load the sprite texture, and save it's size.
-    // m_startSprite.setTexture(TextureManager::GetTexture("graphics/startup-screen-background.png"));
-    // const auto& sceneRect = m_startSprite.getLocalBounds();
+    m_startSprite.setTexture(TextureManager::GetTexture("graphics/startup-screen-background.png"));
+    m_startSprite.setScale(0.4, 0.5);
 
+    // Calculate the player area (bottom 4 rows)
     m_playerBounds.left = 0.0;
     m_playerBounds.top = m_view.getSize().y - GRID_SIZE * 4;
     m_playerBounds.width = m_view.getSize().x;
     m_playerBounds.height = GRID_SIZE * 4;
 
+    // Mushroom area is 30x30, leaving the top and bottom rows free
     m_shroomBounds.left = 0.0;
-    m_shroomBounds.top = GRID_SIZE; // One row reserved for score
+    m_shroomBounds.top = GRID_SIZE;
     m_shroomBounds.width = m_view.getSize().x;
     m_shroomBounds.height = m_view.getSize().y - 2 * GRID_SIZE;
 }
@@ -60,6 +63,9 @@ Engine::Engine()
  * Calls the input-update-draw methods until the window is closed.
  */
 void Engine::run() {
+    if (!sf::Shader::isAvailable()) {
+        throw std::runtime_error("Shaders are not available");
+    }
     // reset the clock for first run
     m_clock.restart();
     while (m_window.isOpen()) {
@@ -184,14 +190,12 @@ void Engine::draw() {
     // draw all the objects during game-play
     if (state == State::PLAYING) {
 
-        auto test = sf::RectangleShape(m_shroomBounds.getSize());
-        test.setPosition(m_shroomBounds.getPosition());
-        m_window.draw(test);
+        // auto test = sf::RectangleShape(m_shroomBounds.getSize());
+        // test.setPosition(m_shroomBounds.getPosition());
+        // m_window.draw(test);
 
         // draw mushrooms
-        for (const auto& shroom : m_shroomMan.m_shrooms) {
-            m_window.draw(shroom);
-        }
+        m_shroomMan.drawAll(m_window);
 
         // draw lasers
         for (const auto& laser : m_lasers) {

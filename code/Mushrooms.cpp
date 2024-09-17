@@ -17,6 +17,10 @@ It creates a collection of mushrooms, and handles their state throughout the gam
 MushroomManager::MushroomManager() : m_shrooms(), m_rng(std::random_device{}()) {
     // Reserve space for 30 sprites to avoid reallocations
     m_shrooms.reserve(30);
+    // m_shroomShader.loadFromFile("shaders/mushroom.frag", sf::Shader::Fragment);
+    // m_shroomShader.setUniform("sheet", TextureManager::GetTexture("graphics/sprite_sheet.png"));
+    // m_shroomShader.setUniform("rect1", sf::Glsl::Vec4(104,107,8,8));
+    // m_shroomShader.setUniform("rect2", sf::Glsl::Vec4(104,123,8,8));
 }
 
 /**
@@ -31,18 +35,30 @@ void MushroomManager::spawn(sf::FloatRect bounds) {
     m_bounds.height = bounds.height;
 
     // Every sprite will use the same texture
-    const auto& tex = TextureManager::GetTexture("graphics/mushroom.png");
-    const auto& texSize = tex.getSize();
+    const auto& tex = TextureManager::GetTexture("graphics/sprite_sheet.png");
+    const sf::IntRect texOffset(104, 123, 8, 8);    // where the mushroom is
+    const auto& texSize = texOffset.getSize();
 
-    // Need a random distribution for x and y axis
-    std::uniform_int_distribution<int> random_x(m_bounds.left, m_bounds.left + m_bounds.width);
-    std::uniform_int_distribution<int> random_y(m_bounds.top, m_bounds.top + m_bounds.height);
+    // Need a random distribution in the 30x30 grid
+    std::uniform_int_distribution<int> random_x(0, 29);
+    std::uniform_int_distribution<int> random_y(0, 29);
 
     // Create 30 mushroom sprites with the same texture and random location
     for (int i = 0; i < 30; ++i) {
-        sf::Sprite sprite(tex);
-        sprite.setOrigin(texSize.x / 2.f, texSize.y / 2.f);
-        sprite.setPosition(random_x(m_rng), random_y(m_rng));
+        // Create a new sprite using the mushroom texture offset.
+        sf::Sprite sprite(tex, texOffset);
+        // location is random, but aligned to 8x8 grid
+        const float xPos = m_bounds.left + texSize.x * random_x(m_rng);
+        const float yPos = m_bounds.top + texSize.y * random_y(m_rng);
+        sprite.setPosition(xPos,yPos);
         m_shrooms.push_back(sprite);
     }
+}
+
+void MushroomManager::drawAll(sf::RenderWindow &window){
+    for (const auto & shroom : m_shrooms)
+    {
+        window.draw(shroom);
+    }
+
 }

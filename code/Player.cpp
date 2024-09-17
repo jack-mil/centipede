@@ -4,16 +4,16 @@
 #include "TextureManager.hpp"
 
 /**
- * Constructor initializes the sprites and other members,
- * and sets the origin to the center
+ * Constructor initializes the sprite
+ * and other members and sets the origin to the center.
  */
-Player::Player() : m_sprite(), m_bounds(), m_size(), m_pos() {
-    // load the texture from the texture manager
-    m_sprite.setTexture(TextureManager::GetTexture("graphics/starship.png"));
-    // get and save the size of the player sprite
-    m_size = m_sprite.getLocalBounds();
+Player::Player()
+    : m_sprite(TextureManager::GetTexture("graphics/sprite_sheet.png"), sf::IntRect(12, 171, 7, 8)),
+      m_bounds(), m_size(), m_pos() {
+
     // use the sprite size to center the origin
-    m_sprite.setOrigin(m_size.width / 2.f, m_size.height / 2.f);
+    const auto& size = m_sprite.getLocalBounds();
+    m_sprite.setOrigin(size.width / 2.f, size.height / 2.f);
 }
 
 /**
@@ -22,14 +22,18 @@ Player::Player() : m_sprite(), m_bounds(), m_size(), m_pos() {
  * @param playerArea Rectangle that the starship can move in.
  */
 void Player::spawn(const sf::FloatRect& playerArea) {
-    m_pos.x = playerArea.left + (playerArea.width / 2);
-    m_pos.y = playerArea.top + (playerArea.height / 2);
 
-    m_bounds.left = playerArea.left + m_size.width / 2.f;
-    m_bounds.top = playerArea.top + m_size.height / 2.f;
+    m_pos.x = playerArea.left + (playerArea.width / 2); // center
+    m_pos.y = playerArea.top + playerArea.height;       // bottom row
 
-    m_bounds.width = playerArea.width - m_size.width;
-    m_bounds.height = playerArea.height - m_size.height;
+    m_sprite.setPosition(m_pos);
+
+    const auto& size = m_sprite.getLocalBounds();
+    m_bounds.left = playerArea.left + size.width / 2.f;
+    m_bounds.top = playerArea.top + size.height / 2.f;
+
+    m_bounds.width = playerArea.width - size.width;
+    m_bounds.height = playerArea.height - size.height;
 }
 
 /** Set movement flags based on current keyboard input */

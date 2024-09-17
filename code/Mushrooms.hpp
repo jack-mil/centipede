@@ -18,7 +18,7 @@ The MushroomManager class declaration.
  */
 class MushroomManager {
 private:
-    // sf::Texture& m_tex;
+    // sf::Shader m_shroomShader;
     /** Area where mushroom can be placed */
     sf::FloatRect m_bounds;
     /** Mersenne twister random number engine */
@@ -27,9 +27,11 @@ private:
 public:
     /** Construct a empty Mushroom Manager object (no shrooms) */
     MushroomManager();
+    /** Collection of mushroom sprites that this class manages */
+    std::vector<sf::Sprite> m_shrooms;
     /** Create the mushroom sprites and randomly distribute
      *  around the game area */
     void spawn(sf::FloatRect bounds);
-    /** Collection of mushroom sprites that this class manages */
-    std::vector<sf::Sprite> m_shrooms;
+
+    void drawAll(sf::RenderWindow& window);
 };

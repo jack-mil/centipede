@@ -11,13 +11,15 @@
  */
 class TextureManager {
 private:
-    /** Mapping of filenames to Texture objects */
-    std::unordered_map<std::string, sf::Texture> m_texCache;
-
     /** Pointer of the same type as the class itself
      *  the one and only instance.
      * */
     static TextureManager *m_s_Instance;
+
+    /** Mapping of filenames to Texture objects */
+    std::unordered_map<std::string, sf::Texture> m_texCache;
+
+    // const sf::Image m_spriteSheet;
 
 public:
     /**
@@ -33,4 +35,5 @@ public:
      * @return sf::Texture&
      */
     static const sf::Texture& GetTexture(std::string const& filename);
+    
 };
