@@ -8,7 +8,7 @@
  * and other members and sets the origin to the center.
  */
 Player::Player()
-    : m_sprite(TextureManager::GetTexture("graphics/sprite_sheet.png"), sf::IntRect(12, 171, 7, 8)),
+    : m_sprite(TextureManager::GetTexture("graphics/sprites.png"), sf::IntRect(12, 171, 7, 8)),
       m_bounds(), m_size(), m_pos() {
 
     // use the sprite size to center the origin

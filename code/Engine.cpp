@@ -6,27 +6,24 @@ Last Date Modified: 2024-09-16
 Description:
 Defines the main game Engine and game loop logic.
 */
-#include "Engine.hpp"
 #include <iostream>
 
-// Window size constants
-// Strange size to match given splash image
-// This is the original Atari game size
-#define WIDTH 240
-#define HEIGHT 256  // 8 px on the top and bottom are reserved
-#define GRID_SIZE 8 // play area is split into a 30x30 grid of 8x8 pixels
+#include "Engine.hpp"
+#include "Settings.hpp"
 
-#define BOTTOM_HEIGHT HEIGHT / 5.f
-
-/** Default constructor sets up members and creates the game window */
+/**
+ * Construct a new Engine:: Engine object
+ *
+ * Initializer list handles creating member objects.
+ * Body sets window and view settings
+ */
 Engine::Engine()
     : texMan(),
-      m_window(sf::VideoMode(WIDTH * 3.5, HEIGHT * 3.5), "Centipede", sf::Style::Close),
-      // view centered so that 0,0 is still top left.
-      m_view(sf::Vector2f(WIDTH / 2, HEIGHT / 2), sf::Vector2f(WIDTH, HEIGHT)),
+      m_window(Game::WindowMode, Game::Name, sf::Style::Close),
+      m_view(Game::GameCenter, Game::GameSize),
       m_player(), m_playerBounds(),
       m_shroomMan(), m_shroomBounds(),
-      m_lasers(), m_startSprite(),
+      m_lasers(), m_startSprite(TextureManager::GetTexture("graphics/startup-screen-background.png")),
       m_clock(), m_totalGameTime(sf::Time::Zero), m_lastFired(sf::Time::Zero) {
 
     // set some OS window options
@@ -41,21 +38,20 @@ Engine::Engine()
 
     m_window.setView(m_view);
 
-    // load the sprite texture, and save it's size.
-    m_startSprite.setTexture(TextureManager::GetTexture("graphics/startup-screen-background.png"));
+    // grossly scale the image for now (TODO: need different splash screen)
     m_startSprite.setScale(0.4, 0.5);
 
     // Calculate the player area (bottom 4 rows)
     m_playerBounds.left = 0.0;
-    m_playerBounds.top = m_view.getSize().y - GRID_SIZE * 4;
+    m_playerBounds.top = m_view.getSize().y - Game::GridSize * 4;
     m_playerBounds.width = m_view.getSize().x;
-    m_playerBounds.height = GRID_SIZE * 4;
+    m_playerBounds.height = Game::GridSize * 4;
 
     // Mushroom area is 30x30, leaving the top and bottom rows free
     m_shroomBounds.left = 0.0;
-    m_shroomBounds.top = GRID_SIZE;
+    m_shroomBounds.top = Game::GridSize;
     m_shroomBounds.width = m_view.getSize().x;
-    m_shroomBounds.height = m_view.getSize().y - 2 * GRID_SIZE;
+    m_shroomBounds.height = m_view.getSize().y - 2 * Game::GridSize;
 }
 
 /** Main entry-point into the game loop.
@@ -117,12 +113,12 @@ void Engine::input() {
         if (event.type == sf::Event::KeyPressed) {
 
             // Start game from "menu" with "ENTER"
-            if ((event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space) && state == State::START) {
+            if ((event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space) && state == State::Start) {
                 // Position the player in bounds
                 m_shroomMan.spawn(m_shroomBounds);
                 m_player.spawn(m_playerBounds);
 
-                state = State::PLAYING;
+                state = State::Playing;
                 std::cout << "Started" << std::endl;
                 m_clock.restart(); // restart clock to prevent frame skip
             }
@@ -136,7 +132,7 @@ void Engine::input() {
     } // end event polling
 
     // Keyboard polling for smooth player movement
-    if (state == State::PLAYING) {
+    if (state == State::Playing) {
 
         // Handle player movement with WASD keys
         m_player.handleInput();
@@ -162,7 +158,7 @@ void Engine::input() {
  * @param dtSeconds time since last frame
  */
 void Engine::update(const float dtSeconds) {
-    if (state == State::PLAYING) {
+    if (state == State::Playing) {
 
         for (auto& laser : m_lasers) {
             if (laser.active) {
@@ -183,12 +179,12 @@ void Engine::draw() {
     m_window.clear(Engine::WorldColor);
 
     // draw the start screen at beginning
-    if (state == State::START) {
+    if (state == State::Start) {
         m_window.draw(m_startSprite);
     }
 
     // draw all the objects during game-play
-    if (state == State::PLAYING) {
+    if (state == State::Playing) {
 
         // auto test = sf::RectangleShape(m_shroomBounds.getSize());
         // test.setPosition(m_shroomBounds.getPosition());

@@ -15,10 +15,13 @@ Declare the Game Engine. Engine::run() is the main entrypoint into the game.
 #include "Player.hpp"
 #include "TextureManager.hpp"
 
+/**
+ * Used to control the game loop state-machine
+ */
 enum class State {
-    START,
-    PLAYING,
-    GAME_OVER
+    Start,
+    Playing,
+    GameOver
 };
 /**
  * The Engine is responsible for:
@@ -30,10 +33,10 @@ enum class State {
  */
 class Engine {
 
+private:
     /** Color for the game world background */
     static inline const sf::Color WorldColor = sf::Color::Black;
 
-private:
     /** A cache for all textures used on game sprites.
      * default constructor sets up a static pointer to the only instance.
      */
@@ -66,7 +69,7 @@ private:
     sf::Sprite m_startSprite;
 
     /** Game state machine */
-    State state = State::START;
+    State state = State::Start;
 
     /** Main game clock */
     sf::Clock m_clock;

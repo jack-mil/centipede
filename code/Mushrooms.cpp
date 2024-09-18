@@ -8,6 +8,7 @@ The MushroomManager class definition.
 It creates a collection of mushrooms, and handles their state throughout the game.
 */
 #include "Mushrooms.hpp"
+#include "Settings.hpp"
 #include "TextureManager.hpp"
 
 /**
@@ -35,8 +36,8 @@ void MushroomManager::spawn(sf::FloatRect bounds) {
     m_bounds.height = bounds.height;
 
     // Every sprite will use the same texture
-    const auto& tex = TextureManager::GetTexture("graphics/sprite_sheet.png");
-    const sf::IntRect texOffset(104, 123, 8, 8);    // where the mushroom is
+    const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
+    const sf::IntRect texOffset(104, 107, 8, 8); // where the mushroom is
     const auto& texSize = texOffset.getSize();
 
     // Need a random distribution in the 30x30 grid
@@ -48,17 +49,15 @@ void MushroomManager::spawn(sf::FloatRect bounds) {
         // Create a new sprite using the mushroom texture offset.
         sf::Sprite sprite(tex, texOffset);
         // location is random, but aligned to 8x8 grid
-        const float xPos = m_bounds.left + texSize.x * random_x(m_rng);
-        const float yPos = m_bounds.top + texSize.y * random_y(m_rng);
-        sprite.setPosition(xPos,yPos);
+        const float xPos = m_bounds.left + Game::GridSize * random_x(m_rng);
+        const float yPos = m_bounds.top + Game::GridSize * random_y(m_rng);
+        sprite.setPosition(xPos, yPos);
         m_shrooms.push_back(sprite);
     }
 }
 
-void MushroomManager::drawAll(sf::RenderWindow &window){
-    for (const auto & shroom : m_shrooms)
-    {
+void MushroomManager::drawAll(sf::RenderWindow& window) {
+    for (const auto& shroom : m_shrooms) {
         window.draw(shroom);
     }
-
 }
