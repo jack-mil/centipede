@@ -10,9 +10,10 @@ Player character declaration.
 #include <SFML/Graphics.hpp>
 
 class Player {
+
 private:
     /** Player movement speed in pixels/second */
-    static inline const float Speed = 600;
+    static inline const float Speed = 400;
 
     /** Up movement key is pressed */
     bool m_movingUp = false;

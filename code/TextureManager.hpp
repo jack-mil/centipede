@@ -10,7 +10,7 @@
  * Modified from Chapter 18 code.
  */
 class TextureManager {
-private:
+  private:
     /** Pointer of the same type as the class itself
      *  the one and only instance.
      * */
@@ -21,7 +21,7 @@ private:
 
     // const sf::Image m_spriteSheet;
 
-public:
+  public:
     /**
      * Only one TextureManager should every be created.
      * Constructor stores a static class reference to the first instance.
@@ -35,5 +35,4 @@ public:
      * @return sf::Texture&
      */
     static const sf::Texture& GetTexture(std::string const& filename);
-    
 };

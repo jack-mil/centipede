@@ -16,8 +16,7 @@ Multiple Centipedes may be present in the game area with different segment lengt
 class Centipede {
   public:
     /** Enum to represent the direction the centipede is moving */
-    enum class Moving : bool { Right,
-                               Left };
+    enum class Moving { Right, Left, Down };
 
     /** Construct a new Centipede object */
     Centipede(sf::FloatRect& bounds) : Centipede{Centipede::MaxLength, bounds} {}
@@ -48,25 +47,29 @@ class Centipede {
     /** Direction the centipede is moving */
     Moving m_direction = Moving::Left;
 
-    /** Holds information about each segment of the centipede */
-    class Body {
-      public:
-        Body() = delete; // no default constructor
-        Body(sf::Sprite sprite, sf::Vector2f pos, sf::FloatRect bounds)
-            : m_sprite{sprite}, m_pos{pos}, m_bounds{bounds} {};
-        sf::Sprite m_sprite;
+    sf::FloatRect m_bounds;
 
-        void update(float deltaTime);
+    // /** Holds information about each segment of the centipede */
+    // class Body {
+    //   public:
+    //     Body() = delete; // no default constructor
+    //     Body(sf::Sprite sprite, sf::Vector2f pos, sf::FloatRect bounds)
+    //         : m_sprite{sprite}, m_pos{pos}, m_bounds{bounds} {};
 
-        Moving m_direction = Moving::Left;
-      private:
+    //     sf::Sprite m_sprite;
 
-        sf::Vector2f m_pos;
-        /** Bounding area of centipede movement (px) */
-        sf::FloatRect m_bounds;
-    };
+    //     void update(float deltaTime);
+
+    //     Moving m_direction = Moving::Left;
+
+    //     sf::Vector2f m_pos;
+
+    //   private:
+    //     /** Bounding area of centipede movement (px) */
+    //     sf::FloatRect m_bounds;
+    // };
 
     /** All of the segments that make up this centipede.
      * The first element is always the head sprite. The other's trail behind. */
-    std::vector<Body> m_segments;
+    std::vector<sf::Sprite> m_segments;
 };

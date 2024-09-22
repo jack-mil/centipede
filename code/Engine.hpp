@@ -13,6 +13,7 @@ Declare the Game Engine. Engine::run() is the main entrypoint into the game.
 #include "Laser.hpp"
 #include "Mushrooms.hpp"
 #include "Player.hpp"
+#include "Centipede.hpp"
 #include "TextureManager.hpp"
 
 /**
@@ -60,6 +61,9 @@ private:
 
     /** The area mushrooms spawn in */
     sf::FloatRect m_shroomBounds;
+
+    /** All the centipedes on the screen */
+    Centipede m_centipede;
 
     /** A pool of 30 laser objects to recycle (should be plenty) */
     std::array<Laser, 30> m_lasers;

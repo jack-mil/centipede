@@ -1,3 +1,13 @@
+/*
+Author: Jackson Miller
+Class: ECE6122 A
+Last Date Modified: 2024-09-20
+
+Description:
+Starship player character class definition.
+The player can move around a given bounds using the WASD or arrow keys.
+If a enemy collides with the player, a life is lost.
+*/
 #include <iostream>
 
 #include "Player.hpp"
@@ -53,7 +63,6 @@ void Player::update(const float deltaTime) {
     // moves `Speed` pixels every second.
     // opposite directions cancel out.
     const float distance = Player::Speed * deltaTime;
-    const auto old_pos = m_pos;
     if (m_movingUp) {
         m_pos.y -= distance;
     }

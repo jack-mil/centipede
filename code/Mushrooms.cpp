@@ -7,6 +7,8 @@ Description:
 The MushroomManager class definition.
 It creates a collection of mushrooms, and handles their state throughout the game.
 */
+#include <exception>
+
 #include "Mushrooms.hpp"
 #include "Settings.hpp"
 #include "TextureManager.hpp"
@@ -38,26 +40,55 @@ void MushroomManager::spawn(sf::FloatRect bounds) {
     // Every sprite will use the same texture
     const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
     const sf::IntRect texOffset(104, 107, 8, 8); // where the mushroom is
-    const auto& texSize = texOffset.getSize();
 
     // Need a random distribution in the 30x30 grid
     std::uniform_int_distribution<int> random_x(0, 29);
     std::uniform_int_distribution<int> random_y(0, 29);
 
     // Create 30 mushroom sprites with the same texture and random location
-    for (int i = 0; i < 30; ++i) {
+    for (size_t i = 0; i < 30; ++i) {
         // Create a new sprite using the mushroom texture offset.
-        sf::Sprite sprite(tex, texOffset);
+        Shroom shroom{tex, texOffset};
         // location is random, but aligned to 8x8 grid
         const float xPos = m_bounds.left + Game::GridSize * random_x(m_rng);
         const float yPos = m_bounds.top + Game::GridSize * random_y(m_rng);
-        sprite.setPosition(xPos, yPos);
-        m_shrooms.push_back(sprite);
+        shroom.sprite.setPosition(xPos, yPos);
+        m_shrooms.push_back(std::move(shroom));
     }
 }
 
-void MushroomManager::drawAll(sf::RenderWindow& window) {
+void MushroomManager::drawAll(sf::RenderWindow& target) {
     for (const auto& shroom : m_shrooms) {
-        window.draw(shroom);
+        if (shroom.active) {
+            target.draw(shroom.sprite);
+        }
+    }
+}
+
+/** Change this mushroom to the damage sprite*/
+void MushroomManager::damage(Shroom& shroom) {
+    if (shroom.damage == 0) {
+        return;
+    }
+    static const sf::IntRect lv1(152, 107, 8, 8);
+    static const sf::IntRect lv2(136, 107, 8, 8);
+    static const sf::IntRect lv3(120, 107, 8, 8);
+    shroom.damage--;
+    switch (shroom.damage) {
+    case 3:
+        shroom.sprite.setTextureRect(lv3);
+        break;
+    case 2:
+        shroom.sprite.setTextureRect(lv2);
+        break;
+    case 1:
+        shroom.sprite.setTextureRect(lv1);
+        break;
+    case 0:
+        shroom.active = false;
+        break;
+    default:
+        throw std::runtime_error("Exhuastive switch failure: shroom.damage=" + shroom.damage);
+        break;
     }
 }

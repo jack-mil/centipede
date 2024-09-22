@@ -23,6 +23,7 @@ Engine::Engine()
       m_view(Game::GameCenter, Game::GameSize),
       m_player(), m_playerBounds(),
       m_shroomMan(), m_shroomBounds(),
+      m_centipede{1, sf::FloatRect(0, Game::GridSize, Game::GameSize.x, Game::GameSize.y - 2 * Game::GridSize)},
       m_lasers(), m_startSprite(TextureManager::GetTexture("graphics/startup-screen-background.png")),
       m_clock(), m_totalGameTime(sf::Time::Zero), m_lastFired(sf::Time::Zero) {
 
@@ -47,9 +48,9 @@ Engine::Engine()
     m_playerBounds.width = m_view.getSize().x;
     m_playerBounds.height = Game::GridSize * 4;
 
-    // Mushroom area is 30x30, leaving the top and bottom rows free
+    // Mushroom area is 30x27, leaving the bottom and top 4 rows free
     m_shroomBounds.left = 0.0;
-    m_shroomBounds.top = Game::GridSize;
+    m_shroomBounds.top = Game::GridSize*4;
     m_shroomBounds.width = m_view.getSize().x;
     m_shroomBounds.height = m_view.getSize().y - 2 * Game::GridSize;
 }
@@ -158,7 +159,10 @@ void Engine::input() {
  * @param dtSeconds time since last frame
  */
 void Engine::update(const float dtSeconds) {
-    if (state == State::Playing) {
+    if (state != State::Playing) {
+        return;
+    }
+    m_centipede.update(dtSeconds);
 
         for (auto& laser : m_lasers) {
             if (laser.active) {
@@ -178,10 +182,10 @@ void Engine::draw() {
 
     m_window.clear(Engine::WorldColor);
 
-    // draw the start screen at beginning
-    if (state == State::Start) {
-        m_window.draw(m_startSprite);
-    }
+    // // draw the start screen at beginning
+    // if (state == State::Start) {
+    //     m_window.draw(m_startSprite);
+    // }
 
     // draw all the objects during game-play
     if (state == State::Playing) {
@@ -192,6 +196,8 @@ void Engine::draw() {
 
         // draw mushrooms
         m_shroomMan.drawAll(m_window);
+
+        m_centipede.draw(m_window);
 
         // draw lasers
         for (const auto& laser : m_lasers) {
