@@ -17,7 +17,9 @@ It creates a collection of mushrooms, and handles their state throughout the gam
  * Default constructor initializes the members but doesn't create any sprites
  * The random number generate needs to be initalized with a true random device, or a seed value.
  */
-MushroomManager::MushroomManager() : m_shrooms(), m_rng(std::random_device{}()) {
+MushroomManager::MushroomManager(sf::FloatRect bounds)
+    : m_bounds(bounds), m_shrooms(), m_rng(std::random_device{}())
+{
     // Reserve space for 30 sprites to avoid reallocations
     m_shrooms.reserve(30);
     // m_shroomShader.loadFromFile("shaders/mushroom.frag", sf::Shader::Fragment);
@@ -30,20 +32,17 @@ MushroomManager::MushroomManager() : m_shrooms(), m_rng(std::random_device{}()) 
  * Create 30 mushroom sprites randomly scattered in the given bounds.
  * @param bounds Rectangle where mushrooms should be placed
  */
-void MushroomManager::spawn(sf::FloatRect bounds) {
-    // Copy bounds to member
-    m_bounds.top = bounds.top;
-    m_bounds.left = bounds.left;
-    m_bounds.width = bounds.width;
-    m_bounds.height = bounds.height;
-
+void MushroomManager::spawn()
+{
     // Every sprite will use the same texture
     const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
     const sf::IntRect texOffset(104, 107, 8, 8); // where the mushroom is
 
     // Need a random distribution in the 30x30 grid
-    std::uniform_int_distribution<int> random_x(0, 29);
-    std::uniform_int_distribution<int> random_y(0, 29);
+    auto x_range = static_cast<int>(m_bounds.width / Game::GridSize) - 1;
+    auto y_range = static_cast<int>(m_bounds.height / Game::GridSize) - 1;
+    std::uniform_int_distribution<int> random_x(0, x_range);
+    std::uniform_int_distribution<int> random_y(0, y_range);
 
     // Create 30 mushroom sprites with the same texture and random location
     for (size_t i = 0; i < 30; ++i) {
@@ -57,7 +56,8 @@ void MushroomManager::spawn(sf::FloatRect bounds) {
     }
 }
 
-void MushroomManager::drawAll(sf::RenderWindow& target) {
+void MushroomManager::drawAll(sf::RenderWindow& target)
+{
     for (const auto& shroom : m_shrooms) {
         if (shroom.active) {
             target.draw(shroom.sprite);
@@ -66,7 +66,8 @@ void MushroomManager::drawAll(sf::RenderWindow& target) {
 }
 
 /** Change this mushroom to the damage sprite*/
-void MushroomManager::damage(Shroom& shroom) {
+void MushroomManager::damage(Shroom& shroom)
+{
     if (shroom.damage == 0) {
         return;
     }

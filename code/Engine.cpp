@@ -22,8 +22,9 @@ Engine::Engine()
       m_window(Game::WindowMode, Game::Name, sf::Style::Close),
       m_view(Game::GameCenter, Game::GameSize),
       m_player(), m_playerBounds(),
-      m_shroomMan(), m_shroomBounds(),
-      m_centipede{1, sf::FloatRect(0, Game::GridSize, Game::GameSize.x, Game::GameSize.y - 2 * Game::GridSize)},
+      m_shroomMan(Engine::ShroomArea),
+      m_centipede{1, Engine::EnemyArea},
+      m_spider{Engine::SpiderArea},
       m_lasers(), m_startSprite(TextureManager::GetTexture("graphics/startup-screen-background.png")),
       m_clock(), m_totalGameTime(sf::Time::Zero), m_lastFired(sf::Time::Zero) {
 
@@ -44,15 +45,9 @@ Engine::Engine()
 
     // Calculate the player area (bottom 4 rows)
     m_playerBounds.left = 0.0;
-    m_playerBounds.top = m_view.getSize().y - Game::GridSize * 4;
+    m_playerBounds.top = m_view.getSize().y - Game::GridSize * 5;
     m_playerBounds.width = m_view.getSize().x;
     m_playerBounds.height = Game::GridSize * 4;
-
-    // Mushroom area is 30x27, leaving the bottom and top 4 rows free
-    m_shroomBounds.left = 0.0;
-    m_shroomBounds.top = Game::GridSize*4;
-    m_shroomBounds.width = m_view.getSize().x;
-    m_shroomBounds.height = m_view.getSize().y - 2 * Game::GridSize;
 }
 
 /** Main entry-point into the game loop.
@@ -116,8 +111,9 @@ void Engine::input() {
             // Start game from "menu" with "ENTER"
             if ((event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space) && state == State::Start) {
                 // Position the player in bounds
-                m_shroomMan.spawn(m_shroomBounds);
+                m_shroomMan.spawn();
                 m_player.spawn(m_playerBounds);
+                m_spider.spawn();
 
                 state = State::Playing;
                 std::cout << "Started" << std::endl;
@@ -164,14 +160,37 @@ void Engine::update(const float dtSeconds) {
     }
     m_centipede.update(dtSeconds);
 
-        for (auto& laser : m_lasers) {
-            if (laser.active) {
-                laser.update(dtSeconds);
+    for (auto& laser : m_lasers) {
+        // skip updating and colliding with inactive lasers
+        if (!laser.active) {
+            continue;
+        }
+        laser.update(dtSeconds); // move the laser upward
+
+        for (auto& shroom : m_shroomMan.m_shrooms) {
+            if (!shroom.active) {
+                continue;
+            }
+            if (laser.m_shape.getGlobalBounds().intersects(shroom.sprite.getGlobalBounds())) {
+                m_shroomMan.damage(shroom);
+                laser.active = false;
             }
         }
-
-        m_player.update(dtSeconds);
+        // if (m_centipede.hitBy(laser.m_shape.getGlobalBounds())){
+        //     m_centipede.kill();
+        // }
     }
+    for (const auto& shroom : m_shroomMan.m_shrooms) {
+        if (!shroom.active) {
+            continue;
+        }
+        if (m_centipede.getBoundRect().intersects(shroom.sprite.getGlobalBounds())) {
+            m_centipede.changeDirection();
+        }
+    }
+
+    m_player.update(dtSeconds);
+    m_spider.update(dtSeconds);
 }
 
 /** Draw all game objects to the window.
@@ -182,17 +201,26 @@ void Engine::draw() {
 
     m_window.clear(Engine::WorldColor);
 
-    // // draw the start screen at beginning
-    // if (state == State::Start) {
-    //     m_window.draw(m_startSprite);
-    // }
+    // draw the start screen at beginning
+    if (state == State::Start) {
+        m_window.draw(m_startSprite);
+    }
 
     // draw all the objects during game-play
     if (state == State::Playing) {
 
-        // auto test = sf::RectangleShape(m_shroomBounds.getSize());
-        // test.setPosition(m_shroomBounds.getPosition());
-        // m_window.draw(test);
+        auto test = sf::RectangleShape(ShroomArea.getSize());
+        test.setFillColor(sf::Color::Transparent);
+        test.setOutlineThickness(-2);
+        test.setPosition(ShroomArea.getPosition());
+        m_window.draw(test);
+
+        auto test2 = sf::RectangleShape(SpiderArea.getSize());
+        test2.setFillColor(sf::Color::Transparent);
+        test2.setOutlineThickness(-1);
+        test2.setOutlineColor(sf::Color::Red);
+        test2.setPosition(SpiderArea.getPosition());
+        m_window.draw(test2);
 
         // draw mushrooms
         m_shroomMan.drawAll(m_window);
@@ -208,7 +236,7 @@ void Engine::draw() {
 
         // draw starship
         m_window.draw(m_player.m_sprite);
-
+        m_window.draw(m_spider.m_sprite);
         // switch to hud overlay sometime...
     }
 

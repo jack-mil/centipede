@@ -16,7 +16,7 @@ Centipede class definition.
 // }
 
 Centipede::Centipede(int length, sf::FloatRect bounds)
-    : m_length{length}, m_segments{}, m_bounds{bounds} {
+    : m_length{length}, m_bounds{bounds}, m_segments{} {
 
     // Reserve space for the max number of segments
     m_segments.reserve(Centipede::MaxLength);

@@ -13,7 +13,8 @@ Multiple Centipedes may be present in the game area with different segment lengt
 
 #include "Settings.hpp" // namespace Game
 
-class Centipede {
+class Centipede
+{
   public:
     /** Enum to represent the direction the centipede is moving */
     enum class Moving { Right, Left, Down };
@@ -44,10 +45,10 @@ class Centipede {
     /** Number of segments in the centipede */
     const int m_length;
 
+    sf::FloatRect m_bounds;
+
     /** Direction the centipede is moving */
     Moving m_direction = Moving::Left;
-
-    sf::FloatRect m_bounds;
 
     // /** Holds information about each segment of the centipede */
     // class Body {

@@ -10,10 +10,11 @@ Declare the Game Engine. Engine::run() is the main entrypoint into the game.
 #include <SFML/Graphics.hpp>
 #include <array>
 
+#include "Centipede.hpp"
 #include "Laser.hpp"
 #include "Mushrooms.hpp"
 #include "Player.hpp"
-#include "Centipede.hpp"
+#include "Spider.hpp"
 #include "TextureManager.hpp"
 
 /**
@@ -32,11 +33,19 @@ enum class State {
  *  - updating game objects,
  *  - drawing to the frame
  */
-class Engine {
+class Engine
+{
 
-private:
+  private:
     /** Color for the game world background */
     static inline const sf::Color WorldColor = sf::Color::Black;
+
+    /** The area Centipede can move in */
+    static inline const sf::FloatRect EnemyArea{0, Game::GridSize, Game::GameSize.x, Game::GameSize.y - 2 * Game::GridSize};
+    /** The area the spider can move in. */
+    static inline const sf::FloatRect SpiderArea{0, Game::GridSize*16, Game::GameSize.x, Game::GridSize*15};
+    /** The area mushrooms spawn in. */
+    static inline const sf::FloatRect ShroomArea{0, Game::GridSize*4, Game::GameSize.x, Game::GameSize.y-48};
 
     /** A cache for all textures used on game sprites.
      * default constructor sets up a static pointer to the only instance.
@@ -59,15 +68,15 @@ private:
     /** Manager for all the mushrooms in the scene */
     MushroomManager m_shroomMan;
 
-    /** The area mushrooms spawn in */
-    sf::FloatRect m_shroomBounds;
-
     /** All the centipedes on the screen */
     Centipede m_centipede;
 
+    /** The spider antagonist moves randomly and clears mushrooms */
+    Spider m_spider;
+
     /** A pool of 30 laser objects to recycle (should be plenty) */
     std::array<Laser, 30> m_lasers;
-    int m_currentLaser = 0;
+    size_t m_currentLaser = 0;
 
     /** Start/Game over screen sprite */
     sf::Sprite m_startSprite;
@@ -103,7 +112,7 @@ private:
     // void populateEmitters(vector<Vector2f> &vSoundEmitters,
     //   int **arrayLevel);
 
-public:
+  public:
     /** Construct a new Engine object */
     Engine();
     /** Create a window and run the entire game loop */

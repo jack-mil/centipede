@@ -13,7 +13,7 @@ class Player {
 
 private:
     /** Player movement speed in pixels/second */
-    static inline const float Speed = 400;
+    static constexpr float Speed = 400;
 
     /** Up movement key is pressed */
     bool m_movingUp = false;

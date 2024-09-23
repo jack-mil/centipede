@@ -37,12 +37,13 @@ class MushroomManager {
 
   public:
     /** Construct a empty Mushroom Manager object (no shrooms) */
-    MushroomManager();
+    MushroomManager() = delete;
+    MushroomManager(sf::FloatRect);
     /** Collection of mushroom sprites that this class manages */
     std::vector<Shroom> m_shrooms;
     /** Create the mushroom sprites and randomly distribute
      *  around the game area */
-    void spawn(sf::FloatRect bounds);
+    void spawn();
 
     void drawAll(sf::RenderWindow& window);
 
