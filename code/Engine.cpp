@@ -19,14 +19,15 @@ Defines the main game Engine and game loop logic.
  */
 Engine::Engine()
     : texMan(),
-      m_window(Game::WindowMode, Game::Name, sf::Style::Close),
-      m_view(Game::GameCenter, Game::GameSize),
-      m_player(), m_playerBounds(),
-      m_shroomMan(Engine::ShroomArea),
+      m_window{Game::WindowMode, Game::Name, sf::Style::Close},
+      m_view{Game::GameCenter, Game::GameSize},
+      m_player{Engine::PlayerArea},
+      m_shroomMan{Engine::ShroomArea},
       m_centipede{1, Engine::EnemyArea},
       m_spider{Engine::SpiderArea},
-      m_lasers(), m_startSprite(TextureManager::GetTexture("graphics/startup-screen-background.png")),
-      m_clock(), m_totalGameTime(sf::Time::Zero), m_lastFired(sf::Time::Zero) {
+      m_lasers(), m_startSprite{TextureManager::GetTexture("graphics/startup-screen-background.png")},
+      m_clock(), m_totalGameTime{sf::Time::Zero}, m_lastFired{sf::Time::Zero}
+{
 
     // set some OS window options
     m_window.setMouseCursorVisible(false);
@@ -43,18 +44,15 @@ Engine::Engine()
     // grossly scale the image for now (TODO: need different splash screen)
     m_startSprite.setScale(0.4, 0.5);
 
-    // Calculate the player area (bottom 4 rows)
-    m_playerBounds.left = 0.0;
-    m_playerBounds.top = m_view.getSize().y - Game::GridSize * 5;
-    m_playerBounds.width = m_view.getSize().x;
-    m_playerBounds.height = Game::GridSize * 4;
+
 }
 
 /** Main entry-point into the game loop.
  *
  * Calls the input-update-draw methods until the window is closed.
  */
-void Engine::run() {
+void Engine::run()
+{
     if (!sf::Shader::isAvailable()) {
         throw std::runtime_error("Shaders are not available");
     }
@@ -75,7 +73,8 @@ void Engine::run() {
  * player movement input (from Player::handleInput()),
  * as well as shooting lasers with <SPACE>.
  */
-void Engine::input() {
+void Engine::input()
+{
     // handle event polling for some inputs (start/end, etc)
     sf::Event event;
     while (m_window.pollEvent(event)) {
@@ -112,7 +111,7 @@ void Engine::input() {
             if ((event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space) && state == State::Start) {
                 // Position the player in bounds
                 m_shroomMan.spawn();
-                m_player.spawn(m_playerBounds);
+                m_player.spawn();
                 m_spider.spawn();
 
                 state = State::Playing;
@@ -154,32 +153,44 @@ void Engine::input() {
  *
  * @param dtSeconds time since last frame
  */
-void Engine::update(const float dtSeconds) {
+void Engine::update(const float dtSeconds)
+{
+    // only update during the actual game
     if (state != State::Playing) {
         return;
     }
+
     m_centipede.update(dtSeconds);
+    m_spider.update(dtSeconds);
+    m_player.update(dtSeconds);
 
     for (auto& laser : m_lasers) {
-        // skip updating and colliding with inactive lasers
+        // skip updating or colliding with inactive lasers
         if (!laser.active) {
             continue;
         }
+
         laser.update(dtSeconds); // move the laser upward
 
-        for (auto& shroom : m_shroomMan.m_shrooms) {
-            if (!shroom.active) {
-                continue;
-            }
-            if (laser.m_shape.getGlobalBounds().intersects(shroom.sprite.getGlobalBounds())) {
-                m_shroomMan.damage(shroom);
-                laser.active = false;
-            }
+        if (m_spider.checkLaserCollision(laser.m_shape.getGlobalBounds())) {
+            laser.active = false;
+            continue;
         }
+
+        if (m_shroomMan.checkLaserCollision(laser.m_shape.getGlobalBounds())) {
+            laser.active = false;
+            continue;
+        }
+
         // if (m_centipede.hitBy(laser.m_shape.getGlobalBounds())){
         //     m_centipede.kill();
         // }
     }
+
+    m_shroomMan.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
+
+    m_player.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
+
     for (const auto& shroom : m_shroomMan.m_shrooms) {
         if (!shroom.active) {
             continue;
@@ -188,26 +199,23 @@ void Engine::update(const float dtSeconds) {
             m_centipede.changeDirection();
         }
     }
-
-    m_player.update(dtSeconds);
-    m_spider.update(dtSeconds);
 }
 
 /** Draw all game objects to the window.
  *
  * Implements the double buffering sequence of clear-draw-display from SFML.
  */
-void Engine::draw() {
+void Engine::draw()
+{
 
     m_window.clear(Engine::WorldColor);
 
-    // draw the start screen at beginning
     if (state == State::Start) {
+        // draw the start screen at beginning
         m_window.draw(m_startSprite);
-    }
 
-    // draw all the objects during game-play
-    if (state == State::Playing) {
+    } else if (state == State::Playing) {
+        // draw all the objects during game-play
 
         auto test = sf::RectangleShape(ShroomArea.getSize());
         test.setFillColor(sf::Color::Transparent);
@@ -221,6 +229,13 @@ void Engine::draw() {
         test2.setOutlineColor(sf::Color::Red);
         test2.setPosition(SpiderArea.getPosition());
         m_window.draw(test2);
+
+        auto test3 = sf::RectangleShape(PlayerArea.getSize());
+        test3.setPosition(PlayerArea.getPosition());
+        test3.setFillColor(sf::Color::Transparent);
+        test3.setOutlineThickness(-0.5);
+        test3.setOutlineColor(sf::Color::Green);
+        m_window.draw(test3);
 
         // draw mushrooms
         m_shroomMan.drawAll(m_window);
@@ -236,7 +251,8 @@ void Engine::draw() {
 
         // draw starship
         m_window.draw(m_player.m_sprite);
-        m_window.draw(m_spider.m_sprite);
+        // draw spider
+        m_spider.draw(m_window);
         // switch to hud overlay sometime...
     }
 

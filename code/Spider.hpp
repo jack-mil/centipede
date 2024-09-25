@@ -8,8 +8,8 @@ Description:
 */
 
 #pragma once
-#include <random>
 #include <SFML/Graphics.hpp>
+#include <random>
 
 class Spider
 {
@@ -27,23 +27,39 @@ class Spider
 
     void spawn();
 
-    void update(const float deltaTime);
+    void die();
+
+    void update(float deltaTime);
+
+    void draw(sf::RenderTarget& target);
+
+    bool checkLaserCollision(sf::FloatRect collider);
 
     sf::Sprite m_sprite;
 
     /** States for the movement state-machine */
-    enum class Moving { Up, Down, UpRight, UpLeft, DownLeft, DownRight };
+    enum class Moving { Up,
+                        Down,
+                        UpRight,
+                        UpLeft,
+                        DownLeft,
+                        DownRight };
 
   private:
-    static std::normal_distribution<double> MoveTimeDistibution;
+    // static std::normal_distribution<double> MoveTimeDistibution;
 
     /** Current direction of movement */
     Moving m_direction;
     double m_moveTimer = 0;
-    double m_moveDuration;
+    double m_respawnTimer = 0;
+    /** Seconds between changing direction */
+    const double m_moveDuration = 0.5;
+    /** Seconds to wait before respawning */
+    const double m_respawnDuration = 5;
     bool m_canMoveLeft = false;
+    bool m_hitByLaser = false;
+    bool m_alive = true;
     sf::FloatRect m_bounds;
 
     std::mt19937 m_rng;
-
 };

@@ -42,10 +42,12 @@ class Engine
 
     /** The area Centipede can move in */
     static inline const sf::FloatRect EnemyArea{0, Game::GridSize, Game::GameSize.x, Game::GameSize.y - 2 * Game::GridSize};
-    /** The area the spider can move in. */
+    /** The area the spider can move in */
     static inline const sf::FloatRect SpiderArea{0, Game::GridSize*16, Game::GameSize.x, Game::GridSize*15};
-    /** The area mushrooms spawn in. */
+    /** The area mushrooms spawn in */
     static inline const sf::FloatRect ShroomArea{0, Game::GridSize*4, Game::GameSize.x, Game::GameSize.y-48};
+    /** The area player can move in (bottom 4 rows) */
+    static inline const sf::FloatRect PlayerArea{0, Game::GameSize.y - Game::GridSize * 5, Game::GameSize.x, Game::GridSize * 4};
 
     /** A cache for all textures used on game sprites.
      * default constructor sets up a static pointer to the only instance.
@@ -61,9 +63,6 @@ class Engine
 
     /** The player-controlled starship */
     Player m_player;
-
-    /** The area the player can move in */
-    sf::FloatRect m_playerBounds;
 
     /** Manager for all the mushrooms in the scene */
     MushroomManager m_shroomMan;

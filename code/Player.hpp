@@ -30,20 +30,31 @@ private:
     /** The size of player sprite */
     sf::FloatRect m_size;
 
+    int m_lives =  3;
+
 public:
     /** The position of the player */
     sf::Vector2f m_pos;
     /** Starship player to draw */
     sf::Sprite m_sprite;
     /** Construct a new Player object */
-    Player();
+    Player() = delete;
+    Player(sf::FloatRect bounds);
 
     /** Start the player in the middle of defined player area */
-    void spawn(const sf::FloatRect& playerArea);
+    void spawn();
 
     /** Do player movement */
     void handleInput();
 
     /** Update player sprite position based on elapsed seconds */
-    void update(const float deltaTime);
+    void update(float deltaTime);
+
+    /**
+     * Check for collisions with spider and decrement life counter
+     * @param spider Collider of the spider
+     * @return true if hit by spider
+     * @return false otherwise
+     */
+    bool checkSpiderCollision(sf::FloatRect spider);
 };

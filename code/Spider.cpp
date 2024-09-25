@@ -12,7 +12,7 @@ Description:
 #include "Spider.hpp"
 #include "TextureManager.hpp"
 
-std::normal_distribution<double> Spider::MoveTimeDistibution{Spider::AverageMoveDuration, 1};
+// std::normal_distribution<double> Spider::MoveTimeDistibution{Spider::AverageMoveDuration, 1};
 
 Spider::Spider(sf::FloatRect bounds)
     : m_sprite{TextureManager::GetTexture("graphics/sprites.png"), sf::IntRect{8, 75, 15, 8}},
@@ -33,12 +33,28 @@ void Spider::spawn()
     // start on the top left of it's bounds.
     m_sprite.setPosition(m_bounds.left, m_bounds.top);
     m_direction = Moving::UpRight;
+    m_alive = true;
     // m_moveDuration = MoveTimeDistibution(m_rng);
-    m_moveDuration = 0.5;
+}
+
+void Spider::die()
+{
+    // show animation? increment score? reset position?
+    m_alive = false;
 }
 
 void Spider::update(float deltaTime)
 {
+    // if currently inactive, increment timer and don't move around
+    if (!m_alive) {
+        m_respawnTimer += deltaTime;
+        if (m_respawnTimer >= m_respawnDuration) {
+            this->spawn();
+            m_respawnTimer = 0;
+        }
+        return;
+    }
+
     float distance = Spider::Speed * deltaTime;
     switch (m_direction) {
     case Moving::Up:
@@ -120,4 +136,22 @@ void Spider::update(float deltaTime)
             break;
         }
     }
+}
+
+void Spider::draw(sf::RenderTarget& target)
+{
+    if (m_alive) {
+        target.draw(m_sprite);
+    }
+}
+
+/** Check if a laser hit this spider, and 'kill' it */
+bool Spider::checkLaserCollision(sf::FloatRect other)
+{
+    // only living spiders can be hit
+    bool wasHit = m_alive && m_sprite.getGlobalBounds().intersects(other);
+    if (wasHit) {
+        this->die();
+    }
+    return wasHit;
 }

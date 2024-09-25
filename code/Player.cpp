@@ -17,13 +17,20 @@ If a enemy collides with the player, a life is lost.
  * Constructor initializes the sprite
  * and other members and sets the origin to the center.
  */
-Player::Player()
-    : m_sprite(TextureManager::GetTexture("graphics/sprites.png"), sf::IntRect(12, 171, 7, 8)),
-      m_bounds(), m_size(), m_pos() {
+Player::Player(sf::FloatRect bounds)
+    : m_sprite{TextureManager::GetTexture("graphics/sprites.png"), sf::IntRect(12, 171, 7, 8)}
+{
 
     // use the sprite size to center the origin
     const auto& size = m_sprite.getLocalBounds();
     m_sprite.setOrigin(size.width / 2.f, size.height / 2.f);
+
+    bounds.left += size.width / 2.f;
+    bounds.top += +size.height / 2.f;
+
+    bounds.width -= size.width;
+    bounds.height -= size.height;
+    m_bounds = bounds;
 }
 
 /**
@@ -31,23 +38,18 @@ Player::Player()
  * and setup bounds that account for the sprite size.
  * @param playerArea Rectangle that the starship can move in.
  */
-void Player::spawn(const sf::FloatRect& playerArea) {
+void Player::spawn()
+{
 
-    m_pos.x = playerArea.left + (playerArea.width / 2); // center
-    m_pos.y = playerArea.top + playerArea.height;       // bottom row
+    m_pos.x = m_bounds.left + (m_bounds.width / 2); // center
+    m_pos.y = m_bounds.top + m_bounds.height;       // bottom row
 
     m_sprite.setPosition(m_pos);
-
-    const auto& size = m_sprite.getLocalBounds();
-    m_bounds.left = playerArea.left + size.width / 2.f;
-    m_bounds.top = playerArea.top + size.height / 2.f;
-
-    m_bounds.width = playerArea.width - size.width;
-    m_bounds.height = playerArea.height - size.height;
 }
 
 /** Set movement flags based on current keyboard input */
-void Player::handleInput() {
+void Player::handleInput()
+{
     m_movingUp = sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
     m_movingDown = sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
     m_movingLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
@@ -59,7 +61,8 @@ void Player::handleInput() {
  * Prevent going out of bounds.
  * @param deltaTime time in seconds since last update
  */
-void Player::update(const float deltaTime) {
+void Player::update(const float deltaTime)
+{
     // moves `Speed` pixels every second.
     // opposite directions cancel out.
     const float distance = Player::Speed * deltaTime;
@@ -91,4 +94,15 @@ void Player::update(const float deltaTime) {
     m_pos.y = saturate(m_pos.y, m_bounds.top, m_bounds.height + m_bounds.top);
 
     m_sprite.setPosition(m_pos);
+}
+
+/** Detect if hit by the spider and lose a life */
+bool Player::checkSpiderCollision(sf::FloatRect spider)
+{
+    if (m_sprite.getGlobalBounds().intersects(spider)) {
+        m_lives--;
+        this->spawn();
+        return true;
+    };
+    return false;
 }

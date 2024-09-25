@@ -68,14 +68,14 @@ void MushroomManager::drawAll(sf::RenderWindow& target)
 /** Change this mushroom to the damage sprite*/
 void MushroomManager::damage(Shroom& shroom)
 {
-    if (shroom.damage == 0) {
+    if (shroom.health == 0) {
         return;
     }
     static const sf::IntRect lv1(152, 107, 8, 8);
     static const sf::IntRect lv2(136, 107, 8, 8);
     static const sf::IntRect lv3(120, 107, 8, 8);
-    shroom.damage--;
-    switch (shroom.damage) {
+    shroom.health--;
+    switch (shroom.health) {
     case 3:
         shroom.sprite.setTextureRect(lv3);
         break;
@@ -89,7 +89,31 @@ void MushroomManager::damage(Shroom& shroom)
         shroom.active = false;
         break;
     default:
-        throw std::runtime_error("Exhuastive switch failure: shroom.damage=" + shroom.damage);
+        throw std::runtime_error("Exhuastive switch failure: shroom.health=" + shroom.health);
         break;
     }
+}
+
+/** Check all mushrooms to see if the spider is colliding */
+bool MushroomManager::checkSpiderCollision(sf::FloatRect spider)
+{
+    for (auto& shroom : m_shrooms) {
+        if (shroom.active && spider.intersects(shroom.sprite.getGlobalBounds())) {
+            shroom.active = false;
+            return true;
+        }
+    }
+    return false;
+}
+
+/** Damage any mushroom hit by a laser beam */
+bool MushroomManager::checkLaserCollision(sf::FloatRect laser)
+{
+    for (auto& shroom : m_shrooms) {
+        if (shroom.active && laser.intersects(shroom.sprite.getGlobalBounds())) {
+            MushroomManager::damage(shroom);
+            return true;
+        }
+    }
+    return false;
 }
