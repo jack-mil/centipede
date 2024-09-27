@@ -18,15 +18,17 @@ If a enemy collides with the player, a life is lost.
  * and other members and sets the origin to the center.
  */
 Player::Player(sf::FloatRect bounds)
-    : m_sprite{TextureManager::GetTexture("graphics/sprites.png"), sf::IntRect(12, 171, 7, 8)}
+    : m_lives{Player::StartingLives},
+      m_sprite{TextureManager::GetTexture("graphics/sprites.png"), sf::IntRect(12, 171, 7, 8)}
 {
 
     // use the sprite size to center the origin
     const auto& size = m_sprite.getLocalBounds();
     m_sprite.setOrigin(size.width / 2.f, size.height / 2.f);
 
+    // adjust the bounds to account for offset sprite center
     bounds.left += size.width / 2.f;
-    bounds.top += +size.height / 2.f;
+    bounds.top += size.height / 2.f;
 
     bounds.width -= size.width;
     bounds.height -= size.height;
@@ -40,7 +42,12 @@ Player::Player(sf::FloatRect bounds)
  */
 void Player::spawn()
 {
+    m_lives = Player::StartingLives;
+    this->reset();
+}
 
+void Player::reset()
+{
     m_pos.x = m_bounds.left + (m_bounds.width / 2); // center
     m_pos.y = m_bounds.top + m_bounds.height;       // bottom row
 
@@ -101,8 +108,29 @@ bool Player::checkSpiderCollision(sf::FloatRect spider)
 {
     if (m_sprite.getGlobalBounds().intersects(spider)) {
         m_lives--;
-        this->spawn();
+        this->reset();
         return true;
     };
     return false;
+}
+
+bool Player::checkMushroomCollision(sf::FloatRect shroom)
+{
+    if (m_sprite.getGlobalBounds().intersects(shroom)) {
+        m_colliding = true;
+    } else {
+        m_colliding = false;
+    }
+    return m_colliding;
+}
+
+bool Player::isDead() const
+{
+    return m_lives <= 0;
+}
+
+/** Calculate the offset from center origin that the top of the laster should start from. */
+sf::Vector2f Player::getGunPosition() const
+{
+    return m_sprite.getPosition() + sf::Vector2f(0.0, m_sprite.getLocalBounds().height / 2.f);
 }

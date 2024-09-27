@@ -20,7 +20,7 @@ private:
     // Static properties common to all lasers
 
     /** Laser speed in px/second*/
-    static inline const float Speed = 1000;
+    static constexpr float Speed = 7 * 60;
     /** Color of all lasers (Red) */
     static inline const sf::Color Color = sf::Color::Red;
     /** Size of all lasers (px) */

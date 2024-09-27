@@ -28,12 +28,12 @@ Centipede::Centipede(int length, sf::FloatRect bounds)
     const auto& size = headOffset.getSize();      // 8x8 px
 
     // adjust bounds for the sprite size
-    // m_bounds.left += size.x / 2.f;
-    // m_bounds.top += size.y / 2.f;
+    m_bounds.left += size.x / 2.f;
+    m_bounds.top += size.y / 2.f;
     m_bounds.width -= size.x;
     m_bounds.height -= size.y;
     // set starting position of the head
-    sf::Vector2f startPos{m_bounds.left + (m_bounds.width / 2.f), m_bounds.top + size.y / 2.f};
+    sf::Vector2f startPos{m_bounds.left + (m_bounds.width / 2.f), m_bounds.top};
     // fill the segment vector
     for (size_t i = 0; i < Centipede::MaxLength; i++) {
         // create a new sprite for this segment
@@ -52,7 +52,7 @@ Centipede::Centipede(int length, sf::FloatRect bounds)
 /** Move the segment positions */
 void Centipede::update(float deltaTime) {
 
-    const auto distance = Centipede::Speed * deltaTime;
+    const auto displacement = Centipede::Speed * deltaTime;
 
     // current head position
     sf::Vector2f new_pos{m_segments.front().getPosition()};
@@ -60,13 +60,13 @@ void Centipede::update(float deltaTime) {
     // move the head
     switch (m_direction) {
     case Moving::Right:
-        new_pos.x = std::min(new_pos.x + distance, m_bounds.width + m_bounds.left);
+        new_pos.x = std::min(new_pos.x + displacement, m_bounds.width + m_bounds.left);
         if (new_pos.x == m_bounds.width + m_bounds.left) {
             m_direction = Moving::Down;
         }
         break;
     case Moving::Left:
-        new_pos.x = std::max(new_pos.x - distance, m_bounds.left);
+        new_pos.x = std::max(new_pos.x - displacement, m_bounds.left);
         if (new_pos.x == m_bounds.left) {
             m_direction = Moving::Down;
         }
@@ -100,11 +100,22 @@ void Centipede::update(float deltaTime) {
 
     // Set the sprite positions, make body trail behind
     // sf::Vector2f old_pos;
-    // for (size_t i = 1; i < m_segments.size(); i++) {
-    //     sf::Vector2f direction = m_segments[i].getPosition() - m_segments[i - 1].getPosition();
+    for (size_t i = 1; i < m_segments.size(); i++) {
+        
+        const sf::Vector2f& pos = m_segments[i].getPosition();
+        const sf::Vector2f& otherPos = m_segments[i-1].getPosition();
 
-    //     /* code */
-    // }
+        sf::Vector2f direction{otherPos - pos};
+
+        float seperation = taxiDistance(otherPos, pos);
+
+
+        if(seperation > Game::GridSize){
+            m_segments[i].move((direction / L1Norm(direction)) * displacement);
+        } else {
+            
+        }
+    }
 
     // for (auto& seg : m_segments) {
 
@@ -138,6 +149,21 @@ void Centipede::changeDirection() {
     // //     seg.m_direction = !seg.m_direction;
     // // }
 }
+/**
+ * Compute the rectilinear distance between two points.
+ * Also known as "taxicab" distance, L1 norm, Manhattan distance
+ * @param a point 1
+ * @param b point 2
+ * @return float sum of distance in x and y
+ */
+inline float taxiDistance(const sf::Vector2f& a, const sf::Vector2f& b) {
+    return L1Norm(a-b);
+}
+
+inline float L1Norm(const sf::Vector2f& v) {
+    return std::abs(v.x) + std::abs(v.y);
+}
+
 
 // /** Update a single segment independently from the others */
 // void Centipede::Body::update(float deltaTime) {

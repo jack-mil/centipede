@@ -13,6 +13,9 @@ Multiple Centipedes may be present in the game area with different segment lengt
 
 #include "Settings.hpp" // namespace Game
 
+inline float taxiDistance(const sf::Vector2f& a, const sf::Vector2f& b);
+inline float L1Norm(const sf::Vector2f& v);
+
 class Centipede
 {
   public:
@@ -38,7 +41,7 @@ class Centipede
 
   private:
     /** Moves at 7.5 grid cells per second */
-    static constexpr float Speed = Game::GridSize * 8;
+    static constexpr float Speed = Game::GridSize * 7.5;
 
     static constexpr int MaxLength = 12;
 

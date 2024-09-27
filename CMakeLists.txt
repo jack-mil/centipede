@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(OPENAL_LIBRARY ${PROJECT_SOURCE_DIR}/../SFML/extlibs/libs-msvc/x64/openal32.lib)
 
+add_definitions("-Wall")
 
 # Add the executable
 add_executable(centipede
@@ -17,7 +18,9 @@ add_executable(centipede
     code/TextureManager.cpp
     code/Player.cpp
     code/Laser.cpp
-    code/Mushrooms.cpp)
+    code/Mushrooms.cpp
+    code/Spider.cpp
+    code/Centipede.cpp)
 
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/../SFML/include)
 

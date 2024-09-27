@@ -9,11 +9,15 @@ Player character declaration.
 #pragma once
 #include <SFML/Graphics.hpp>
 
-class Player {
+class Player
+{
 
-private:
+  private:
     /** Player movement speed in pixels/second */
     static constexpr float Speed = 400;
+
+    /** How many lives the player has at start */
+    static constexpr int StartingLives = 3;
 
     /** Up movement key is pressed */
     bool m_movingUp = false;
@@ -24,15 +28,17 @@ private:
     /** Right movement key is pressed */
     bool m_movingRight = false;
 
+    bool m_colliding = false;
+
     /** The bounds of player movement */
     sf::FloatRect m_bounds;
 
-    /** The size of player sprite */
-    sf::FloatRect m_size;
+    /** The current lives remaining */
+    int m_lives;
 
-    int m_lives =  3;
+    void reset();
 
-public:
+  public:
     /** The position of the player */
     sf::Vector2f m_pos;
     /** Starship player to draw */
@@ -57,4 +63,27 @@ public:
      * @return false otherwise
      */
     bool checkSpiderCollision(sf::FloatRect spider);
+
+    /**
+     * Check fo collisions with mushrooms, and prevent movement
+     * @param shroom mushroom collider
+     * @return true if colliding
+     * @return false
+     */
+    bool checkMushroomCollision(sf::FloatRect shroom);
+
+    /**
+     * Determine if all the lives are used up.
+     *
+     * @return true if lives < 0
+     * @return false otherwise
+     */
+    bool isDead() const;
+
+    /**
+     * Return the location that the lasers should spawn from.
+     *
+     * @return sf::Vector2f
+     */
+    sf::Vector2f getGunPosition() const;
 };
