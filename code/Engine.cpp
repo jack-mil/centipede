@@ -43,8 +43,6 @@ Engine::Engine()
 
     // grossly scale the image for now (TODO: need different splash screen)
     m_startSprite.setScale(0.4, 0.5);
-
-
 }
 
 /** Main entry-point into the game loop.
@@ -61,11 +59,16 @@ void Engine::run()
     while (m_window.isOpen()) {
         const sf::Time& dt = m_clock.restart();
         m_totalGameTime += dt;
-        const float dtSeconds = dt.asSeconds();
+        m_elapsedTime += dt.asSeconds();
+        const float tick = 1/60.f;
 
+        // only draw frames at a maximum tick rate
         input();
-        update(dtSeconds);
-        draw();
+        if (m_elapsedTime >= tick)  {
+            update(tick);
+            draw();
+            m_elapsedTime = 0;
+        }
     }
 }
 
@@ -137,7 +140,7 @@ void Engine::input()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
 
             if (m_totalGameTime.asMilliseconds() - m_lastFired.asMilliseconds() > 1000 / Laser::fire_speed) {
-                m_lasers[m_currentLaser].shoot(m_player.m_pos);
+                m_lasers[m_currentLaser].shoot(m_player.getGunPosition());
                 m_currentLaser++;
                 if (m_currentLaser > m_lasers.size()) {
                     m_currentLaser = 0;
@@ -198,6 +201,11 @@ void Engine::update(const float dtSeconds)
         if (m_centipede.getBoundRect().intersects(shroom.sprite.getGlobalBounds())) {
             m_centipede.changeDirection();
         }
+    }
+
+    // when the player dies, restart the game
+    if (m_player.isDead()) {
+        state = State::Start;
     }
 }
 
