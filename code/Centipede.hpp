@@ -12,18 +12,17 @@ Multiple Centipedes may be present in the game area with different segment lengt
 #include <vector>
 
 #include "Settings.hpp" // namespace Game
+#include "Mushrooms.hpp"
 
-inline float taxiDistance(const sf::Vector2f& a, const sf::Vector2f& b);
-inline float L1Norm(const sf::Vector2f& v);
+// inline float taxiDistance(const sf::Vector2f& a, const sf::Vector2f& b);
+// inline float L1Norm(const sf::Vector2f& v);
 
 class Centipede
 {
   public:
     /** Enum to represent the direction the centipede is moving */
-    enum class Moving { Right,
-                        Left,
-                        DownLeft, DownLeft2, DownLeft3, DownLeft4,
-                        DownRight, DownRight2, DownRight3, DownRight4 };
+    enum class Moving { Right, Left };
+    enum class Vertical {None, Down1, Down2, Down3, Down4, Up};
 
     /** Construct a new Centipede object of max length*/
     Centipede(const sf::FloatRect& bounds) : Centipede{Centipede::MaxLength, bounds} {}
@@ -34,7 +33,7 @@ class Centipede
     /** Get the global bounds to see if anything intersects with the centipede */
     sf::FloatRect getBoundRect();
 
-    void checkCollisions();
+    bool checkMushroomCollission(const std::vector<MushroomManager::Shroom>& shrooms);
 
     /** Update the centipede position based on elapsed seconds */
     void update(float deltaTime);
@@ -53,9 +52,6 @@ class Centipede
 
     sf::FloatRect m_bounds;
 
-    /** Direction the centipede is moving */
-    Moving m_direction = Moving::Left;
-
     /** Holds information about each segment of the centipede */
     class Segment : public sf::Sprite
     {
@@ -64,9 +60,13 @@ class Centipede
             : sf::Sprite{tex, rect}, m_bounds{bounds} {};
 
         void update(float deltaTime);
-        bool checkCollisions();
+        bool setNextState();
+        sf::Vector2f getLeftEdge() const;
+        sf::Vector2f getRightEdge() const;
 
         Moving m_direction = Moving::Left;
+        Vertical m_downward = Vertical::None;
+        bool descending = true;
 
       private:
         /** Bounding area of centipede movement (px) */

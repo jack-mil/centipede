@@ -18,7 +18,7 @@ It creates a collection of mushrooms, and handles their state throughout the gam
  * The random number generate needs to be initalized with a true random device, or a seed value.
  */
 MushroomManager::MushroomManager(sf::FloatRect bounds)
-    : m_bounds(bounds), m_shrooms(), m_rng(std::random_device{}())
+    : m_bounds(bounds), m_rng(std::random_device{}())
 {
     // Reserve space for 30 sprites to avoid reallocations
     m_shrooms.reserve(30);
@@ -56,7 +56,7 @@ void MushroomManager::spawn()
     }
 }
 
-void MushroomManager::drawAll(sf::RenderWindow& target)
+void MushroomManager::draw(sf::RenderWindow& target)
 {
     for (const auto& shroom : m_shrooms) {
         if (shroom.active) {
@@ -116,4 +116,18 @@ bool MushroomManager::checkLaserCollision(sf::FloatRect laser)
         }
     }
     return false;
+}
+
+sf::Vector2f MushroomManager::Shroom::getRightEdge() const
+{
+    const sf::FloatRect size = sprite.getLocalBounds();
+    const sf::Vector2f& topLeft = sprite.getPosition();
+    return sf::Vector2f(topLeft.x + size.width, topLeft.y + size.height / 2.0);
+}
+
+sf::Vector2f MushroomManager::Shroom::getLeftEdge() const
+{
+    const float height = sprite.getLocalBounds().height;
+    const sf::Vector2f& topLeft = sprite.getPosition();
+    return sf::Vector2f(topLeft.x, topLeft.y + height / 2.0);
 }

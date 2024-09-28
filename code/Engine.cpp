@@ -60,11 +60,11 @@ void Engine::run()
         const sf::Time& dt = m_clock.restart();
         m_totalGameTime += dt;
         m_elapsedTime += dt.asSeconds();
-        const float tick = 1/60.f;
+        const float tick = 1 / 60.f;
 
         // only draw frames at a maximum tick rate
         input();
-        if (m_elapsedTime >= tick)  {
+        if (m_elapsedTime >= tick) {
             update(tick);
             draw();
             m_elapsedTime = 0;
@@ -190,18 +190,11 @@ void Engine::update(const float dtSeconds)
         // }
     }
 
+    m_centipede.checkMushroomCollission(m_shroomMan.m_shrooms);
+
     m_shroomMan.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
 
     m_player.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
-
-    // for (const auto& shroom : m_shroomMan.m_shrooms) {
-    //     if (!shroom.active) {
-    //         continue;
-    //     }
-    //     // if (m_centipede.getBoundRect().intersects(shroom.sprite.getGlobalBounds())) {
-    //     //     m_centipede.changeDirection();
-    //     // }
-    // }
 
     // when the player dies, restart the game
     if (m_player.isDead()) {
@@ -245,9 +238,16 @@ void Engine::draw()
         test3.setOutlineColor(sf::Color::Green);
         m_window.draw(test3);
 
-        // draw mushrooms
-        m_shroomMan.drawAll(m_window);
+        // draw starship
+        m_window.draw(m_player.m_sprite);
 
+        // draw spider
+        m_spider.draw(m_window);
+
+        // draw mushrooms
+        m_shroomMan.draw(m_window);
+
+        // draw centipede(s)
         m_centipede.draw(m_window);
 
         // draw lasers
@@ -257,10 +257,6 @@ void Engine::draw()
             }
         }
 
-        // draw starship
-        m_window.draw(m_player.m_sprite);
-        // draw spider
-        m_spider.draw(m_window);
         // switch to hud overlay sometime...
     }
 

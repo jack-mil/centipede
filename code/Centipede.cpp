@@ -8,6 +8,7 @@ Centipede class definition.
 */
 
 #include "Centipede.hpp"
+#include "Mushrooms.hpp"
 #include "TextureManager.hpp"
 
 /** Boolean NOT operator overload for easy direction switching */
@@ -24,9 +25,9 @@ Centipede::Centipede(int length, const sf::FloatRect& bounds)
 
     // define texture parameters
     const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
-    const sf::IntRect headOffset(44, 251, 8, 8);  // head texture
-    const sf::IntRect bodyOffset(116, 251, 8, 8); // body texture
-    const auto& size = headOffset.getSize();      // 8x8 px
+    const sf::IntRect headOffset(12, 43, 8, 8);     // head texture
+    const sf::IntRect bodyOffset(116, 251, 8, 8);   // body texture
+    const sf::Vector2i size = headOffset.getSize(); // 8x8 px
 
     // adjust bounds for the sprite size
     m_bounds = bounds;
@@ -53,113 +54,45 @@ Centipede::Centipede(int length, const sf::FloatRect& bounds)
 void Centipede::update(float deltaTime)
 {
 
-    const auto displacement = Centipede::Speed * deltaTime;
-
-    // current head position
-    // sf::Vector2f new_pos{m_segments.front().getPosition()};
+    const auto disp = Centipede::Speed * deltaTime;
 
     // move the segments
     for (auto& seg : m_segments) {
-        seg.checkCollisions();
+
+        seg.setNextState();
+
         switch (seg.m_direction) {
         case Moving::Right:
-            seg.move(displacement, 0.0);
-            // new_pos.x = std::min(new_pos.x + displacement, m_bounds.width + m_bounds.left);
-            // if (new_pos.x == m_bounds.width + m_bounds.left) {
-            //     m_direction = Moving::Down;
-            // }
+            seg.move(disp, 0.0);
             break;
         case Moving::Left:
-            seg.move(-displacement, 0.0);
-            // new_pos.x = std::max(new_pos.x - displacement, m_bounds.left);
-            // if (new_pos.x == m_bounds.left) {
-            //     m_direction = Moving::Down;
-            // }
+            seg.move(-disp, 0.0);
             break;
-        case Moving::DownLeft:
-            seg.move(-2, 2);
-            seg.m_direction = Moving::DownLeft2;
-            // new_pos.y += Game::GridSize;
-            // if (new_pos.x == m_bounds.left) {
-            //     m_direction = Moving::Right;
-            // }
-            // if (new_pos.x == m_bounds.width + m_bounds.left) {
-            //     m_direction = Moving::Left;
-            // }
-            // m_segments.front().rotate(180);
-        case Moving::DownLeft2:
-            seg.move(-3, 2);
-            seg.m_direction = Moving::DownLeft3;
+        };
+
+        switch (seg.m_downward) { // TODO: set alternate animation intRects here
+        case Vertical::Down1:
+            seg.move(0.0, disp);
+            seg.m_downward = Vertical::Down2;
             break;
-        case Moving::DownLeft3:
-            seg.move(2, 2);
-            seg.m_direction = Moving::DownLeft4;
+        case Vertical::Down2:
+            seg.move(0.0, disp);
+            seg.m_downward = Vertical::Down3;
+            seg.m_direction = seg.m_direction == Moving::Right ? Moving::Left : Moving::Right;
             break;
-        case Moving::DownLeft4:
-            seg.move(2, 2);
+        case Vertical::Down3:
+            seg.move(0.0, disp);
+            seg.m_downward = Vertical::Down4;
+            break;
+        case Vertical::Down4:
+            seg.move(0.0, disp);
+            seg.m_downward = Vertical::None;
             seg.rotate(180);
-            seg.m_direction = Moving::Right;
             break;
-        case Moving::DownRight:
-            seg.move(2, 2);
-            seg.m_direction = Moving::DownRight2;
-            break;
-        case Moving::DownRight2:
-            seg.move(3, 2);
-            seg.m_direction = Moving::DownRight3;
-            break;
-        case Moving::DownRight3:
-            seg.move(-2, 2);
-            seg.m_direction = Moving::DownRight4;
-            break;
-        case Moving::DownRight4:
-            seg.move(-2, 2);
-            seg.rotate(180);
-            seg.m_direction = Moving::Left;
+        default:
             break;
         }
     }
-
-    // switch directions and move down if reached the edges
-    // if (new_pos.x < m_bounds.left || new_pos.x > m_bounds.width + m_bounds.left) {
-    //     // m_direction = !m_direction;
-    //     m_direction = Moving::Down;
-    //     // m_segments[0].rotate(180.0);
-
-    //     if (new_pos.x < m_bounds.left) {
-    //         new_pos.x = m_bounds.left;
-    //     } else {
-    //         new_pos.x = m_bounds.width + m_bounds.left;
-    //     }
-    // }
-
-    // m_segments.front().setPosition(new_pos);
-
-    // // Set the sprite positions, make body trail behind
-    // // sf::Vector2f old_pos;
-    // for (size_t i = 1; i < m_segments.size(); i++) {
-
-    //     const sf::Vector2f& pos = m_segments[i].getPosition();
-    //     const sf::Vector2f& otherPos = m_segments[i - 1].getPosition();
-
-    //     sf::Vector2f direction{otherPos - pos};
-
-    //     float seperation = taxiDistance(otherPos, pos);
-
-    //     if (seperation > Game::GridSize) {
-    //         m_segments[i].move((direction / L1Norm(direction)) * displacement);
-    //     } else {
-    //     }
-    // }
-
-    // for (auto& seg : m_segments) {
-
-    //     old_pos = seg.getPosition();
-
-    //     seg.setPosition(new_pos);
-    //     new_pos = old_pos;
-    //     // seg.update(deltaTime);
-    // }
 }
 
 /** Draw all segments to the screen */
@@ -177,49 +110,107 @@ sf::FloatRect Centipede::getBoundRect()
     return m_segments.front().getGlobalBounds();
 }
 
-bool Centipede::Segment::checkCollisions()
+bool Centipede::checkMushroomCollission(const std::vector<MushroomManager::Shroom>& shrooms)
+{
+    const float spacing = 3.0; // 3px from anything is "collision"
+    for (auto& seg : m_segments) {
+
+        // Don't check for collisions if currently in a downward animation
+        if (seg.m_downward != Vertical::None) {
+            continue;;
+        }
+
+        const sf::Vector2f segLeft = seg.getLeftEdge();
+        const sf::Vector2f segRight = seg.getRightEdge();
+
+        // Check for collisions with every mushroom on the board
+        // TODO: make this more smart?
+        for (const auto& shroom : shrooms) {
+
+            // Skip inactive shrooms
+            if (!shroom.active) {
+                continue;
+            }
+
+            const sf::Vector2f shroomLeft = shroom.getLeftEdge();
+            const sf::Vector2f shroomRight = shroom.getRightEdge();
+
+            // Skip mushrooms not on the same row (left and right y are the same)
+            if (segLeft.y != shroomLeft.y) {
+                continue;
+            }
+
+            // Detect collisions and transistion segment to down state
+            if (seg.m_direction == Moving::Right) {
+                // Check right side of segment with left side of mushroom
+                if (shroomLeft.x - segRight.x <= spacing) {
+                    seg.m_downward = Vertical::Down1;
+                }
+            } else if (seg.m_direction == Moving::Left) {
+                // Check left side of segment with right side of mushroom
+                if (segLeft.x - shroomRight.x <= spacing) {
+                    seg.m_downward = Vertical::Down1;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool Centipede::Segment::setNextState()
 {
     const float spacing = 3.0; // 3px from anything is "collision"
     static const float width = this->getLocalBounds().width;
 
     const auto centerPos = this->getPosition();
+    // Don't check for collisions if currently in a downward animation
+    if (m_downward != Vertical::None) {
+        return false;
+    }
     if (m_direction == Moving::Right) {
         if ((m_bounds.left + m_bounds.width) - (centerPos.x + width / 2) <= spacing) {
-            m_direction = Moving::DownRight;
+            m_downward = Vertical::Down1;
             return true;
         }
     } else if (m_direction == Moving::Left) {
-        if (m_bounds.left + (centerPos.x-width) <= spacing) {
-            m_direction = Moving::DownLeft;
+        if (m_bounds.left + (centerPos.x - width) <= spacing) {
+            m_downward = Vertical::Down1;
             return true;
         }
-    } // specifically don't check collisions when moving down
-
-    // m_direction = !m_direction;
-    // auto pos = m_segments.front().getPosition();
-    // pos.y += Game::GridSize;
-    // m_segments.front().setPosition(pos);
-    // // for (auto& seg : m_segments) {
-    // //     seg.m_direction = !seg.m_direction;
-    // // }
+    }
     return false;
 }
-/**
- * Compute the rectilinear distance between two points.
- * Also known as "taxicab" distance, L1 norm, Manhattan distance
- * @param a point 1
- * @param b point 2
- * @return float sum of distance in x and y
- */
-inline float taxiDistance(const sf::Vector2f& a, const sf::Vector2f& b)
+
+sf::Vector2f Centipede::Segment::getRightEdge() const
 {
-    return L1Norm(a - b);
+    const float width = this->getLocalBounds().width;
+    const sf::Vector2f& center = this->getPosition();
+    return sf::Vector2f(center.x + width / 2.0, center.y);
 }
 
-inline float L1Norm(const sf::Vector2f& v)
+sf::Vector2f Centipede::Segment::getLeftEdge() const
 {
-    return std::abs(v.x) + std::abs(v.y);
+    const float width = this->getLocalBounds().width;
+    const sf::Vector2f& center = this->getPosition();
+    return sf::Vector2f(center.x - width / 2.0, center.y);
 }
+
+// /**
+//  * Compute the rectilinear distance between two points.
+//  * Also known as "taxicab" distance, L1 norm, Manhattan distance
+//  * @param a point 1
+//  * @param b point 2
+//  * @return float sum of distance in x and y
+//  */
+// inline float taxiDistance(const sf::Vector2f& a, const sf::Vector2f& b)
+// {
+//     return L1Norm(a - b);
+// }
+
+// inline float L1Norm(const sf::Vector2f& v)
+// {
+//     return std::abs(v.x) + std::abs(v.y);
+// }
 
 // /** Update a single segment independently from the others */
 // void Centipede::Body::update(float deltaTime) {
