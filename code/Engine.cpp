@@ -194,14 +194,14 @@ void Engine::update(const float dtSeconds)
 
     m_player.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
 
-    for (const auto& shroom : m_shroomMan.m_shrooms) {
-        if (!shroom.active) {
-            continue;
-        }
-        if (m_centipede.getBoundRect().intersects(shroom.sprite.getGlobalBounds())) {
-            m_centipede.changeDirection();
-        }
-    }
+    // for (const auto& shroom : m_shroomMan.m_shrooms) {
+    //     if (!shroom.active) {
+    //         continue;
+    //     }
+    //     // if (m_centipede.getBoundRect().intersects(shroom.sprite.getGlobalBounds())) {
+    //     //     m_centipede.changeDirection();
+    //     // }
+    // }
 
     // when the player dies, restart the game
     if (m_player.isDead()) {
