@@ -1,7 +1,7 @@
 /*
 Author: Jackson Miller
 Class: ECE6122 A
-Last Date Modified: 2024-09-20
+Last Date Modifed: 2024-09-30
 
 Description:
 Centipede class definition.
@@ -51,7 +51,7 @@ void Centipede::update(float deltaTime)
 void Centipede::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     for (const auto& seg : m_segments) {
-        target.draw(seg);
+        target.draw(seg, states);
     }
 }
 

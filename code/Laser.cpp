@@ -1,7 +1,7 @@
 /*
 Author: Jackson Miller
 Class: ECE6122 A
-Last Date Modified: 2024-09-16
+Last Date Modifed: 2024-09-30
 
 Description:
 Laser object definition. These are instantiated once at runtime,

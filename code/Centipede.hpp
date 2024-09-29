@@ -1,7 +1,7 @@
 /*
 Author: Jackson Miller
 Class: ECE6122 A
-Last Date Modified: 2024-09-20
+Last Date Modifed: 2024-09-30
 
 Description:
 The Centipede class controls it's descent down the game area every update.

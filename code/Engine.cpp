@@ -1,7 +1,7 @@
 /*
 Author: Jackson Miller
 Class: ECE6122 A
-Last Date Modified: 2024-09-16
+Last Date Modifed: 2024-09-30
 
 Description:
 Defines the main game Engine and game loop logic.
@@ -69,6 +69,19 @@ void Engine::run()
             draw();
             m_elapsedTime = 0;
         }
+        // sf::sleep(sf::seconds(0.2));
+        // paused = true;
+        // while (paused) {
+        //     input();
+        //     sf::Event event;
+        //     while (m_window.pollEvent(event)) {
+        //         if (event.type == sf::Event::KeyPressed) {
+        //             if (event.key.code == sf::Keyboard::Period) {
+        //                 paused = false;
+        //             }
+        //         }
+        //     }
+        // }
     }
 }
 
@@ -115,7 +128,7 @@ void Engine::input()
                 // Spawn all the enemies
                 m_shroomMan.spawn();
                 m_player.spawn();
-                m_spider.spawn();
+                // m_spider.spawn();
 
                 state = State::Playing;
                 std::cout << "Started" << std::endl;
@@ -217,27 +230,6 @@ void Engine::draw()
     } else if (state == State::Playing) {
         // draw all the objects during game-play
 
-        auto test = sf::RectangleShape(ShroomArea.getSize());
-        test.setFillColor(sf::Color::Transparent);
-        test.setOutlineThickness(-2);
-        test.setPosition(ShroomArea.getPosition());
-        m_window.draw(test);
-
-        auto test2 = sf::RectangleShape(SpiderArea.getSize());
-        test2.setFillColor(sf::Color::Transparent);
-        test2.setOutlineThickness(-1);
-        test2.setOutlineColor(sf::Color::Red);
-        test2.setPosition(SpiderArea.getPosition());
-        m_window.draw(test2);
-
-        auto test3 = sf::RectangleShape(PlayerArea.getSize());
-        test3.setPosition(PlayerArea.getPosition());
-        test3.setFillColor(sf::Color::Transparent);
-        test3.setOutlineThickness(-0.5);
-        test3.setOutlineColor(sf::Color::Green);
-        m_window.draw(test3);
-
-
         // draw spider
         m_spider.draw(m_window);
 
@@ -258,7 +250,6 @@ void Engine::draw()
         // draw starship
         m_window.draw(m_player);
 
-        // switch to hud overlay sometime...
     }
 
     m_window.display();
