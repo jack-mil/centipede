@@ -36,7 +36,7 @@ void MushroomManager::spawn()
 {
     // Every sprite will use the same texture
     const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
-    const sf::IntRect texOffset(104, 107, 8, 8); // where the mushroom is
+    const sf::Vector2i& size = FullTexOffset.getSize();
 
     // Need a random distribution in the 30x30 grid
     auto x_range = static_cast<int>(m_bounds.width / Game::GridSize) - 1;
@@ -47,16 +47,18 @@ void MushroomManager::spawn()
     // Create 30 mushroom sprites with the same texture and random location
     for (size_t i = 0; i < 30; ++i) {
         // Create a new sprite using the mushroom texture offset.
-        Shroom shroom{tex, texOffset};
+        Shroom shroom{tex, FullTexOffset};
+        // change origin to center instead of top/left
+        shroom.sprite.setOrigin(size.x / 2.f, size.y / 2.f);
         // location is random, but aligned to 8x8 grid
-        const float xPos = m_bounds.left + Game::GridSize * random_x(m_rng);
-        const float yPos = m_bounds.top + Game::GridSize * random_y(m_rng);
+        const float xPos = m_bounds.left + Game::GridSize * random_x(m_rng) + size.x / 2.f;
+        const float yPos = m_bounds.top + Game::GridSize * random_y(m_rng) + size.y / 2.f;
         shroom.sprite.setPosition(xPos, yPos);
         m_shrooms.push_back(std::move(shroom));
     }
 }
 
-void MushroomManager::draw(sf::RenderWindow& target)
+void MushroomManager::draw(sf::RenderTarget& target)
 {
     for (const auto& shroom : m_shrooms) {
         if (shroom.active) {
@@ -65,25 +67,29 @@ void MushroomManager::draw(sf::RenderWindow& target)
     }
 }
 
-/** Change this mushroom to the damage sprite*/
 void MushroomManager::damage(Shroom& shroom)
 {
+    if (!shroom.active) {
+        return;
+    }
+
     if (shroom.health == 0) {
         return;
     }
-    static const sf::IntRect lv1(152, 107, 8, 8);
-    static const sf::IntRect lv2(136, 107, 8, 8);
-    static const sf::IntRect lv3(120, 107, 8, 8);
+
     shroom.health--;
+
+    // Step through the textures for different damage levels,
+    //  and de-activate when fully destroyed.
     switch (shroom.health) {
     case 3:
-        shroom.sprite.setTextureRect(lv3);
+        shroom.sprite.setTextureRect(Damage3TexOffset);
         break;
     case 2:
-        shroom.sprite.setTextureRect(lv2);
+        shroom.sprite.setTextureRect(Damage2TexOffset);
         break;
     case 1:
-        shroom.sprite.setTextureRect(lv1);
+        shroom.sprite.setTextureRect(Damage1TexOffset);
         break;
     case 0:
         shroom.active = false;
@@ -118,16 +124,25 @@ bool MushroomManager::checkLaserCollision(sf::FloatRect laser)
     return false;
 }
 
+void MushroomManager::addMushroom(sf::Vector2f location)
+{
+    const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
+    const auto& size = FullTexOffset.getSize();
+    auto& newShroom = m_shrooms.emplace_back(tex, FullTexOffset);
+    newShroom.sprite.setPosition(location);
+    newShroom.sprite.setOrigin(size.x / 2.f, size.y / 2.f);
+}
+
 sf::Vector2f MushroomManager::Shroom::getRightEdge() const
 {
-    const sf::FloatRect size = sprite.getLocalBounds();
-    const sf::Vector2f& topLeft = sprite.getPosition();
-    return sf::Vector2f(topLeft.x + size.width, topLeft.y + size.height / 2.0);
+    const sf::FloatRect& size = sprite.getLocalBounds();
+    const sf::Vector2f& center = sprite.getPosition();
+    return sf::Vector2f(center.x + size.width / 2.f, center.y);
 }
 
 sf::Vector2f MushroomManager::Shroom::getLeftEdge() const
 {
-    const float height = sprite.getLocalBounds().height;
-    const sf::Vector2f& topLeft = sprite.getPosition();
-    return sf::Vector2f(topLeft.x, topLeft.y + height / 2.0);
+    const sf::FloatRect& size = sprite.getLocalBounds();
+    const sf::Vector2f& center = sprite.getPosition();
+    return sf::Vector2f(center.x - size.width / 2.f, center.y);
 }

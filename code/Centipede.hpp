@@ -24,8 +24,16 @@ Multiple Centipedes may be present in the game area with different segment lengt
 class Segment : public sf::Sprite
 {
   public:
+    /**
+     * Construct a new Centipede Segment.
+     * Initializes the base-class and members.
+     * Constructed as normal body segments, set to the head texture with Segment::setHead()
+     *
+     * @param bounds The bounding area the Centipede can move in (for wall collisions)
+     */
+    Segment(sf::FloatRect bounds);
+
     Segment() = delete; // no default constructor
-    Segment(const sf::Texture& tex, const sf::IntRect& rect, sf::FloatRect bounds);
 
     /** Enum to represent the direction the centipede is moving */
     enum class Moving { Right,
@@ -39,8 +47,24 @@ class Segment : public sf::Sprite
 
     void update(float deltaTime);
     void updateNextState();
+
+    /**
+     * Get the x,y position of the left edge for collisions
+     * @return sf::Vector2f
+     */
     sf::Vector2f getLeftEdge() const;
+
+    /**
+     * Get the x,y position of the right edge for collisions
+     * @return sf::Vector2f
+     */
     sf::Vector2f getRightEdge() const;
+
+    /** Mark this segment as a centipede head and change the sprite texture. */
+    void setHead();
+
+    /** Check if this is a centipede head. */
+    bool isHead();
 
     Moving m_direction = Moving::Left;
     Animation m_animation = Animation::None;
@@ -49,8 +73,9 @@ class Segment : public sf::Sprite
   private:
     /** Bounding area of centipede movement (px) */
     sf::FloatRect m_bounds;
+    bool m_isHead = false;
+    bool m_isTail = false;
 };
-
 
 /**
  * A Centipede manages the std::list of sprite Segments.
@@ -68,18 +93,21 @@ class Centipede
     /** Starting number of Centipede segments */
     static constexpr int MaxLength = 12;
 
-    /** Construct a new Centipede object of max length*/
-    Centipede(const sf::FloatRect& bounds);
-
     /**
-     * Construct a new Centipede object
+     * Construct a new Centipede object with default length
      *
-     * @param length Number of segments
+     * @param shroomMan Reference to MushroomManager for collision and adding new mushrooms (non-owned)
      * @param bounds Bounding area for movement
      */
-    Centipede(int length, const sf::FloatRect& bounds);
+    Centipede(const sf::FloatRect& bounds, MushroomManager& shroomMan);
 
-    bool checkMushroomCollision(const std::vector<MushroomManager::Shroom>& shrooms);
+    // No copy constructor
+    Centipede(const Centipede&) = delete;
+
+    // No copy assignment
+    Centipede& operator=(const Centipede&) = delete;
+
+    bool checkMushroomCollision();
 
     bool checkLaserCollision(sf::FloatRect laser);
 
@@ -89,21 +117,29 @@ class Centipede
     /** Draw all segments to the screen */
     void draw(sf::RenderWindow& target);
 
-  private:
     static inline const sf::IntRect HeadTexOffset{12, 43, 8, 8};   // head texture
     static inline const sf::IntRect BodyTexOffset{116, 251, 8, 8}; // body texture
-
+  private:
+    /**
+     * Split the centipede at the given segment, removing it.
+     * A mushroom is added at the location of the removed segment.
+     * The next segment is changed to the head texture.
+     *
+     * @param seg_it iterator to the segment that was hit (killed)
+     */
     void splitAt(std::list<Segment>::iterator segment_it);
 
     /** The area of movement */
     sf::FloatRect m_bounds;
 
-    // MushroomManager& m_shroomMan;
+    /** Reference to the mushrooms so we can collide and generate more when split.
+     * Aggregate member (not owned).
+     */
+    MushroomManager& m_shroomMan;
 
     /** All of the segments that make up this centipede.
      * The first element is always the head sprite. The other's trail behind. */
     std::list<Segment> m_segments;
-
 };
 
 /**

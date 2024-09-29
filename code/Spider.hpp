@@ -58,7 +58,7 @@ class Spider
     const double m_respawnDuration = 5;
     bool m_canMoveLeft = false;
     bool m_hitByLaser = false;
-    bool m_alive = true;
+    bool m_alive = false;
     sf::FloatRect m_bounds;
 
     std::mt19937 m_rng;

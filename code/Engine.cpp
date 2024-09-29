@@ -23,7 +23,7 @@ Engine::Engine()
       m_view{Game::GameCenter, Game::GameSize},
       m_player{Engine::PlayerArea},
       m_shroomMan{Engine::ShroomArea},
-      m_centipede{1, Engine::EnemyArea},
+      m_centipede{Engine::EnemyArea, m_shroomMan},
       m_spider{Engine::SpiderArea},
       m_lasers(), m_startSprite{TextureManager::GetTexture("graphics/startup-screen-background.png")},
       m_clock(), m_totalGameTime{sf::Time::Zero}, m_lastFired{sf::Time::Zero}
@@ -162,8 +162,6 @@ void Engine::update(const float dtSeconds)
     if (state != State::Playing) {
         return;
     }
-
-    m_centipede.checkMushroomCollision(m_shroomMan.m_shrooms);
 
     m_shroomMan.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
 
