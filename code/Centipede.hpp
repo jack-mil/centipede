@@ -81,7 +81,7 @@ class Segment : public sf::Sprite
  * A Centipede manages the std::list of sprite Segments.
  * It is the main controller and public interface for the Engine to interact with.
  */
-class Centipede
+class Centipede : public sf::Drawable
 {
   public:
     /** Moves at 15 grid cells per second (2 px/tick) */
@@ -114,8 +114,8 @@ class Centipede
     /** Update the centipede position based on elapsed seconds */
     void update(float deltaTime);
 
-    /** Draw all segments to the screen */
-    void draw(sf::RenderWindow& target);
+    /** Draw all segments to the target window or texture */
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     static inline const sf::IntRect HeadTexOffset{12, 43, 8, 8};   // head texture
     static inline const sf::IntRect BodyTexOffset{116, 251, 8, 8}; // body texture

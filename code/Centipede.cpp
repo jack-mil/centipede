@@ -48,7 +48,7 @@ void Centipede::update(float deltaTime)
 }
 
 /** Draw all segments to the screen */
-void Centipede::draw(sf::RenderWindow& target)
+void Centipede::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     for (const auto& seg : m_segments) {
         target.draw(seg);

@@ -245,7 +245,8 @@ void Engine::draw()
         m_shroomMan.draw(m_window);
 
         // draw centipede(s)
-        m_centipede.draw(m_window);
+        // m_centipede.draw(m_window);
+        m_window.draw(m_centipede);
 
         // draw lasers
         for (const auto& laser : m_lasers) {
