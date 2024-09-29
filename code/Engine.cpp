@@ -255,7 +255,7 @@ void Engine::draw()
         }
 
         // draw starship
-        m_window.draw(m_player.m_sprite);
+        m_window.draw(m_player);
 
         // switch to hud overlay sometime...
     }

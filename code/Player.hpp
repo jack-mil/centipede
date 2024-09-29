@@ -1,51 +1,27 @@
 /*
 Author: Jackson Miller
 Class: ECE6122 A
-Last Date Modified: 2024-09-16
+Last Date Modifed: 2024-09-30
 
 Description:
 Player character declaration.
 */
 #pragma once
+
 #include <SFML/Graphics.hpp>
 
-class Player
+/**
+ * The Player class inherits from SFML Sprite and implements:
+ * user input, spider collisions, and keeping track of lives
+ */
+class Player : public sf::Sprite
 {
-
-  private:
-    /** Player movement speed in pixels/second */
-    static constexpr float Speed = 400;
-
-    /** How many lives the player has at start */
-    static constexpr int StartingLives = 3;
-
-    /** Up movement key is pressed */
-    bool m_movingUp = false;
-    /** Down movement key is pressed */
-    bool m_movingDown = false;
-    /** Left movement key is pressed */
-    bool m_movingLeft = false;
-    /** Right movement key is pressed */
-    bool m_movingRight = false;
-
-    bool m_colliding = false;
-
-    /** The bounds of player movement */
-    sf::FloatRect m_bounds;
-
-    /** The current lives remaining */
-    int m_lives;
-
-    void reset();
-
   public:
-    /** The position of the player */
-    sf::Vector2f m_pos;
-    /** Starship player to draw */
-    sf::Sprite m_sprite;
     /** Construct a new Player object */
-    Player() = delete;
     Player(sf::FloatRect bounds);
+
+    // no default constructor
+    Player() = delete;
 
     /** Start the player in the middle of defined player area */
     void spawn();
@@ -53,7 +29,9 @@ class Player
     /** Do player movement */
     void handleInput();
 
-    /** Update player sprite position based on elapsed seconds */
+    /** Update player sprite position based on elapsed seconds
+     * @param deltaTime time in seconds since last update
+     */
     void update(float deltaTime);
 
     /**
@@ -86,4 +64,34 @@ class Player
      * @return sf::Vector2f
      */
     sf::Vector2f getGunPosition() const;
+
+  private:
+    /** Player movement speed in pixels/second */
+    static constexpr float Speed = 400;
+
+    /** How many lives the player has at start */
+    static constexpr int StartingLives = 3;
+
+    /** Location of the player texture in sprite-sheet */
+    static inline const sf::IntRect PlayerTexOffset{12, 171, 7, 8};
+
+    /** Move back to the starting position. */
+    void reset();
+
+    /** The bounds of player movement */
+    sf::FloatRect m_bounds;
+
+    /** Up movement key is pressed */
+    bool m_movingUp = false;
+    /** Down movement key is pressed */
+    bool m_movingDown = false;
+    /** Left movement key is pressed */
+    bool m_movingLeft = false;
+    /** Right movement key is pressed */
+    bool m_movingRight = false;
+
+    bool m_colliding = false;
+
+    /** The current lives remaining */
+    int m_lives = Player::StartingLives;
 };
