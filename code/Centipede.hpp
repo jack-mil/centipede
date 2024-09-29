@@ -22,16 +22,13 @@ class Centipede
   public:
     /** Enum to represent the direction the centipede is moving */
     enum class Moving { Right, Left };
-    enum class Vertical {None, Down1, Down2, Down3, Down4, Up};
+    enum class Animation {None, Start, Mid1, Mid2, Final};
 
     /** Construct a new Centipede object of max length*/
     Centipede(const sf::FloatRect& bounds) : Centipede{Centipede::MaxLength, bounds} {}
 
     /** Construct a new Centipede object with initial length*/
     Centipede(int length, const sf::FloatRect& bounds);
-
-    /** Get the global bounds to see if anything intersects with the centipede */
-    sf::FloatRect getBoundRect();
 
     bool checkMushroomCollission(const std::vector<MushroomManager::Shroom>& shrooms);
 
@@ -44,6 +41,9 @@ class Centipede
   private:
     /** Moves at 15 grid cells per second (2 px/tick) */
     static constexpr float Speed = Game::GridSize * 15;
+
+    /** Collision animation is always 2 px/tick */
+    static constexpr float AnimSpeed = 2;
 
     static constexpr int MaxLength = 12;
 
@@ -60,12 +60,12 @@ class Centipede
             : sf::Sprite{tex, rect}, m_bounds{bounds} {};
 
         void update(float deltaTime);
-        bool setNextState();
+        void setNextState();
         sf::Vector2f getLeftEdge() const;
         sf::Vector2f getRightEdge() const;
 
         Moving m_direction = Moving::Left;
-        Vertical m_downward = Vertical::None;
+        Animation animation = Animation::None;
         bool descending = true;
 
       private:

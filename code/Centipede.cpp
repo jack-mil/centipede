@@ -16,10 +16,8 @@ Centipede class definition.
 //     return d = static_cast<Centipede::Moving>(!static_cast<bool>(d));
 // }
 
-Centipede::Centipede(int length, const sf::FloatRect& bounds)
-    : m_length{length}, m_segments{}
+Centipede::Centipede(int length, const sf::FloatRect& bounds) : m_length{length}, m_segments{}
 {
-
     // Reserve space for the max number of segments
     m_segments.reserve(Centipede::MaxLength);
 
@@ -31,16 +29,15 @@ Centipede::Centipede(int length, const sf::FloatRect& bounds)
 
     // adjust bounds for the sprite size
     m_bounds = bounds;
-    m_bounds.left += size.x / 2.f;
-    m_bounds.top += size.y / 2.f;
-    m_bounds.width -= size.x;
-    m_bounds.height -= size.y;
+    // m_bounds.left += size.x / 2.f;
+    // m_bounds.top += size.y / 2.f;
+    // m_bounds.width -= size.x;
+    // m_bounds.height -= size.y;
     // set starting position of the head
-    sf::Vector2f startPos{m_bounds.left + (m_bounds.width / 2.f), m_bounds.top};
+    sf::Vector2f startPos{m_bounds.left + (m_bounds.width / 2.f) + 1, m_bounds.top + size.y / 2};
     // fill the segment vector
     for (size_t i = 0; i < Centipede::MaxLength; i++) {
         // create a new sprite for this segment
-        // sf::Sprite segment{tex, i == 0 ? headOffset : bodyOffset};
         Segment segment{tex, i == 0 ? headOffset : bodyOffset, m_bounds};
         // center sprite origin
         segment.setOrigin(size.x / 2.f, size.y / 2.f);
@@ -54,39 +51,50 @@ Centipede::Centipede(int length, const sf::FloatRect& bounds)
 void Centipede::update(float deltaTime)
 {
 
-    const auto disp = Centipede::Speed * deltaTime;
+    const float disp = Centipede::Speed * deltaTime;
 
     // move the segments
     for (auto& seg : m_segments) {
 
         seg.setNextState();
 
-        switch (seg.m_direction) {
-        case Moving::Right:
-            seg.move(disp, 0.0);
-            break;
-        case Moving::Left:
-            seg.move(-disp, 0.0);
-            break;
-        };
+        // Movement while going straight
+        if (seg.animation == Animation::None) {
+            switch (seg.m_direction) {
+            case Moving::Right:
+                seg.move(disp, 0.0);
+                break;
+            case Moving::Left:
+                seg.move(-disp, 0.0);
+                break;
+            };
+        }
 
-        switch (seg.m_downward) { // TODO: set alternate animation intRects here
-        case Vertical::Down1:
-            seg.move(0.0, disp);
-            seg.m_downward = Vertical::Down2;
+        // Movement for the collision animation (descend one row over 4 frames)
+        const float yDisp = seg.descending
+                                ? Centipede::AnimSpeed
+                                : -Centipede::AnimSpeed;
+        const float xDisp = seg.m_direction == Moving::Right
+                                ? Centipede::AnimSpeed
+                                : -Centipede::AnimSpeed;
+
+        switch (seg.animation) { // TODO: set alternate animation intRects here
+        case Animation::Start:
+            seg.move(xDisp, yDisp);
+            seg.animation = Animation::Mid1;
             break;
-        case Vertical::Down2:
-            seg.move(0.0, disp);
-            seg.m_downward = Vertical::Down3;
+        case Animation::Mid1:
+            seg.move(xDisp, yDisp);
+            seg.animation = Animation::Mid2;
             seg.m_direction = seg.m_direction == Moving::Right ? Moving::Left : Moving::Right;
             break;
-        case Vertical::Down3:
-            seg.move(0.0, disp);
-            seg.m_downward = Vertical::Down4;
+        case Animation::Mid2:
+            seg.move(xDisp, yDisp);
+            seg.animation = Animation::Final;
             break;
-        case Vertical::Down4:
-            seg.move(0.0, disp);
-            seg.m_downward = Vertical::None;
+        case Animation::Final:
+            seg.move(xDisp, yDisp);
+            seg.animation = Animation::None;
             seg.rotate(180);
             break;
         default:
@@ -103,21 +111,15 @@ void Centipede::draw(sf::RenderWindow& target)
     }
 }
 
-/** Return the head bounding rect */
-sf::FloatRect Centipede::getBoundRect()
-{
-    // return m_segments.front().m_sprite.getGlobalBounds();
-    return m_segments.front().getGlobalBounds();
-}
-
 bool Centipede::checkMushroomCollission(const std::vector<MushroomManager::Shroom>& shrooms)
 {
     const float spacing = 3.0; // 3px from anything is "collision"
     for (auto& seg : m_segments) {
 
         // Don't check for collisions if currently in a downward animation
-        if (seg.m_downward != Vertical::None) {
-            continue;;
+        if (seg.animation != Animation::None) {
+            continue;
+            ;
         }
 
         const sf::Vector2f segLeft = seg.getLeftEdge();
@@ -144,12 +146,12 @@ bool Centipede::checkMushroomCollission(const std::vector<MushroomManager::Shroo
             if (seg.m_direction == Moving::Right) {
                 // Check right side of segment with left side of mushroom
                 if (shroomLeft.x - segRight.x <= spacing) {
-                    seg.m_downward = Vertical::Down1;
+                    seg.animation = Animation::Start;
                 }
             } else if (seg.m_direction == Moving::Left) {
                 // Check left side of segment with right side of mushroom
                 if (segLeft.x - shroomRight.x <= spacing) {
-                    seg.m_downward = Vertical::Down1;
+                    seg.animation = Animation::Start;
                 }
             }
         }
@@ -157,28 +159,38 @@ bool Centipede::checkMushroomCollission(const std::vector<MushroomManager::Shroo
     return false;
 }
 
-bool Centipede::Segment::setNextState()
+void Centipede::Segment::setNextState()
 {
     const float spacing = 3.0; // 3px from anything is "collision"
     static const float width = this->getLocalBounds().width;
 
     const auto centerPos = this->getPosition();
     // Don't check for collisions if currently in a downward animation
-    if (m_downward != Vertical::None) {
-        return false;
+    if (animation != Animation::None) {
+        return;
     }
     if (m_direction == Moving::Right) {
-        if ((m_bounds.left + m_bounds.width) - (centerPos.x + width / 2) <= spacing) {
-            m_downward = Vertical::Down1;
-            return true;
+        if ((m_bounds.left + m_bounds.width) - this->getRightEdge().x <= spacing) {
+            animation = Animation::Start;
         }
     } else if (m_direction == Moving::Left) {
-        if (m_bounds.left + (centerPos.x - width) <= spacing) {
-            m_downward = Vertical::Down1;
-            return true;
+        if (this->getLeftEdge().x - m_bounds.left <= spacing) {
+            animation = Animation::Start;
         }
     }
-    return false;
+
+    // after descending to the very bottom, bounce around in a 4 row area on the bottom (player area)
+    if (descending) {
+        // hit bottom edge
+        if ((m_bounds.top + m_bounds.height) == (centerPos.y + width / 2)) {
+            descending = false;
+        }
+    } else {
+        // ascending, hit top edge
+        if ((centerPos.y - width / 2) == m_bounds.top + m_bounds.height - Game::GridSize * 4) {
+            descending = true;
+        }
+    }
 }
 
 sf::Vector2f Centipede::Segment::getRightEdge() const
@@ -194,28 +206,3 @@ sf::Vector2f Centipede::Segment::getLeftEdge() const
     const sf::Vector2f& center = this->getPosition();
     return sf::Vector2f(center.x - width / 2.0, center.y);
 }
-
-// /**
-//  * Compute the rectilinear distance between two points.
-//  * Also known as "taxicab" distance, L1 norm, Manhattan distance
-//  * @param a point 1
-//  * @param b point 2
-//  * @return float sum of distance in x and y
-//  */
-// inline float taxiDistance(const sf::Vector2f& a, const sf::Vector2f& b)
-// {
-//     return L1Norm(a - b);
-// }
-
-// inline float L1Norm(const sf::Vector2f& v)
-// {
-//     return std::abs(v.x) + std::abs(v.y);
-// }
-
-// /** Update a single segment independently from the others */
-// void Centipede::Body::update(float deltaTime) {
-
-//     const auto distance = Centipede::Speed * deltaTime;
-
-//     m_sprite.setPosition(m_pos);
-// }
