@@ -7,6 +7,8 @@ Description:
 Laser object definition. These are instantiated once at runtime,
 then activated/moved when needed.
 */
+#include <SFML/Graphics.hpp>
+
 #include "Laser.hpp"
 
 /**
@@ -41,12 +43,7 @@ void Laser::shoot(sf::Vector2f start) {
     shoot(start.x, start.y);
 }
 
-/**
- * Move the beam straight up (negative y).
- *
- * Automatically deactivates when reaching the top.
- * @param deltaTime Elapsed time in seconds
- */
+/** Update sprite position based on elapsed seconds. */
 void Laser::update(float deltaTime) {
     if (!active) {
         return;
@@ -58,4 +55,9 @@ void Laser::update(float deltaTime) {
     if (m_pos.y < 0) {
         active = false;
     }
+}
+
+/** Return the boundary collider of this laser object. */
+sf::FloatRect Laser::getCollider() const {
+    return m_shape.getGlobalBounds();
 }

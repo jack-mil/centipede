@@ -15,11 +15,12 @@ I might go that route, it would simplify the fire-rate timing.
  * Laser objects that can be recycled throughout the scene.
  * Instances that are not `Laser::active` should not be drawn or updated.
  */
-class Laser {
-private:
+class Laser
+{
+  private:
     // Static properties common to all lasers
 
-    /** Laser speed in px/second*/
+    /** Laser speed in px/second. Original game had 7px per frame (60fps). */
     static constexpr float Speed = 7 * 60;
     /** Color of all lasers (Red) */
     static inline const sf::Color Color = sf::Color::Red;
@@ -28,7 +29,7 @@ private:
     /** Position of the center of the laser */
     sf::Vector2f m_pos;
 
-public:
+  public:
     /** Fire-rate of all Laser instances. */
     inline static const float fire_speed = 6.5;
     /** Shape to draw */
@@ -53,6 +54,19 @@ public:
      */
     void shoot(sf::Vector2f);
 
-    /** Update sprite position based on elapsed seconds. */
+    /**
+     * Move the beam straight up (negative y).
+     *
+     * Automatically deactivates when reaching the top.
+     * @param deltaTime Elapsed time in seconds
+     */
     void update(float deltaTime);
+
+    /**
+     * Get the boundary collider for this laser.
+     * For use with collision detection
+     *
+     * @return sf::FloatRect global bounds rectangle of the laser
+     */
+    sf::FloatRect getCollider() const;
 };

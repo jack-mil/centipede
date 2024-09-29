@@ -112,7 +112,7 @@ void Engine::input()
 
             // Start game from "menu" with "ENTER"
             if ((event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space) && state == State::Start) {
-                // Position the player in bounds
+                // Spawn all the enemies
                 m_shroomMan.spawn();
                 m_player.spawn();
                 m_spider.spawn();
@@ -163,9 +163,11 @@ void Engine::update(const float dtSeconds)
         return;
     }
 
-    m_centipede.update(dtSeconds);
-    m_spider.update(dtSeconds);
-    m_player.update(dtSeconds);
+    m_centipede.checkMushroomCollision(m_shroomMan.m_shrooms);
+
+    m_shroomMan.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
+
+    m_player.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
 
     for (auto& laser : m_lasers) {
         // skip updating or colliding with inactive lasers
@@ -173,28 +175,27 @@ void Engine::update(const float dtSeconds)
             continue;
         }
 
+        if (m_spider.checkLaserCollision(laser.getCollider())) {
+            laser.active = false;
+            continue;
+        }
+
+        if (m_shroomMan.checkLaserCollision(laser.getCollider())) {
+            laser.active = false;
+            continue;
+        }
+
+        if (m_centipede.checkLaserCollision(laser.getCollider())) {
+            laser.active = false;
+            continue;
+        }
+
         laser.update(dtSeconds); // move the laser upward
-
-        if (m_spider.checkLaserCollision(laser.m_shape.getGlobalBounds())) {
-            laser.active = false;
-            continue;
-        }
-
-        if (m_shroomMan.checkLaserCollision(laser.m_shape.getGlobalBounds())) {
-            laser.active = false;
-            continue;
-        }
-
-        // if (m_centipede.hitBy(laser.m_shape.getGlobalBounds())){
-        //     m_centipede.kill();
-        // }
     }
 
-    m_centipede.checkMushroomCollission(m_shroomMan.m_shrooms);
-
-    m_shroomMan.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
-
-    m_player.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
+    m_centipede.update(dtSeconds);
+    m_spider.update(dtSeconds);
+    m_player.update(dtSeconds);
 
     // when the player dies, restart the game
     if (m_player.isDead()) {
@@ -238,8 +239,6 @@ void Engine::draw()
         test3.setOutlineColor(sf::Color::Green);
         m_window.draw(test3);
 
-        // draw starship
-        m_window.draw(m_player.m_sprite);
 
         // draw spider
         m_spider.draw(m_window);
@@ -256,6 +255,9 @@ void Engine::draw()
                 m_window.draw(laser.m_shape);
             }
         }
+
+        // draw starship
+        m_window.draw(m_player.m_sprite);
 
         // switch to hud overlay sometime...
     }
