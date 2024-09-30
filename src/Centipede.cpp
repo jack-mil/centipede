@@ -210,7 +210,8 @@ void Segment::detectEdgeCollisions()
         }
     }
 
-    // after descending to the very bottom, bounce around in a 4 row area on the bottom (player area)
+    // after descending to the very bottom,
+    // bounce around in a 4 row area on the bottom (player area)
     if (m_descending)
     {
         // hit bottom edge

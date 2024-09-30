@@ -20,16 +20,21 @@ Defines the main game Engine and game loop logic.
  * Body sets window and view settings
  */
 Engine::Engine()
-    : texMan(), m_view{Game::GameCenter, Game::GameSize}, m_player{Engine::PlayerArea}, m_shroomMan{Engine::ShroomArea},
-      m_centipede{Engine::EnemyArea, m_shroomMan}, m_spider{Engine::SpiderArea}, m_totalGameTime{sf::Time::Zero},
+    : texMan(),
+      m_view{Game::GameCenter, Game::GameSize},
+      m_player{Engine::PlayerArea},
+      m_shroomMan{Engine::ShroomArea},
+      m_centipede{Engine::EnemyArea, m_shroomMan},
+      m_spider{Engine::SpiderArea},
+      m_totalGameTime{sf::Time::Zero},
       m_lastFired{sf::Time::Zero}
 {
 
     // calculate the window size to be square
 
-    const auto&        desktop = sf::VideoMode::getDesktopMode();
-    const unsigned int maxSize = 3 * (desktop.height / 4u); // 3/4 of total available height
-    sf::VideoMode      windowSize{maxSize, maxSize};
+    const auto&   desktop = sf::VideoMode::getDesktopMode();
+    const uint    maxSize = 3 * (desktop.height / 4u); // 3/4 of total available height
+    sf::VideoMode windowSize{maxSize, maxSize};
 
     // (re)create the window (allow resizing)
     m_window.create(windowSize, Game::Name, sf::Style::Default);

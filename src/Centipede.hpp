@@ -115,7 +115,8 @@ class Centipede : public sf::Drawable
     /**
      * Construct a new Centipede object with default length
      *
-     * @param shroomMan Reference to MushroomManager for collision and adding new mushrooms (non-owned)
+     * @param shroomMan Reference to MushroomManager
+                        for collision and adding new mushrooms (non-owned)
      * @param bounds Bounding area for movement
      */
     Centipede(const sf::FloatRect& bounds, MushroomManager& shroomMan);
