@@ -70,12 +70,7 @@ bool Centipede::checkMushroomCollision()
 
         // Check for collisions with every mushroom on the board
         // TODO: make this more smart?
-        for (const auto& shroom : m_shroomMan.m_shrooms) {
-
-            // Skip inactive shrooms
-            if (!shroom.active) {
-                continue;
-            }
+        for (const auto& shroom : m_shroomMan.getShrooms()) {
 
             const sf::Vector2f& shroomLeft = shroom.getLeftEdge();
             const sf::Vector2f& shroomRight = shroom.getRightEdge();

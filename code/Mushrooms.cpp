@@ -4,145 +4,171 @@ Class: ECE6122 A
 Last Date Modifed: 2024-09-30
 
 Description:
-The MushroomManager class definition.
-It creates a collection of mushrooms, and handles their state throughout the game.
+The MushroomManager and Shroom class definition.
 */
-#include <exception>
+
+#include <algorithm>
+#include <list>
+#include <random>
 
 #include "Mushrooms.hpp"
 #include "Settings.hpp"
 #include "TextureManager.hpp"
 
+/** Base constructor from x,y coordinates */
+Shroom::Shroom(float x, float y)
+{
+    const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
+    const auto& size = FullTexOffset.getSize();
+
+    this->setTexture(tex);
+    this->setTextureRect(FullTexOffset);
+    this->setOrigin(size.x / 2.f, size.y / 2.f);
+    this->setPosition(x, y);
+}
+
+/** Constructor overload for Vector parameter*/
+Shroom::Shroom(sf::Vector2f location) : Shroom{location.x, location.y} {}
+
 /**
- * Default constructor initializes the members but doesn't create any sprites
+ * Every mushroom starts with health=4, and can change to 3 levels of damage
+ * before being destroyed;
+ * @return remaining health
+ */
+int Shroom::damage()
+{
+    if (m_health <= 0) {
+        return 0;
+    }
+
+    m_health -= 1;
+
+    // Step through the textures for different damage levels,
+    switch (m_health) {
+    case 3:
+        this->setTextureRect(Damage3TexOffset);
+        break;
+    case 2:
+        this->setTextureRect(Damage2TexOffset);
+        break;
+    case 1:
+        this->setTextureRect(Damage1TexOffset);
+        break;
+    case 0:
+        // nothing to do, dead now. will get removed by manager
+        break;
+    default:
+        throw std::runtime_error("Exhuastive switch failure: shroom.m_health=" + m_health);
+        break;
+    }
+
+    return m_health;
+}
+
+sf::Vector2f Shroom::getRightEdge() const
+{
+    const sf::FloatRect& size = this->getLocalBounds();
+    const sf::Vector2f& center = this->getPosition();
+    return sf::Vector2f(center.x + size.width / 2.f, center.y);
+}
+
+sf::Vector2f Shroom::getLeftEdge() const
+{
+    const sf::FloatRect& size = this->getLocalBounds();
+    const sf::Vector2f& center = this->getPosition();
+    return sf::Vector2f(center.x - size.width / 2.f, center.y);
+}
+
+/**
+ * Manager constructor initializes the members and
+ * creates 30 mushroom sprites randomly scattered in the given bounds.
+ *
  * The random number generate needs to be initalized with a true random device, or a seed value.
+ *
+ * @param bounds Rectangle where mushrooms should be placed
  */
 MushroomManager::MushroomManager(sf::FloatRect bounds)
     : m_bounds(bounds), m_rng(std::random_device{}())
 {
-    // Reserve space for 30 sprites to avoid reallocations
-    m_shrooms.reserve(30);
-    // m_shroomShader.loadFromFile("shaders/mushroom.frag", sf::Shader::Fragment);
-    // m_shroomShader.setUniform("sheet", TextureManager::GetTexture("graphics/sprite_sheet.png"));
-    // m_shroomShader.setUniform("rect1", sf::Glsl::Vec4(104,107,8,8));
-    // m_shroomShader.setUniform("rect2", sf::Glsl::Vec4(104,123,8,8));
-}
-
-/**
- * Create 30 mushroom sprites randomly scattered in the given bounds.
- * @param bounds Rectangle where mushrooms should be placed
- */
-void MushroomManager::spawn()
-{
-    // Every sprite will use the same texture
-    const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
-    const sf::Vector2i& size = FullTexOffset.getSize();
-
-    // Need a random distribution in the 30x30 grid
+    // Need a random distribution aligned in the 30x30 grid
     auto x_range = static_cast<int>(m_bounds.width / Game::GridSize) - 1;
     auto y_range = static_cast<int>(m_bounds.height / Game::GridSize) - 1;
     std::uniform_int_distribution<int> random_x(0, x_range);
     std::uniform_int_distribution<int> random_y(0, y_range);
 
-    // Create 30 mushroom sprites with the same texture and random location
+    // Create 30 mushroom sprites in random locations
     for (size_t i = 0; i < 30; ++i) {
-        // Create a new sprite using the mushroom texture offset.
-        Shroom shroom{tex, FullTexOffset};
-        // change origin to center instead of top/left
-        shroom.sprite.setOrigin(size.x / 2.f, size.y / 2.f);
-        // location is random, but aligned to 8x8 grid
-        const float xPos = m_bounds.left + Game::GridSize * random_x(m_rng) + size.x / 2.f;
-        const float yPos = m_bounds.top + Game::GridSize * random_y(m_rng) + size.y / 2.f;
-        shroom.sprite.setPosition(xPos, yPos);
-        m_shrooms.push_back(std::move(shroom));
+        // random grid cells need to be offset so they refer to the center
+        const float xPos = m_bounds.left + Game::GridSize * random_x(m_rng) + Game::GridSize / 2.f;
+        const float yPos = m_bounds.top + Game::GridSize * random_y(m_rng) + Game::GridSize / 2.f;
+        // Create and add to list in-place
+        m_shrooms.emplace_back(xPos, yPos);
     }
 }
 
-void MushroomManager::draw(sf::RenderTarget& target)
+/** Constant reference getter prevents modification */
+const std::list<Shroom>& MushroomManager::getShrooms() const
 {
+    return m_shrooms;
+}
+
+/** Implement virtual method from Drawable so MushroomManager can be drawn by the Engine */
+void MushroomManager::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{
+    // only draw currently active mushrooms
     for (const auto& shroom : m_shrooms) {
-        if (shroom.active) {
-            target.draw(shroom.sprite);
-        }
+        target.draw(shroom, states);
     }
 }
 
-void MushroomManager::damage(Shroom& shroom)
-{
-    if (!shroom.active) {
-        return;
-    }
-
-    if (shroom.health == 0) {
-        return;
-    }
-
-    shroom.health--;
-
-    // Step through the textures for different damage levels,
-    //  and de-activate when fully destroyed.
-    switch (shroom.health) {
-    case 3:
-        shroom.sprite.setTextureRect(Damage3TexOffset);
-        break;
-    case 2:
-        shroom.sprite.setTextureRect(Damage2TexOffset);
-        break;
-    case 1:
-        shroom.sprite.setTextureRect(Damage1TexOffset);
-        break;
-    case 0:
-        shroom.active = false;
-        break;
-    default:
-        throw std::runtime_error("Exhuastive switch failure: shroom.health=" + shroom.health);
-        break;
-    }
-}
-
-/** Check all mushrooms to see if the spider is colliding */
+/** Remove any mushrooms that the spider intersects with */
 bool MushroomManager::checkSpiderCollision(sf::FloatRect spider)
 {
-    for (auto& shroom : m_shrooms) {
-        if (shroom.active && spider.intersects(shroom.sprite.getGlobalBounds())) {
-            shroom.active = false;
-            return true;
-        }
+    // construct lambda predicate
+    auto isHit = [&](const Shroom& s) {
+        return spider.intersects(s.getGlobalBounds());
+    };
+    // find first intersecting mushroom
+    auto hit_it = std::find_if(m_shrooms.begin(), m_shrooms.end(), isHit);
+    // remove if found
+    if (hit_it != m_shrooms.end()) {
+        m_shrooms.erase(hit_it);
+        return true;
     }
     return false;
 }
 
-/** Damage any mushroom hit by a laser beam */
+/** Damage any mushroom hit by a laser beam.
+ * @return true if a mushroom was hit
+ */
 bool MushroomManager::checkLaserCollision(sf::FloatRect laser)
 {
-    for (auto& shroom : m_shrooms) {
-        if (shroom.active && laser.intersects(shroom.sprite.getGlobalBounds())) {
-            MushroomManager::damage(shroom);
-            return true;
+    // construct lambda predicate
+    auto isHit = [&](const Shroom& s) {
+        return laser.intersects(s.getGlobalBounds());
+    };
+
+    // find the first intersecting mushroom (probably only 1 or none)
+    auto hit_it = std::find_if(m_shrooms.begin(), m_shrooms.end(), isHit);
+
+    // found one
+    if (hit_it != m_shrooms.end()) {
+        // Damage the mushroom to change it's texture,
+        int remaining_health = hit_it->damage();
+        // and delete if it was destroyed
+        if (remaining_health <= 0) {
+            m_shrooms.erase(hit_it);
         }
+        return true;
     }
+    // laser didn't hit anything
     return false;
 }
 
+/** Adds a mushroom the list list at a specific location.
+ * Used by centipede class with split.
+ */
 void MushroomManager::addMushroom(sf::Vector2f location)
 {
-    const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
-    const auto& size = FullTexOffset.getSize();
-    auto& newShroom = m_shrooms.emplace_back(tex, FullTexOffset);
-    newShroom.sprite.setPosition(location);
-    newShroom.sprite.setOrigin(size.x / 2.f, size.y / 2.f);
-}
-
-sf::Vector2f MushroomManager::Shroom::getRightEdge() const
-{
-    const sf::FloatRect& size = sprite.getLocalBounds();
-    const sf::Vector2f& center = sprite.getPosition();
-    return sf::Vector2f(center.x + size.width / 2.f, center.y);
-}
-
-sf::Vector2f MushroomManager::Shroom::getLeftEdge() const
-{
-    const sf::FloatRect& size = sprite.getLocalBounds();
-    const sf::Vector2f& center = sprite.getPosition();
-    return sf::Vector2f(center.x - size.width / 2.f, center.y);
+    m_shrooms.emplace_back(location);
 }

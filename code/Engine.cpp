@@ -126,7 +126,6 @@ void Engine::input()
             // Start game from "menu" with "ENTER"
             if ((event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space) && state == State::Start) {
                 // Spawn all the enemies
-                m_shroomMan.spawn();
                 m_player.spawn();
                 // m_spider.spawn();
 
@@ -234,7 +233,7 @@ void Engine::draw()
         m_spider.draw(m_window);
 
         // draw mushrooms
-        m_shroomMan.draw(m_window);
+        m_window.draw(m_shroomMan);
 
         // draw centipede(s)
         // m_centipede.draw(m_window);
