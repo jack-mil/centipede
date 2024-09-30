@@ -22,10 +22,10 @@ Defines the main game Engine and game loop logic.
 Engine::Engine()
     : texMan(),
       m_view{Game::GameCenter, Game::GameSize},
-      m_player{Engine::PlayerArea},
-      m_shroomMan{Engine::ShroomArea},
-      m_centipede{Engine::EnemyArea, m_shroomMan},
-      m_spider{Engine::SpiderArea},
+      m_player{Game::PlayerArea},
+      m_shroomMan{Game::ShroomArea},
+      m_centipede{Game::EnemyArea, m_shroomMan},
+      m_spider{Game::SpiderArea},
       m_totalGameTime{sf::Time::Zero},
       m_lastFired{sf::Time::Zero}
 {
