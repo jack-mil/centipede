@@ -21,7 +21,6 @@ Defines the main game Engine and game loop logic.
  */
 Engine::Engine()
     : texMan(),
-      m_window{Game::WindowMode, Game::Name, sf::Style::Close},
       m_view{Game::GameCenter, Game::GameSize},
       m_player{Engine::PlayerArea},
       m_shroomMan{Engine::ShroomArea},
@@ -30,24 +29,39 @@ Engine::Engine()
       m_totalGameTime{sf::Time::Zero}, m_lastFired{sf::Time::Zero}
 {
 
+    // calculate the window size to be square
+
+    const auto& desktop = sf::VideoMode::getDesktopMode();
+    const unsigned int maxSize = desktop.height / 2u; // 80% of total available height
+    sf::VideoMode windowSize{maxSize, maxSize};
+
+    // (re)create the window
+    m_window.create(windowSize, Game::Name, sf::Style::Close);
+
     // set some OS window options
     m_window.setMouseCursorVisible(false);
     m_window.setFramerateLimit(60); // original game was 60fps
     m_window.setVerticalSyncEnabled(false);
 
     // place the window in the center of the desktop
-    const auto xpos = (sf::VideoMode::getDesktopMode().width / 2u) - (m_window.getSize().x / 2u);
-    const auto ypos = (sf::VideoMode::getDesktopMode().height / 2u) - (m_window.getSize().y / 2u);
+    const auto xpos = (desktop.width / 2u) - (m_window.getSize().x / 2u);
+    const auto ypos = (desktop.height / 2u) - (m_window.getSize().y / 2u);
     m_window.setPosition(sf::Vector2i(static_cast<int>(xpos), static_cast<int>(ypos)));
 
     m_window.setView(m_view);
 
     // made my own startup image
     m_startSprite.setTexture(TextureManager::GetTexture("graphics/splash.png"));
+
+    // later as a HUD overlay (not submitted)
+    // m_border.setSize(Game::GameSize);
+    // m_border.setOutlineThickness(-2);
+    // m_border.setFillColor(sf::Color::Transparent);
+    // m_border.setOutlineColor(sf::Color::White);
 }
 
-/** Main entry-point into the game loop.
- *
+/**
+ * Main entry-point into the game loop.
  * Calls the input-update-draw methods until the window is closed.
  */
 void Engine::run()
@@ -61,7 +75,7 @@ void Engine::run()
         const sf::Time& dt = m_clock.restart();
         m_totalGameTime += dt;
         m_elapsedTime += dt.asSeconds();
-        const float tick = 1 / 60.f;
+        constexpr float tick = 1 / 60.f;
 
         // only draw frames at a maximum tick rate
         input();
@@ -70,23 +84,11 @@ void Engine::run()
             draw();
             m_elapsedTime = 0;
         }
-        // sf::sleep(sf::seconds(0.2));
-        // paused = true;
-        // while (paused) {
-        //     input();
-        //     sf::Event event;
-        //     while (m_window.pollEvent(event)) {
-        //         if (event.type == sf::Event::KeyPressed) {
-        //             if (event.key.code == sf::Keyboard::Period) {
-        //                 paused = false;
-        //             }
-        //         }
-        //     }
-        // }
     }
 }
 
-/** Handle event input (start/stop/quit),
+/**
+ * Handle event input (start/stop/quit),
  * player movement input (from Player::handleInput()),
  * as well as shooting lasers with <SPACE>.
  */
@@ -228,7 +230,6 @@ void Engine::draw()
 
     } else if (state == State::Playing) {
         // draw all the objects during game-play
-
         // draw spider
         m_window.draw(m_spider);
 
