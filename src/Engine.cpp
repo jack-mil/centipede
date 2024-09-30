@@ -35,8 +35,8 @@ Engine::Engine()
     const unsigned int maxSize = desktop.height / 2u; // 80% of total available height
     sf::VideoMode windowSize{maxSize, maxSize};
 
-    // (re)create the window
-    m_window.create(windowSize, Game::Name, sf::Style::Close);
+    // (re)create the window (allow resizing)
+    m_window.create(windowSize, Game::Name, sf::Style::Default);
 
     // set some OS window options
     m_window.setMouseCursorVisible(false);
