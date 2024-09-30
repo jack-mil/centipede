@@ -44,16 +44,8 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 # Enable warning and errors
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wsign-conversion -Wconversion -Wextra -Werror -pedantic -pedantic-errors)
 
-# # Copy DLLs using file(COPY ...)
-# # file(COPY ${PROJECT_SOURCE_DIR}/../SFML/extlibs/bin/x64/openal32.dll
-# #      DESTINATION "${COMMON_OUTPUT_DIR}/bin")
-# # file(COPY ${PROJECT_SOURCE_DIR}/fonts
-# #      DESTINATION "${COMMON_OUTPUT_DIR}/bin")
-# file(COPY ${PROJECT_SOURCE_DIR}/graphics
-#      DESTINATION "${COMMON_OUTPUT_DIR}/bin")
-# file(COPY ${PROJECT_SOURCE_DIR}/shaders
-#      DESTINATION "${COMMON_OUTPUT_DIR}/bin")
-# #  file(COPY "${PROJECT_SOURCE_DIR}/low res"
-# #  DESTINATION "${COMMON_OUTPUT_DIR}/bin")
-# #  file(COPY ${PROJECT_SOURCE_DIR}/sound
-# #  DESTINATION "${COMMON_OUTPUT_DIR}/bin")
+# ensure assets are copied to build directory
+# need a better solution in the code
+# to solve paths relative to cwd problem
+file(COPY ${PROJECT_SOURCE_DIR}/graphics
+     DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
