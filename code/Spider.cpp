@@ -4,28 +4,32 @@ Class: ECE6122 A
 Last Date Modifed: 2024-09-30
 
 Description:
-
+Spider class definition and implementation
 */
 
 #include <random>
 
+#include <SFML/Graphics.hpp>
+
 #include "Spider.hpp"
 #include "TextureManager.hpp"
 
-// std::normal_distribution<double> Spider::MoveTimeDistibution{Spider::AverageMoveDuration, 1};
-
-Spider::Spider(sf::FloatRect bounds)
-    : m_sprite{TextureManager::GetTexture("graphics/sprites.png"), sf::IntRect{8, 75, 15, 8}},
-      m_rng{std::random_device{}()}
+/** Construction and set up the inherited Sprite properties */
+Spider::Spider(sf::FloatRect bounds) : m_rng{std::random_device{}()}
 {
-    const auto& size = m_sprite.getLocalBounds();
-    m_sprite.setOrigin(size.width / 2.f, size.height / 2.f);
+    m_sprite.setTexture(TextureManager::GetTexture("graphics/sprites.png"));
+    m_sprite.setTextureRect(Spider::SpiderTexOffset);
 
-    bounds.left += size.width / 2.f;
-    bounds.top += size.height / 2.f;
-    bounds.width -= size.width;
-    bounds.height -= size.height;
+    const auto& size = Spider::SpiderTexOffset.getSize();
+    m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
+
+    bounds.left += size.x / 2.f;
+    bounds.top += size.y / 2.f;
+    bounds.width -= size.x;
+    bounds.height -= size.y;
     m_bounds = bounds;
+
+    this->spawn();
 }
 
 void Spider::spawn()
@@ -34,13 +38,13 @@ void Spider::spawn()
     m_sprite.setPosition(m_bounds.left, m_bounds.top);
     m_direction = Moving::UpRight;
     m_alive = true;
-    // m_moveDuration = MoveTimeDistibution(m_rng);
 }
 
-void Spider::die()
+void Spider::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    // show animation? increment score? reset position?
-    m_alive = false;
+    if (m_alive) {
+        target.draw(m_sprite, states);
+    }
 }
 
 void Spider::update(float deltaTime)
@@ -82,18 +86,22 @@ void Spider::update(float deltaTime)
     }
 
     m_moveTimer += deltaTime;
+    // time to pick a new direction?
     if (m_moveTimer >= m_moveDuration) {
         // Construct the possible next directions
         std::vector<Moving> allowedDirections;
         if (m_sprite.getPosition().x >= m_bounds.left + m_bounds.width) {
-            // on left edge
+            // on right edge
             allowedDirections = {Moving::Up, Moving::Down, Moving::UpLeft, Moving::DownLeft};
         } else if (m_sprite.getPosition().x < m_bounds.left) {
-            // on right edge
+            // on left edge
             allowedDirections = {Moving::Up, Moving::Down, Moving::UpRight, Moving::DownRight};
         } else {
             // can move anywhere if not on edges
-            allowedDirections = {Moving::Up, Moving::Down, Moving::UpRight, Moving::DownRight, Moving::UpLeft, Moving::DownLeft};
+            allowedDirections = {Moving::Up, Moving::Down, Moving::UpRight, Moving::DownRight};
+            if (m_canMoveLeft) {
+                allowedDirections.assign({Moving::UpLeft, Moving::DownLeft});
+            }
         }
 
         std::uniform_int_distribution<int> dist(0, allowedDirections.size() - 1);
@@ -102,9 +110,9 @@ void Spider::update(float deltaTime)
 
         // reset timer and select new random duration
         m_moveTimer = 0;
-        // m_moveDuration = MoveTimeDistibution(m_rng);
     }
 
+    // bounce off the edges predictably
     if (m_sprite.getPosition().y < m_bounds.top) {
         // On top edge
         switch (m_direction) {
@@ -138,20 +146,18 @@ void Spider::update(float deltaTime)
     }
 }
 
-void Spider::draw(sf::RenderTarget& target)
-{
-    if (m_alive) {
-        target.draw(m_sprite);
-    }
-}
-
-/** Check if a laser hit this spider, and 'kill' it */
+/**  */
 bool Spider::checkLaserCollision(sf::FloatRect other)
 {
     // only living spiders can be hit
     bool wasHit = m_alive && m_sprite.getGlobalBounds().intersects(other);
     if (wasHit) {
-        this->die();
+        m_alive = false;
     }
     return wasHit;
+}
+
+sf::FloatRect Spider::getCollider() const
+{
+    return m_sprite.getGlobalBounds();
 }

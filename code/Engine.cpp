@@ -127,7 +127,6 @@ void Engine::input()
             if ((event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space) && state == State::Start) {
                 // Spawn all the enemies
                 m_player.spawn();
-                // m_spider.spawn();
 
                 state = State::Playing;
                 std::cout << "Started" << std::endl;
@@ -175,9 +174,9 @@ void Engine::update(const float dtSeconds)
         return;
     }
 
-    m_shroomMan.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
+    m_shroomMan.checkSpiderCollision(m_spider.getCollider());
 
-    m_player.checkSpiderCollision(m_spider.m_sprite.getGlobalBounds());
+    m_player.checkSpiderCollision(m_spider.getCollider());
 
     for (auto& laser : m_lasers) {
         // skip updating or colliding with inactive lasers
@@ -230,7 +229,7 @@ void Engine::draw()
         // draw all the objects during game-play
 
         // draw spider
-        m_spider.draw(m_window);
+        m_window.draw(m_spider);
 
         // draw mushrooms
         m_window.draw(m_shroomMan);
