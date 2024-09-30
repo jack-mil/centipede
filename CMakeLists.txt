@@ -1,48 +1,63 @@
 # Minimum CMake version required
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.28)
 
 # Project name and version
-project(Lab1 VERSION 1.0)
+project(centipede LANGUAGES CXX VERSION 1.0)
 
 # Specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(OPENAL_LIBRARY ${PROJECT_SOURCE_DIR}/../SFML/extlibs/libs-msvc/x64/openal32.lib)
 
-add_definitions("-Wall")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    add_definitions(-Wall -Wextra -pedantic)
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
+# set(OPENAL_LIBRARY ${PROJECT_SOURCE_DIR}/../SFML/extlibs/libs-msvc/x64/openal32.lib)
+
+# Configure SFML options (use static linking)
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+# option(SFML_BUILD_AUDIO FALSE)
+set(SFML_STATIC_LIBRARIES TRUE)
+
+# Fetch the SFML source code dependencies from github
+include(FetchContent)
+FetchContent_Declare(SFML
+GIT_REPOSITORY https://github.com/SFML/SFML.git
+GIT_TAG 2.6.x
+GIT_SHALLOW ON
+EXCLUDE_FROM_ALL
+SYSTEM)
+FetchContent_MakeAvailable(SFML)
+
 
 # Add the executable
-add_executable(centipede
-    code/main.cpp
-    code/Engine.cpp
-    code/TextureManager.cpp
-    code/Player.cpp
-    code/Laser.cpp
-    code/Mushrooms.cpp
-    code/Spider.cpp
-    code/Centipede.cpp)
+add_executable(${PROJECT_NAME}
+                src/main.cpp
+                src/Engine.cpp
+                src/TextureManager.cpp
+                src/Player.cpp
+                src/Laser.cpp
+                src/Mushrooms.cpp
+                src/Spider.cpp
+                src/Centipede.cpp)
 
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/../SFML/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+# Enable warning and errors
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wsign-conversion -Wconversion -Wextra -pedantic -pedantic-errors)
 
-link_directories(${PROJECT_SOURCE_DIR}/../SFML/lib)
-
-# Link the executable to the libraries in the lib directory
-target_link_libraries(centipede PUBLIC sfml-graphics sfml-system sfml-window)
-
-set_target_properties(
-    centipede PROPERTIES
-    VS_DEBUGGER_WORKING_DIRECTORY "${COMMON_OUTPUT_DIR}/bin"
-)
-# Copy DLLs using file(COPY ...)
-# file(COPY ${PROJECT_SOURCE_DIR}/../SFML/extlibs/bin/x64/openal32.dll
+# # Copy DLLs using file(COPY ...)
+# # file(COPY ${PROJECT_SOURCE_DIR}/../SFML/extlibs/bin/x64/openal32.dll
+# #      DESTINATION "${COMMON_OUTPUT_DIR}/bin")
+# # file(COPY ${PROJECT_SOURCE_DIR}/fonts
+# #      DESTINATION "${COMMON_OUTPUT_DIR}/bin")
+# file(COPY ${PROJECT_SOURCE_DIR}/graphics
 #      DESTINATION "${COMMON_OUTPUT_DIR}/bin")
-# file(COPY ${PROJECT_SOURCE_DIR}/fonts
+# file(COPY ${PROJECT_SOURCE_DIR}/shaders
 #      DESTINATION "${COMMON_OUTPUT_DIR}/bin")
-file(COPY ${PROJECT_SOURCE_DIR}/graphics
-     DESTINATION "${COMMON_OUTPUT_DIR}/bin")
-file(COPY ${PROJECT_SOURCE_DIR}/shaders
-     DESTINATION "${COMMON_OUTPUT_DIR}/bin")
-#  file(COPY "${PROJECT_SOURCE_DIR}/low res"
-#  DESTINATION "${COMMON_OUTPUT_DIR}/bin")
-#  file(COPY ${PROJECT_SOURCE_DIR}/sound
-#  DESTINATION "${COMMON_OUTPUT_DIR}/bin")
+# #  file(COPY "${PROJECT_SOURCE_DIR}/low res"
+# #  DESTINATION "${COMMON_OUTPUT_DIR}/bin")
+# #  file(COPY ${PROJECT_SOURCE_DIR}/sound
+# #  DESTINATION "${COMMON_OUTPUT_DIR}/bin")
