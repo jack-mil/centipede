@@ -81,6 +81,9 @@ class Engine
     /** Start/Game over screen sprite */
     sf::Sprite m_startSprite;
 
+    /** Visual border for the edge of the game */
+    sf::RectangleShape m_border;
+
     /** Game state machine */
     State state = State::Start;
 
@@ -105,15 +108,10 @@ class Engine
     /** Draw all objects the the frame-buffer */
     void draw();
 
-    // Load a new level
-    // void loadLevel();
-
-    // Run will call all the private functions
-    // bool detectCollisions(PlayableCharacter &character);
-
-    // Make a vector of the best places to emit sounds from
-    // void populateEmitters(vector<Vector2f> &vSoundEmitters,
-    //   int **arrayLevel);
+    /** Resize the viewport to preserve the game aspect ratio when the window is resized
+     * @param width, height new size of the main window
+     */
+    void setViewport(unsigned int width, unsigned int height);
 
   public:
     /** Construct a new Engine object */

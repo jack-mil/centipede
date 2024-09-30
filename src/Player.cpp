@@ -31,6 +31,9 @@ Player::Player(sf::FloatRect bounds)
     bounds.width -= size.width;
     bounds.height -= size.height;
     m_bounds = bounds;
+
+    // move to starting position
+    this->spawn();
 }
 
 void Player::spawn()

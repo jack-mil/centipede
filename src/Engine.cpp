@@ -32,7 +32,7 @@ Engine::Engine()
     // calculate the window size to be square
 
     const auto& desktop = sf::VideoMode::getDesktopMode();
-    const unsigned int maxSize = desktop.height / 2u; // 80% of total available height
+    const unsigned int maxSize = 3 * (desktop.height / 4u); // 3/4 of total available height
     sf::VideoMode windowSize{maxSize, maxSize};
 
     // (re)create the window (allow resizing)
@@ -105,35 +105,19 @@ void Engine::input()
 
         // preserve the aspect ratio when resizing
         if (event.type == sf::Event::Resized) {
-            float windowRatio = static_cast<float>(event.size.width) / static_cast<float>(event.size.height);
-            float viewRatio = m_view.getSize().x / m_view.getSize().y;
-            float sizeX = 1;
-            float sizeY = 1;
-            float posX = 0;
-            float posY = 0;
-
-            if (windowRatio > viewRatio) {
-                sizeX = viewRatio / windowRatio;
-                posX = (1 - sizeX) / 2;
-            } else {
-                sizeY = windowRatio / viewRatio;
-                posY = (1 - sizeY) / 2;
-            }
-
-            m_view.setViewport(sf::FloatRect(posX, posY, sizeX, sizeY));
-            m_window.setView(m_view);
+            this->setViewport(event.size.width, event.size.height);
         }
 
         if (event.type == sf::Event::KeyPressed) {
 
             // Start game from "menu" with "ENTER"
-            if ((event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space) && state == State::Start) {
-                // Spawn all the enemies
-                m_player.spawn();
+            if (state == State::Start && (event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space)) {
 
                 state = State::Playing;
                 std::cout << "Started" << std::endl;
                 m_clock.restart(); // restart clock to prevent frame skip
+
+                m_player.spawn(); // respawn the player if they are dead
             }
 
             // Quit game whenever "ESC" pressed
@@ -150,7 +134,7 @@ void Engine::input()
         // Handle player movement with WASD keys
         m_player.handleInput();
 
-        // Handle shooting lasers
+        // Handle shooting lasers (TODO: move to Player (?) probably)
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
             auto elapsed = m_totalGameTime.asMilliseconds() - m_lastFired.asMilliseconds();
             if (elapsed > static_cast<int>(1000 / Laser::fire_speed)) {
@@ -166,8 +150,8 @@ void Engine::input()
 }
 
 /**
- * Update all object positions and state.
- *
+ * Update all object positions and check for collisions
+ * Check for GameOver event (player dead)
  * @param dtSeconds time since last frame
  */
 void Engine::update(const float dtSeconds)
@@ -252,4 +236,32 @@ void Engine::draw()
     }
 
     m_window.display();
+}
+
+/**
+ * Handles resizing the SFML viewport to preserve the correct game aspect ratio
+ * when the main window is resized. This prevents any distortion of the game characters,
+ * while enlarging (or shrinking) uniformly.
+ *
+ * @param width, height new size of the main window
+ */
+void Engine::setViewport(unsigned int width, unsigned int height)
+{
+    float windowRatio = static_cast<float>(width) / static_cast<float>(height);
+    float viewRatio = m_view.getSize().x / m_view.getSize().y;
+    float sizeX = 1;
+    float sizeY = 1;
+    float posX = 0;
+    float posY = 0;
+
+    if (windowRatio > viewRatio) {
+        sizeX = viewRatio / windowRatio;
+        posX = (1 - sizeX) / 2;
+    } else {
+        sizeY = windowRatio / viewRatio;
+        posY = (1 - sizeY) / 2;
+    }
+
+    m_view.setViewport(sf::FloatRect(posX, posY, sizeX, sizeY));
+    m_window.setView(m_view);
 }
