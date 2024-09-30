@@ -1,5 +1,5 @@
 # Minimum CMake version required
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.26)
 
 # Project name and version
 project(centipede LANGUAGES CXX VERSION 1.0)
@@ -13,7 +13,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # set(OPENAL_LIBRARY ${PROJECT_SOURCE_DIR}/../SFML/extlibs/libs-msvc/x64/openal32.lib)
 
 # Configure SFML options
-# option(SFML_BUILD_AUDIO FALSE)
+option(SFML_BUILD_AUDIO FALSE)
 # Static linking wasn't wuite working right
 # Laser's aren't visible, no errors tho... strange
 # option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
