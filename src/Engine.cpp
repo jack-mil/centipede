@@ -30,11 +30,15 @@ Engine::Engine()
       m_lastFired{sf::Time::Zero}
 {
 
-    // calculate the window size to be square
+    // calculate the window size to be 3/4 of available height
 
-    const auto&   desktop = sf::VideoMode::getDesktopMode();
-    const uint    maxSize = 3 * (desktop.height / 4u); // 3/4 of total available height
-    sf::VideoMode windowSize{maxSize, maxSize};
+    const auto& desktop   = sf::VideoMode::getDesktopMode();
+    const uint  maxHeight = 3 * (desktop.height / 4);
+
+    const float gameRatio = Game::GameSize.x / Game::GameSize.y;
+    const uint  maxWidth  = static_cast<uint>(gameRatio * static_cast<float>(maxHeight));
+
+    sf::VideoMode windowSize{maxWidth, maxHeight};
 
     // (re)create the window (allow resizing)
     m_window.create(windowSize, Game::Name, sf::Style::Default);
