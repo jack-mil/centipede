@@ -30,8 +30,8 @@ class Laser
     sf::Vector2f m_pos;
 
   public:
-    /** Fire-rate of all Laser instances. */
-    inline static const float fire_speed = 6.5;
+    /** Fire-rate of all Laser instances (shots/second) */
+    static constexpr double fire_speed = 6.5;
     /** Shape to draw */
     sf::RectangleShape m_shape;
     /** Only draw active lasers. */

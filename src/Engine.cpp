@@ -35,14 +35,14 @@ Engine::Engine()
     m_window.setVerticalSyncEnabled(false);
 
     // place the window in the center of the desktop
-    m_window.setPosition(sf::Vector2i(
-        (sf::VideoMode::getDesktopMode().width / 2) - (m_window.getSize().x / 2),
-        (sf::VideoMode::getDesktopMode().height / 2) - (m_window.getSize().y / 2)));
+    const auto xpos = (sf::VideoMode::getDesktopMode().width / 2u) - (m_window.getSize().x / 2u);
+    const auto ypos = (sf::VideoMode::getDesktopMode().height / 2u) - (m_window.getSize().y / 2u);
+    m_window.setPosition(sf::Vector2i(static_cast<int>(xpos), static_cast<int>(ypos)));
 
     m_window.setView(m_view);
 
     // grossly scale the image for now (TODO: need different splash screen)
-    m_startSprite.setScale(0.4, 0.5);
+    m_startSprite.setScale(0.4f, 0.5f);
 }
 
 /** Main entry-point into the game loop.
@@ -102,7 +102,7 @@ void Engine::input()
 
         // preserve the aspect ratio when resizing
         if (event.type == sf::Event::Resized) {
-            float windowRatio = static_cast<float>(event.size.width) / event.size.height;
+            float windowRatio = static_cast<float>(event.size.width) / static_cast<float>(event.size.height);
             float viewRatio = m_view.getSize().x / m_view.getSize().y;
             float sizeX = 1;
             float sizeY = 1;
@@ -149,8 +149,8 @@ void Engine::input()
 
         // Handle shooting lasers
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-
-            if (m_totalGameTime.asMilliseconds() - m_lastFired.asMilliseconds() > 1000 / Laser::fire_speed) {
+            auto elapsed = m_totalGameTime.asMilliseconds() - m_lastFired.asMilliseconds();
+            if (elapsed > static_cast<int>(1000 / Laser::fire_speed)) {
                 m_lasers[m_currentLaser].shoot(m_player.getGunPosition());
                 m_currentLaser++;
                 if (m_currentLaser > m_lasers.size()) {
@@ -247,7 +247,6 @@ void Engine::draw()
 
         // draw starship
         m_window.draw(m_player);
-
     }
 
     m_window.display();

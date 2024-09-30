@@ -9,7 +9,8 @@ Centipede Game using C++ and SFML.
 #include "Engine.hpp"
 #include <iostream>
 
-int main(int argc, char const *argv[]) {
+int main()
+{
     try {
         Engine engine;
         engine.run();

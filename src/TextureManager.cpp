@@ -7,7 +7,8 @@
 TextureManager *TextureManager::m_s_Instance = nullptr;
 
 /** Constructor sets up the static reference. */
-TextureManager::TextureManager() : m_texCache() {
+TextureManager::TextureManager() : m_texCache()
+{
     // assert prevent's multiple TextureManagers for being created
     assert(m_s_Instance == nullptr);
     m_s_Instance = this;
@@ -17,10 +18,13 @@ TextureManager::TextureManager() : m_texCache() {
  * @brief Return a texture reference, loading it from a file if necessary
  *
  * This is a static method that makes it easy for any code to get a texture reference.
- * @param filename the texture to load
+ * @param path the texture to load
  * @return sf::Texture&
  */
-const sf::Texture& TextureManager::GetTexture(const std::string& filename) {
+const sf::Texture& TextureManager::GetTexture(const char *path)
+{
+    // convert to string
+    std::string filename{path};
     // reference to mapping in instance object
     auto& texture_cache = m_s_Instance->m_texCache;
 

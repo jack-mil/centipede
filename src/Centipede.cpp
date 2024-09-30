@@ -24,13 +24,14 @@ Centipede::Centipede(const sf::FloatRect& bounds, MushroomManager& shroomMan)
 {
 
     // set starting position of the head
-    const auto& size = HeadTexOffset.getSize(); // 8x8 px
-    sf::Vector2f startPos{m_bounds.left + (m_bounds.width / 2.f), m_bounds.top + size.y / 2};
+    const auto& size = static_cast<sf::Vector2f>(BodyTexOffset.getSize()); // 8x8 px
+    sf::Vector2f startPos{m_bounds.left + (m_bounds.width / 2.f), m_bounds.top + size.y / 2.f};
 
     // construct the sprite segments in-place using  list iterator
-    for (size_t i = 0; i < Centipede::MaxLength; i++) {
+    for (int i = 0; i < Centipede::MaxLength; i++) {
         auto& new_seg = m_segments.emplace_back(m_bounds);
-        new_seg.setPosition(startPos.x + Game::GridSize * i, startPos.y);
+        const auto spacing = static_cast<float>(Game::GridSize * i);
+        new_seg.setPosition(startPos.x + spacing, startPos.y);
     }
 
     // (Re)set the head texture
@@ -140,7 +141,7 @@ Segment::Segment(sf::FloatRect bounds) : m_bounds{bounds}
     this->setTexture(tex);
     this->setTextureRect(Centipede::BodyTexOffset);
 
-    const auto& size = Centipede::BodyTexOffset.getSize();
+    const auto& size = this->getLocalBounds().getSize();
     this->setOrigin(size.x / 2.f, size.y / 2.f);
 }
 
@@ -236,14 +237,14 @@ sf::Vector2f Segment::getRightEdge() const
 {
     const float width = this->getLocalBounds().width;
     const sf::Vector2f& center = this->getPosition();
-    return sf::Vector2f(center.x + width / 2.0, center.y);
+    return sf::Vector2f(center.x + width / 2.f, center.y);
 }
 
 sf::Vector2f Segment::getLeftEdge() const
 {
     const float width = this->getLocalBounds().width;
     const sf::Vector2f& center = this->getPosition();
-    return sf::Vector2f(center.x - width / 2.0, center.y);
+    return sf::Vector2f(center.x - width / 2.f, center.y);
 }
 
 void Segment::setHead()

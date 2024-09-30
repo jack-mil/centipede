@@ -15,10 +15,11 @@ then activated/moved when needed.
  * Construct a new Laser object.
  * Set the size and color, and set origin to center.
  */
-Laser::Laser() : m_pos(), m_shape() {
+Laser::Laser() : m_pos(), m_shape()
+{
     m_shape.setSize(Laser::Size);
     m_shape.setFillColor(Laser::Color);
-    m_shape.setOrigin(Laser::Size.x / 2.0, Laser::Size.y / 2.0);
+    m_shape.setOrigin(Laser::Size.x / 2.f, Laser::Size.y / 2.f);
 }
 
 /**
@@ -26,7 +27,8 @@ Laser::Laser() : m_pos(), m_shape() {
  * @param x pos of start
  * @param y pos of start
  */
-void Laser::shoot(float x, float y) {
+void Laser::shoot(float x, float y)
+{
     active = true;
     m_pos.x = x;
     m_pos.y = y;
@@ -39,12 +41,14 @@ void Laser::shoot(float x, float y) {
  * Overload for vector start position
  * @param start  position to start from
  */
-void Laser::shoot(sf::Vector2f start) {
+void Laser::shoot(sf::Vector2f start)
+{
     shoot(start.x, start.y);
 }
 
 /** Update sprite position based on elapsed seconds. */
-void Laser::update(float deltaTime) {
+void Laser::update(float deltaTime)
+{
     if (!active) {
         return;
     }
@@ -58,6 +62,7 @@ void Laser::update(float deltaTime) {
 }
 
 /** Return the boundary collider of this laser object. */
-sf::FloatRect Laser::getCollider() const {
+sf::FloatRect Laser::getCollider() const
+{
     return m_shape.getGlobalBounds();
 }

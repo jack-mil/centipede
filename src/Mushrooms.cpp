@@ -18,11 +18,12 @@ The MushroomManager and Shroom class definition.
 /** Base constructor from x,y coordinates */
 Shroom::Shroom(float x, float y)
 {
-    const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
-    const auto& size = FullTexOffset.getSize();
 
+    const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
     this->setTexture(tex);
     this->setTextureRect(FullTexOffset);
+
+    const auto& size = this->getLocalBounds().getSize();
     this->setOrigin(size.x / 2.f, size.y / 2.f);
     this->setPosition(x, y);
 }
@@ -99,8 +100,10 @@ MushroomManager::MushroomManager(sf::FloatRect bounds)
     // Create 30 mushroom sprites in random locations
     for (size_t i = 0; i < 30; ++i) {
         // random grid cells need to be offset so they refer to the center
-        const float xPos = m_bounds.left + Game::GridSize * random_x(m_rng) + Game::GridSize / 2.f;
-        const float yPos = m_bounds.top + Game::GridSize * random_y(m_rng) + Game::GridSize / 2.f;
+        const float gridx = static_cast<float>(Game::GridSize * random_x(m_rng));
+        const float gridy = static_cast<float>(Game::GridSize * random_y(m_rng));
+        const float xPos = m_bounds.left + gridx + Game::GridSize / 2.f;
+        const float yPos = m_bounds.top + gridy + Game::GridSize / 2.f;
         // Create and add to list in-place
         m_shrooms.emplace_back(xPos, yPos);
     }

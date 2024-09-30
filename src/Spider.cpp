@@ -20,7 +20,7 @@ Spider::Spider(sf::FloatRect bounds) : m_rng{std::random_device{}()}
     m_sprite.setTexture(TextureManager::GetTexture("graphics/sprites.png"));
     m_sprite.setTextureRect(Spider::SpiderTexOffset);
 
-    const auto& size = Spider::SpiderTexOffset.getSize();
+    const auto& size = m_sprite.getLocalBounds().getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
 
     bounds.left += size.x / 2.f;
@@ -104,7 +104,7 @@ void Spider::update(float deltaTime)
             }
         }
 
-        std::uniform_int_distribution<int> dist(0, allowedDirections.size() - 1);
+        std::uniform_int_distribution<size_t> dist(0, allowedDirections.size() - 1);
         // Pick from a random index in allowed directions
         m_direction = allowedDirections[dist(m_rng)];
 

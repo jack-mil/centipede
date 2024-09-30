@@ -9,7 +9,8 @@
  * and allows many sprites to share the same texture.
  * Modified from Chapter 18 code.
  */
-class TextureManager {
+class TextureManager
+{
   private:
     /** Pointer of the same type as the class itself
      *  the one and only instance.
@@ -34,5 +35,5 @@ class TextureManager {
      * @param filename the texture to load
      * @return sf::Texture&
      */
-    static const sf::Texture& GetTexture(std::string const& filename);
+    static const sf::Texture& GetTexture(const char *path);
 };

@@ -1,0 +1,15 @@
+{
+    "cmake.automaticReconfigure": false,
+    "cmake.configureOnEdit": false,
+    "cmake.configureOnOpen": false,
+    "C_Cpp.clang_format_fallbackStyle": "{UseTab: Never, IndentWidth: 4, TabWidth: 4, BreakBeforeBraces: Linux, ReferenceAlignment: Left, AllowShortEnumsOnASingleLine: true, PackConstructorInitializers: BinPack, AllowShortIfStatementsOnASingleLine: false, IndentCaseLabels: false, ColumnLimit: 0, AccessModifierOffset: -2, NamespaceIndentation: All}",
+    "editor.semanticTokenColorCustomizations": {
+        "[Catppuccin Frappé]": {
+            "rules": {
+                "property:cpp":{
+                    "foreground": "#f2d5cf",
+                }
+            }
+        }
+    },
+}
