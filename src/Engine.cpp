@@ -123,8 +123,7 @@ void Engine::input()
         {
 
             // Start game from "menu" with "ENTER"
-            if (state == State::Start &&
-                (event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space))
+            if (state == State::Start && (event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space))
             {
 
                 state = State::Playing;
