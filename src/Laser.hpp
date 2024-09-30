@@ -15,31 +15,28 @@ I might go that route, it would simplify the fire-rate timing.
  * Laser objects that can be recycled throughout the scene.
  * Instances that are not `Laser::active` should not be drawn or updated.
  */
-class Laser
+class Laser : public sf::Drawable
 {
-  private:
-    // Static properties common to all lasers
-
-    /** Laser speed in px/second. Original game had 7px per frame (60fps). */
-    static constexpr float Speed = 7 * 60;
-    /** Color of all lasers (Red) */
-    static inline const sf::Color Color = sf::Color::Red;
-    /** Size of all lasers (px) */
-    static inline const sf::Vector2f Size{1.0, 6.0};
-    /** Position of the center of the laser */
-    sf::Vector2f m_pos;
-
   public:
     /** Fire-rate of all Laser instances (shots/second) */
-    static constexpr double fire_speed = 6.5;
-    /** Shape to draw */
-    sf::RectangleShape m_shape;
-    /** Only draw active lasers. */
-    bool active = false;
+    static constexpr double FireRate = 6.5;
+
     /** Construct a new Laser. */
     Laser();
-    /** Deactivate this Laser object. */
-    void stop();
+
+    /**
+     * Move the beam straight up (negative y).
+     *
+     * Automatically deactivates when reaching the top.
+     * @param deltaTime Elapsed time in seconds
+     */
+    void update(float deltaTime);
+
+    /**
+     * Draw to the target
+     * Implements sf::Drawable.draw
+     */
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     /**
      * Make this Laser active, and set it's position to (x,y)
@@ -55,18 +52,34 @@ class Laser
     void shoot(sf::Vector2f);
 
     /**
-     * Move the beam straight up (negative y).
-     *
-     * Automatically deactivates when reaching the top.
-     * @param deltaTime Elapsed time in seconds
-     */
-    void update(float deltaTime);
-
-    /**
      * Get the boundary collider for this laser.
      * For use with collision detection
      *
      * @return sf::FloatRect global bounds rectangle of the laser
      */
     sf::FloatRect getCollider() const;
+
+    /** Change the state of this laser to in-active */
+    void deactivate();
+
+    /** @return if this laser is currently active */
+    bool isActive() const;
+
+  private:
+    // Static properties common to all lasers
+
+    /** Laser speed in px/second. Original game had 7px per frame (60fps). */
+    static constexpr float Speed = 7 * 60;
+
+    /** Color of all lasers (Red) */
+    static inline const sf::Color Color = sf::Color::Red;
+
+    /** Size of all lasers (px) */
+    static inline const sf::Vector2f Size{1.0, 6.0};
+
+    /** Only draw active lasers. */
+    bool m_active = false;
+
+    /** Shape of the laser (rectangle) */
+    sf::RectangleShape m_shape;
 };

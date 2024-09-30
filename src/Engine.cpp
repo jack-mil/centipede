@@ -145,7 +145,9 @@ void Engine::input()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
         {
             auto elapsed = m_totalGameTime.asMilliseconds() - m_lastFired.asMilliseconds();
-            if (elapsed > static_cast<int>(1000 / Laser::fire_speed))
+
+            // only fire after the firing period has elapsed
+            if (elapsed > static_cast<int>(1000 / Laser::FireRate))
             {
                 m_lasers[m_currentLaser].shoot(m_player.getGunPosition());
                 m_currentLaser++;
@@ -179,26 +181,26 @@ void Engine::update(const float dtSeconds)
     for (auto& laser : m_lasers)
     {
         // skip updating or colliding with inactive lasers
-        if (!laser.m_active)
+        if (!laser.isActive())
         {
             continue;
         }
 
         if (m_spider.checkLaserCollision(laser.getCollider()))
         {
-            laser.m_active = false;
+            laser.deactivate();
             continue;
         }
 
         if (m_shroomMan.checkLaserCollision(laser.getCollider()))
         {
-            laser.m_active = false;
+            laser.deactivate();
             continue;
         }
 
         if (m_centipede.checkLaserCollision(laser.getCollider()))
         {
-            laser.m_active = false;
+            laser.deactivate();
             continue;
         }
 
@@ -233,26 +235,20 @@ void Engine::draw()
     else if (state == State::Playing)
     {
         // draw all the objects during game-play
-        // draw spider
+
         m_window.draw(m_spider);
 
-        // draw mushrooms
         m_window.draw(m_shroomMan);
 
         // draw centipede(s)
-        // m_centipede.draw(m_window);
         m_window.draw(m_centipede);
 
-        // draw lasers
+        // draw lasers (automatically doesn't draw inactive ones)
         for (const auto& laser : m_lasers)
         {
-            if (laser.m_active)
-            {
-                m_window.draw(laser.m_shape);
-            }
+            m_window.draw(laser);
         }
 
-        // draw starship
         m_window.draw(m_player);
     }
 

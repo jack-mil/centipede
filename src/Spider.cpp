@@ -23,9 +23,9 @@ Spider::Spider(sf::FloatRect bounds) : m_rng{std::random_device{}()}
     const auto& size = m_sprite.getLocalBounds().getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
 
-    bounds.left   += size.x / 2.f;
-    bounds.top    += size.y / 2.f;
-    bounds.width  -= size.x;
+    bounds.left += size.x / 2.f;
+    bounds.top += size.y / 2.f;
+    bounds.width -= size.x;
     bounds.height -= size.y;
     m_bounds = bounds;
 
