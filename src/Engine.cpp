@@ -27,8 +27,7 @@ Engine::Engine()
       m_shroomMan{Engine::ShroomArea},
       m_centipede{Engine::EnemyArea, m_shroomMan},
       m_spider{Engine::SpiderArea},
-      m_lasers(), m_startSprite{TextureManager::GetTexture("graphics/startup-screen-background.png")},
-      m_clock(), m_totalGameTime{sf::Time::Zero}, m_lastFired{sf::Time::Zero}
+      m_totalGameTime{sf::Time::Zero}, m_lastFired{sf::Time::Zero}
 {
 
     // set some OS window options
@@ -43,8 +42,8 @@ Engine::Engine()
 
     m_window.setView(m_view);
 
-    // grossly scale the image for now (TODO: need different splash screen)
-    m_startSprite.setScale(0.4f, 0.5f);
+    // made my own startup image
+    m_startSprite.setTexture(TextureManager::GetTexture("graphics/splash.png"));
 }
 
 /** Main entry-point into the game loop.
