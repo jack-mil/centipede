@@ -12,10 +12,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # set(OPENAL_LIBRARY ${PROJECT_SOURCE_DIR}/../SFML/extlibs/libs-msvc/x64/openal32.lib)
 
-# Configure SFML options (use static linking)
-option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+# Configure SFML options
 # option(SFML_BUILD_AUDIO FALSE)
-set(SFML_STATIC_LIBRARIES TRUE)
+# Static linking wasn't wuite working right
+# Laser's aren't visible, no errors tho... strange
+# option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+# set(SFML_STATIC_LIBRARIES TRUE)
 
 # Fetch the SFML source code dependencies from github
 include(FetchContent)
