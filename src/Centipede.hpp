@@ -36,17 +36,24 @@ class Segment : public sf::Sprite
     Segment() = delete; // no default constructor
 
     /** Enum to represent the direction the centipede is moving */
-    enum class Moving { Right,
-                        Left };
+    enum class Moving { Right, Left };
     /** Enum for the states of colliding animation */
-    enum class Animation { None,
-                           Start,
-                           Mid1,
-                           Mid2,
-                           Final };
+    enum class Animation { None, Start, Mid1, Mid2, Final };
 
+    /** Move the segment according to it's current state */
     void update(float deltaTime);
-    void updateNextState();
+
+    /** Check for hitting the bound edges, and update state */
+    void detectEdgeCollisions();
+
+    /**
+     * Check if a segment will collide with a mushroom.
+     *
+     * Go into collision animation state if it does.
+     *
+     * @param shroom The mushroom to collide with
+     */
+    bool detectMushroomCollisions(const Shroom& shroom);
 
     /**
      * Get the x,y position of the left edge for collisions
@@ -60,21 +67,33 @@ class Segment : public sf::Sprite
      */
     sf::Vector2f getRightEdge() const;
 
-    /** Mark this segment as a centipede head and change the sprite texture. */
+    /** Mark this segment as a centipede head and change the sprite texture */
     void setHead();
 
-    /** Check if this is a centipede head. */
+    /** Check if this is a centipede head */
     bool isHead();
 
-    Moving m_direction = Moving::Left;
-    Animation m_animation = Animation::None;
-    bool m_descending = true;
+    /** Check if this segment is currently in a collision animation */
+    bool isAnimating();
 
   private:
+    // Texture positions
+    static inline const sf::IntRect HeadTexOffset{12, 43, 8, 8};   // head texture
+    static inline const sf::IntRect BodyTexOffset{116, 251, 8, 8}; // body texture
+
+    /** The current direction this segment is moving in */
+    Moving m_direction = Moving::Left;
+
+    /** The current state of collision. None represents not colliding */
+    Animation m_animation = Animation::None;
+
     /** Bounding area of centipede movement (px) */
     sf::FloatRect m_bounds;
+
+    bool m_descending = true;
+
+    /* Marks a segment as a head type*/
     bool m_isHead = false;
-    bool m_isTail = false;
 };
 
 /**
@@ -107,8 +126,10 @@ class Centipede : public sf::Drawable
     // No copy assignment
     Centipede& operator=(const Centipede&) = delete;
 
-    bool checkMushroomCollision();
+    /** Check all segments against all mushrooms to see if they collide */
+    void checkMushroomCollision();
 
+    /** Check if a laser hits any centipede segments*/
     bool checkLaserCollision(sf::FloatRect laser);
 
     /** Update the centipede position based on elapsed seconds */
@@ -117,8 +138,6 @@ class Centipede : public sf::Drawable
     /** Draw all segments to the target window or texture */
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-    static inline const sf::IntRect HeadTexOffset{12, 43, 8, 8};   // head texture
-    static inline const sf::IntRect BodyTexOffset{116, 251, 8, 8}; // body texture
   private:
     /**
      * Split the centipede at the given segment, removing it.
