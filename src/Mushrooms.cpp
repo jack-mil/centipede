@@ -11,6 +11,8 @@ The MushroomManager and Shroom class definition.
 #include <list>
 #include <random>
 
+#include "SFML/Graphics.hpp"
+
 #include "Mushrooms.hpp"
 #include "Settings.hpp"
 #include "TextureManager.hpp"

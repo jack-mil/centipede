@@ -1,6 +1,5 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <string_view>
 
 /** Settings and Constants for the Centipede game */
 namespace Game {

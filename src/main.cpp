@@ -7,7 +7,6 @@ Description:
 Centipede Game using C++ and SFML.
 */
 #include "Engine.hpp"
-#include <iostream>
 
 int main()
 {

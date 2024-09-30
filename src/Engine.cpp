@@ -8,6 +8,8 @@ Defines the main game Engine and game loop logic.
 */
 #include <iostream>
 
+#include <SFML/Graphics.hpp>
+
 #include "Engine.hpp"
 #include "Settings.hpp"
 

@@ -7,8 +7,9 @@ Description:
 Declare the Game Engine. Engine::run() is the main entrypoint into the game.
 */
 #pragma once
-#include <SFML/Graphics.hpp>
 #include <array>
+
+#include "SFML/Graphics.hpp"
 
 #include "Centipede.hpp"
 #include "Laser.hpp"

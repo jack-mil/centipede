@@ -7,7 +7,7 @@ Description:
 Laser object definition. These are instantiated once at runtime,
 then activated/moved when needed.
 */
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
 
 #include "Laser.hpp"
 

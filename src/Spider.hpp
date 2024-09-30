@@ -9,8 +9,9 @@ If the player hits the spider, a life is lost and the player is reset.
 */
 
 #pragma once
-#include <SFML/Graphics.hpp>
 #include <random>
+
+#include <SFML/Graphics.hpp>
 
 class Spider : public sf::Drawable
 {

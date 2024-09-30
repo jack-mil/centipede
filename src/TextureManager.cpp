@@ -1,6 +1,7 @@
 #include <cassert>
 #include <exception>
-#include <iostream>
+
+#include "SFML/Graphics.hpp"
 
 #include "TextureManager.hpp"
 

@@ -9,7 +9,7 @@ The player can move around a given bounds using the WASD or arrow keys.
 If a enemy collides with the player, a life is lost.
 */
 
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
 
 #include "Player.hpp"
 #include "TextureManager.hpp"

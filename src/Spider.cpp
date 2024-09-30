@@ -9,7 +9,7 @@ Spider class definition and implementation
 
 #include <random>
 
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
 
 #include "Spider.hpp"
 #include "TextureManager.hpp"

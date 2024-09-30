@@ -7,8 +7,9 @@ Description:
 Centipede class definition.
 */
 
-#include "SFML/Graphics.hpp"
 #include <list>
+
+#include "SFML/Graphics.hpp"
 
 #include "Centipede.hpp"
 #include "Mushrooms.hpp"
