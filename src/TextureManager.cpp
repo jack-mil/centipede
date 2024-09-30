@@ -5,7 +5,7 @@
 
 #include "TextureManager.hpp"
 
-TextureManager *TextureManager::m_s_Instance = nullptr;
+TextureManager* TextureManager::m_s_Instance = nullptr;
 
 /** Constructor sets up the static reference. */
 TextureManager::TextureManager() : m_texCache()
@@ -22,7 +22,7 @@ TextureManager::TextureManager() : m_texCache()
  * @param path the texture to load
  * @return sf::Texture&
  */
-const sf::Texture& TextureManager::GetTexture(const char *path)
+const sf::Texture& TextureManager::GetTexture(const char* path)
 {
     // convert to string
     std::string filename{path};
@@ -30,16 +30,19 @@ const sf::Texture& TextureManager::GetTexture(const char *path)
     auto& texture_cache = m_s_Instance->m_texCache;
 
     // Check mapping for the filename, return value if found (C++17 init statement syntax)
-    if (auto got = texture_cache.find(filename); got != texture_cache.end()) {
+    if (auto got = texture_cache.find(filename); got != texture_cache.end())
+    {
 
         return got->second;
-
-    } else {
+    }
+    else
+    {
         // File not loaded yet!
         // Create a new key value pair using the filename
         auto& texture = texture_cache[filename];
 
-        if (!texture.loadFromFile(filename)) {
+        if (!texture.loadFromFile(filename))
+        {
             // If file can't be found, abort
             throw std::runtime_error("Could not load file: " + filename);
         }

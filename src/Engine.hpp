@@ -21,11 +21,7 @@ Declare the Game Engine. Engine::run() is the main entrypoint into the game.
 /**
  * Used to control the game loop state-machine
  */
-enum class State {
-    Start,
-    Playing,
-    GameOver
-};
+enum class State { Start, Playing, GameOver };
 /**
  * The Engine is responsible for:
  *  - setting up the game window,
@@ -42,13 +38,15 @@ class Engine
     static inline const sf::Color WorldColor = sf::Color::Black;
 
     /** The area Centipede can move in */
-    static inline const sf::FloatRect EnemyArea{0, Game::GridSize, Game::GameSize.x, Game::GameSize.y - 2 * Game::GridSize};
+    static inline const sf::FloatRect EnemyArea{0, Game::GridSize, Game::GameSize.x,
+                                                Game::GameSize.y - 2 * Game::GridSize};
     /** The area the spider can move in */
     static inline const sf::FloatRect SpiderArea{0, Game::GridSize * 16, Game::GameSize.x, Game::GridSize * 15};
     /** The area mushrooms spawn in */
     static inline const sf::FloatRect ShroomArea{0, Game::GridSize * 4, Game::GameSize.x, Game::GameSize.y - 48};
     /** The area player can move in (bottom 4 rows) */
-    static inline const sf::FloatRect PlayerArea{0, Game::GameSize.y - Game::GridSize * 5, Game::GameSize.x, Game::GridSize * 4};
+    static inline const sf::FloatRect PlayerArea{0, Game::GameSize.y - Game::GridSize * 5, Game::GameSize.x,
+                                                 Game::GridSize * 4};
 
     /** A cache for all textures used on game sprites.
      * default constructor sets up a static pointer to the only instance.
@@ -76,7 +74,7 @@ class Engine
 
     /** A pool of 30 laser objects to recycle (should be plenty) */
     std::array<Laser, 30> m_lasers;
-    size_t m_currentLaser = 0;
+    size_t                m_currentLaser = 0;
 
     /** Start/Game over screen sprite */
     sf::Sprite m_startSprite;

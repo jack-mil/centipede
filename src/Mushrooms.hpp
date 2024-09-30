@@ -62,7 +62,7 @@ class Shroom : public sf::Sprite
 class MushroomManager : public sf::Drawable
 {
   public:
-      /** Construct the Mushroom Manager object
+    /** Construct the Mushroom Manager object
      * and create a bunch of mushrooms with random positions
      */
     MushroomManager(sf::FloatRect bounds);

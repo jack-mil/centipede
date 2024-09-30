@@ -20,20 +20,16 @@ Defines the main game Engine and game loop logic.
  * Body sets window and view settings
  */
 Engine::Engine()
-    : texMan(),
-      m_view{Game::GameCenter, Game::GameSize},
-      m_player{Engine::PlayerArea},
-      m_shroomMan{Engine::ShroomArea},
-      m_centipede{Engine::EnemyArea, m_shroomMan},
-      m_spider{Engine::SpiderArea},
-      m_totalGameTime{sf::Time::Zero}, m_lastFired{sf::Time::Zero}
+    : texMan(), m_view{Game::GameCenter, Game::GameSize}, m_player{Engine::PlayerArea}, m_shroomMan{Engine::ShroomArea},
+      m_centipede{Engine::EnemyArea, m_shroomMan}, m_spider{Engine::SpiderArea}, m_totalGameTime{sf::Time::Zero},
+      m_lastFired{sf::Time::Zero}
 {
 
     // calculate the window size to be square
 
-    const auto& desktop = sf::VideoMode::getDesktopMode();
+    const auto&        desktop = sf::VideoMode::getDesktopMode();
     const unsigned int maxSize = 3 * (desktop.height / 4u); // 3/4 of total available height
-    sf::VideoMode windowSize{maxSize, maxSize};
+    sf::VideoMode      windowSize{maxSize, maxSize};
 
     // (re)create the window (allow resizing)
     m_window.create(windowSize, Game::Name, sf::Style::Default);
@@ -66,12 +62,14 @@ Engine::Engine()
  */
 void Engine::run()
 {
-    if (!sf::Shader::isAvailable()) {
+    if (!sf::Shader::isAvailable())
+    {
         throw std::runtime_error("Shaders are not available");
     }
     // reset the clock for first run
     m_clock.restart();
-    while (m_window.isOpen()) {
+    while (m_window.isOpen())
+    {
         const sf::Time& dt = m_clock.restart();
         m_totalGameTime += dt;
         m_elapsedTime += dt.asSeconds();
@@ -79,7 +77,8 @@ void Engine::run()
 
         // only draw frames at a maximum tick rate
         input();
-        if (m_elapsedTime >= tick) {
+        if (m_elapsedTime >= tick)
+        {
             update(tick);
             draw();
             m_elapsedTime = 0;
@@ -96,22 +95,28 @@ void Engine::input()
 {
     // handle event polling for some inputs (start/end, etc)
     sf::Event event;
-    while (m_window.pollEvent(event)) {
+    while (m_window.pollEvent(event))
+    {
 
         // Close the window when "X" button clicked
-        if (event.type == sf::Event::Closed) {
+        if (event.type == sf::Event::Closed)
+        {
             m_window.close();
         }
 
         // preserve the aspect ratio when resizing
-        if (event.type == sf::Event::Resized) {
+        if (event.type == sf::Event::Resized)
+        {
             this->setViewport(event.size.width, event.size.height);
         }
 
-        if (event.type == sf::Event::KeyPressed) {
+        if (event.type == sf::Event::KeyPressed)
+        {
 
             // Start game from "menu" with "ENTER"
-            if (state == State::Start && (event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space)) {
+            if (state == State::Start &&
+                (event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space))
+            {
 
                 state = State::Playing;
                 std::cout << "Started" << std::endl;
@@ -121,7 +126,8 @@ void Engine::input()
             }
 
             // Quit game whenever "ESC" pressed
-            if (event.key.code == sf::Keyboard::Escape) {
+            if (event.key.code == sf::Keyboard::Escape)
+            {
                 std::cout << "Ended" << std::endl;
                 m_window.close();
             }
@@ -129,18 +135,22 @@ void Engine::input()
     } // end event polling
 
     // Keyboard polling for smooth player movement
-    if (state == State::Playing) {
+    if (state == State::Playing)
+    {
 
         // Handle player movement with WASD keys
         m_player.handleInput();
 
         // Handle shooting lasers (TODO: move to Player (?) probably)
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        {
             auto elapsed = m_totalGameTime.asMilliseconds() - m_lastFired.asMilliseconds();
-            if (elapsed > static_cast<int>(1000 / Laser::fire_speed)) {
+            if (elapsed > static_cast<int>(1000 / Laser::fire_speed))
+            {
                 m_lasers[m_currentLaser].shoot(m_player.getGunPosition());
                 m_currentLaser++;
-                if (m_currentLaser > m_lasers.size()) {
+                if (m_currentLaser > m_lasers.size())
+                {
                     m_currentLaser = 0;
                 }
                 m_lastFired = m_totalGameTime;
@@ -157,7 +167,8 @@ void Engine::input()
 void Engine::update(const float dtSeconds)
 {
     // only update during the actual game
-    if (state != State::Playing) {
+    if (state != State::Playing)
+    {
         return;
     }
 
@@ -165,24 +176,29 @@ void Engine::update(const float dtSeconds)
 
     m_player.checkSpiderCollision(m_spider.getCollider());
 
-    for (auto& laser : m_lasers) {
+    for (auto& laser : m_lasers)
+    {
         // skip updating or colliding with inactive lasers
-        if (!laser.active) {
+        if (!laser.m_active)
+        {
             continue;
         }
 
-        if (m_spider.checkLaserCollision(laser.getCollider())) {
-            laser.active = false;
+        if (m_spider.checkLaserCollision(laser.getCollider()))
+        {
+            laser.m_active = false;
             continue;
         }
 
-        if (m_shroomMan.checkLaserCollision(laser.getCollider())) {
-            laser.active = false;
+        if (m_shroomMan.checkLaserCollision(laser.getCollider()))
+        {
+            laser.m_active = false;
             continue;
         }
 
-        if (m_centipede.checkLaserCollision(laser.getCollider())) {
-            laser.active = false;
+        if (m_centipede.checkLaserCollision(laser.getCollider()))
+        {
+            laser.m_active = false;
             continue;
         }
 
@@ -194,7 +210,8 @@ void Engine::update(const float dtSeconds)
     m_player.update(dtSeconds);
 
     // when the player dies, restart the game
-    if (m_player.isDead()) {
+    if (m_player.isDead())
+    {
         state = State::Start;
     }
 }
@@ -208,11 +225,13 @@ void Engine::draw()
 
     m_window.clear(Engine::WorldColor);
 
-    if (state == State::Start) {
+    if (state == State::Start)
+    {
         // draw the start screen at beginning
         m_window.draw(m_startSprite);
-
-    } else if (state == State::Playing) {
+    }
+    else if (state == State::Playing)
+    {
         // draw all the objects during game-play
         // draw spider
         m_window.draw(m_spider);
@@ -225,8 +244,10 @@ void Engine::draw()
         m_window.draw(m_centipede);
 
         // draw lasers
-        for (const auto& laser : m_lasers) {
-            if (laser.active) {
+        for (const auto& laser : m_lasers)
+        {
+            if (laser.m_active)
+            {
                 m_window.draw(laser.m_shape);
             }
         }
@@ -248,18 +269,21 @@ void Engine::draw()
 void Engine::setViewport(unsigned int width, unsigned int height)
 {
     float windowRatio = static_cast<float>(width) / static_cast<float>(height);
-    float viewRatio = m_view.getSize().x / m_view.getSize().y;
-    float sizeX = 1;
-    float sizeY = 1;
-    float posX = 0;
-    float posY = 0;
+    float viewRatio   = m_view.getSize().x / m_view.getSize().y;
+    float sizeX       = 1;
+    float sizeY       = 1;
+    float posX        = 0;
+    float posY        = 0;
 
-    if (windowRatio > viewRatio) {
+    if (windowRatio > viewRatio)
+    {
         sizeX = viewRatio / windowRatio;
-        posX = (1 - sizeX) / 2;
-    } else {
+        posX  = (1 - sizeX) / 2;
+    }
+    else
+    {
         sizeY = windowRatio / viewRatio;
-        posY = (1 - sizeY) / 2;
+        posY  = (1 - sizeY) / 2;
     }
 
     m_view.setViewport(sf::FloatRect(posX, posY, sizeX, sizeY));

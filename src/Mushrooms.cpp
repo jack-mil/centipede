@@ -31,7 +31,9 @@ Shroom::Shroom(float x, float y)
 }
 
 /** Constructor overload for Vector parameter*/
-Shroom::Shroom(sf::Vector2f location) : Shroom{location.x, location.y} {}
+Shroom::Shroom(sf::Vector2f location) : Shroom{location.x, location.y}
+{
+}
 
 /**
  * Every mushroom starts with health=4, and can change to 3 levels of damage
@@ -40,14 +42,16 @@ Shroom::Shroom(sf::Vector2f location) : Shroom{location.x, location.y} {}
  */
 int Shroom::damage()
 {
-    if (m_health <= 0) {
+    if (m_health <= 0)
+    {
         return 0;
     }
 
     m_health -= 1;
 
     // Step through the textures for different damage levels,
-    switch (m_health) {
+    switch (m_health)
+    {
     case 3:
         this->setTextureRect(Damage3TexOffset);
         break;
@@ -61,7 +65,7 @@ int Shroom::damage()
         // nothing to do, dead now. will get removed by manager
         break;
     default:
-        throw std::runtime_error("Exhuastive switch failure: shroom.m_health=" + m_health);
+        throw std::runtime_error("Exhuastive switch failure: shroom.m_health");
         break;
     }
 
@@ -70,15 +74,15 @@ int Shroom::damage()
 
 sf::Vector2f Shroom::getRightEdge() const
 {
-    const sf::FloatRect& size = this->getLocalBounds();
-    const sf::Vector2f& center = this->getPosition();
+    const sf::FloatRect& size   = this->getLocalBounds();
+    const sf::Vector2f&  center = this->getPosition();
     return sf::Vector2f(center.x + size.width / 2.f, center.y);
 }
 
 sf::Vector2f Shroom::getLeftEdge() const
 {
-    const sf::FloatRect& size = this->getLocalBounds();
-    const sf::Vector2f& center = this->getPosition();
+    const sf::FloatRect& size   = this->getLocalBounds();
+    const sf::Vector2f&  center = this->getPosition();
     return sf::Vector2f(center.x - size.width / 2.f, center.y);
 }
 
@@ -90,22 +94,22 @@ sf::Vector2f Shroom::getLeftEdge() const
  *
  * @param bounds Rectangle where mushrooms should be placed
  */
-MushroomManager::MushroomManager(sf::FloatRect bounds)
-    : m_bounds(bounds), m_rng(std::random_device{}())
+MushroomManager::MushroomManager(sf::FloatRect bounds) : m_bounds(bounds), m_rng(std::random_device{}())
 {
     // Need a random distribution aligned in the 30x30 grid
-    auto x_range = static_cast<int>(m_bounds.width / Game::GridSize) - 1;
-    auto y_range = static_cast<int>(m_bounds.height / Game::GridSize) - 1;
+    auto                               x_range = static_cast<int>(m_bounds.width / Game::GridSize) - 1;
+    auto                               y_range = static_cast<int>(m_bounds.height / Game::GridSize) - 1;
     std::uniform_int_distribution<int> random_x(0, x_range);
     std::uniform_int_distribution<int> random_y(0, y_range);
 
     // Create 30 mushroom sprites in random locations
-    for (size_t i = 0; i < 30; ++i) {
+    for (size_t i = 0; i < 30; ++i)
+    {
         // random grid cells need to be offset so they refer to the center
         const float gridx = static_cast<float>(Game::GridSize * random_x(m_rng));
         const float gridy = static_cast<float>(Game::GridSize * random_y(m_rng));
-        const float xPos = m_bounds.left + gridx + Game::GridSize / 2.f;
-        const float yPos = m_bounds.top + gridy + Game::GridSize / 2.f;
+        const float xPos  = m_bounds.left + gridx + Game::GridSize / 2.f;
+        const float yPos  = m_bounds.top + gridy + Game::GridSize / 2.f;
         // Create and add to list in-place
         m_shrooms.emplace_back(xPos, yPos);
     }
@@ -121,7 +125,8 @@ const std::list<Shroom>& MushroomManager::getShrooms() const
 void MushroomManager::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     // only draw currently active mushrooms
-    for (const auto& shroom : m_shrooms) {
+    for (const auto& shroom : m_shrooms)
+    {
         target.draw(shroom, states);
     }
 }
@@ -130,13 +135,12 @@ void MushroomManager::draw(sf::RenderTarget& target, sf::RenderStates states) co
 bool MushroomManager::checkSpiderCollision(sf::FloatRect spider)
 {
     // construct lambda predicate
-    auto isHit = [&](const Shroom& s) {
-        return spider.intersects(s.getGlobalBounds());
-    };
+    auto isHit = [&](const Shroom& s) { return spider.intersects(s.getGlobalBounds()); };
     // find first intersecting mushroom
     auto hit_it = std::find_if(m_shrooms.begin(), m_shrooms.end(), isHit);
     // remove if found
-    if (hit_it != m_shrooms.end()) {
+    if (hit_it != m_shrooms.end())
+    {
         m_shrooms.erase(hit_it);
         return true;
     }
@@ -149,19 +153,19 @@ bool MushroomManager::checkSpiderCollision(sf::FloatRect spider)
 bool MushroomManager::checkLaserCollision(sf::FloatRect laser)
 {
     // construct lambda predicate
-    auto isHit = [&](const Shroom& s) {
-        return laser.intersects(s.getGlobalBounds());
-    };
+    auto isHit = [&](const Shroom& s) { return laser.intersects(s.getGlobalBounds()); };
 
     // find the first intersecting mushroom (probably only 1 or none)
     auto hit_it = std::find_if(m_shrooms.begin(), m_shrooms.end(), isHit);
 
     // found one
-    if (hit_it != m_shrooms.end()) {
+    if (hit_it != m_shrooms.end())
+    {
         // Damage the mushroom to change it's texture,
         int remaining_health = hit_it->damage();
         // and delete if it was destroyed
-        if (remaining_health <= 0) {
+        if (remaining_health <= 0)
+        {
             m_shrooms.erase(hit_it);
         }
         return true;

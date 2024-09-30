@@ -16,7 +16,7 @@ class TextureManager
     /** Pointer of the same type as the class itself
      *  the one and only instance.
      * */
-    static TextureManager *m_s_Instance;
+    static TextureManager* m_s_Instance;
 
     /** Mapping of filenames to Texture objects */
     std::unordered_map<std::string, sf::Texture> m_texCache;
@@ -29,6 +29,7 @@ class TextureManager
      * Constructor stores a static class reference to the first instance.
      */
     TextureManager();
+
     /**
      * @brief Return a texture reference, loading it from a file if necessary
      *
@@ -36,5 +37,5 @@ class TextureManager
      * @param filename the texture to load
      * @return sf::Texture&
      */
-    static const sf::Texture& GetTexture(const char *path);
+    static const sf::Texture& GetTexture(const char* path);
 };

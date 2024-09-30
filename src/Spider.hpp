@@ -44,14 +44,8 @@ class Spider : public sf::Drawable
      */
     sf::FloatRect getCollider() const;
 
-
     /** States for the movement state-machine */
-    enum class Moving { Up,
-                        Down,
-                        UpRight,
-                        UpLeft,
-                        DownLeft,
-                        DownRight };
+    enum class Moving { Up, Down, UpRight, UpLeft, DownLeft, DownRight };
 
   private:
     /** The location of the spider texture in the sprite-sheet */
@@ -64,7 +58,7 @@ class Spider : public sf::Drawable
     /** Seconds between changing direction */
     const double m_moveDuration = 0.5;
 
-    /** Seconds to wait before respawning */
+    /** Seconds to wait before re-spawning */
     const double m_respawnDuration = 5;
 
     /** The spider sprite */
@@ -82,8 +76,8 @@ class Spider : public sf::Drawable
     /** If the spider is alive or note */
     bool m_alive = true;
 
-    // A bunch of properties for controlling the spider movement statemachine
-    double m_moveTimer = 0;
+    // A bunch of properties for controlling the spider movement state-machine
+    double m_moveTimer    = 0;
     double m_respawnTimer = 0;
 
     bool m_canMoveLeft = false;

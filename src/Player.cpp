@@ -55,9 +55,9 @@ void Player::reset()
 void Player::handleInput()
 {
     // Can be moved with arrows or WASD
-    m_movingUp = sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
-    m_movingDown = sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
-    m_movingLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
+    m_movingUp    = sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
+    m_movingDown  = sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
+    m_movingLeft  = sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
     m_movingRight = sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
 }
 
@@ -69,31 +69,32 @@ void Player::update(float deltaTime)
 {
     // moves `Speed` pixels every second.
     // opposite directions cancel out.
-    const float distance = Player::Speed * deltaTime;
-    sf::Vector2f pos = this->getPosition();
+    const float  distance = Player::Speed * deltaTime;
+    sf::Vector2f pos      = this->getPosition();
 
-    if (m_movingUp) {
+    if (m_movingUp)
+    {
         pos.y -= distance;
     }
 
-    if (m_movingDown) {
+    if (m_movingDown)
+    {
         pos.y += distance;
     }
 
-    if (m_movingRight) {
+    if (m_movingRight)
+    {
         pos.x += distance;
     }
 
-    if (m_movingLeft) {
+    if (m_movingLeft)
+    {
         pos.x -= distance;
     }
 
     // simple inplace saturation check
-    auto saturate = [](float v, float lo, float hi) {
-        return v < lo   ? lo
-               : v > hi ? hi
-                        : v;
-    };
+    auto saturate = [](float v, float lo, float hi) { return v < lo ? lo : v > hi ? hi : v; };
+
     // prevent movement out of the player bounding area
     // not using sf::Rec.contains() because of 'sticky' walls issue
     pos.x = saturate(pos.x, m_bounds.left, m_bounds.width + m_bounds.left);
@@ -105,7 +106,8 @@ void Player::update(float deltaTime)
 /** Detect if hit by the spider and lose a life */
 bool Player::checkSpiderCollision(sf::FloatRect spider)
 {
-    if (this->getGlobalBounds().intersects(spider)) {
+    if (this->getGlobalBounds().intersects(spider))
+    {
         m_lives--;
         this->reset();
         return true;
@@ -115,9 +117,12 @@ bool Player::checkSpiderCollision(sf::FloatRect spider)
 
 bool Player::checkMushroomCollision(sf::FloatRect shroom)
 {
-    if (this->getGlobalBounds().intersects(shroom)) {
+    if (this->getGlobalBounds().intersects(shroom))
+    {
         m_colliding = true;
-    } else {
+    }
+    else
+    {
         m_colliding = false;
     }
     return m_colliding;

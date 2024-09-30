@@ -10,10 +10,13 @@ Centipede Game using C++ and SFML.
 
 int main()
 {
-    try {
+    try
+    {
         Engine engine;
         engine.run();
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception& e)
+    {
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

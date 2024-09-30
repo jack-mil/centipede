@@ -23,9 +23,9 @@ Spider::Spider(sf::FloatRect bounds) : m_rng{std::random_device{}()}
     const auto& size = m_sprite.getLocalBounds().getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
 
-    bounds.left += size.x / 2.f;
-    bounds.top += size.y / 2.f;
-    bounds.width -= size.x;
+    bounds.left   += size.x / 2.f;
+    bounds.top    += size.y / 2.f;
+    bounds.width  -= size.x;
     bounds.height -= size.y;
     m_bounds = bounds;
 
@@ -37,12 +37,13 @@ void Spider::spawn()
     // start on the top left of it's bounds.
     m_sprite.setPosition(m_bounds.left, m_bounds.top);
     m_direction = Moving::UpRight;
-    m_alive = true;
+    m_alive     = true;
 }
 
 void Spider::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    if (m_alive) {
+    if (m_alive)
+    {
         target.draw(m_sprite, states);
     }
 }
@@ -50,9 +51,11 @@ void Spider::draw(sf::RenderTarget& target, sf::RenderStates states) const
 void Spider::update(float deltaTime)
 {
     // if currently inactive, increment timer and don't move around
-    if (!m_alive) {
+    if (!m_alive)
+    {
         m_respawnTimer += deltaTime;
-        if (m_respawnTimer >= m_respawnDuration) {
+        if (m_respawnTimer >= m_respawnDuration)
+        {
             this->spawn();
             m_respawnTimer = 0;
         }
@@ -60,7 +63,8 @@ void Spider::update(float deltaTime)
     }
 
     float distance = Spider::Speed * deltaTime;
-    switch (m_direction) {
+    switch (m_direction)
+    {
     case Moving::Up:
         m_sprite.move(0.0, -distance);
         break;
@@ -81,25 +85,33 @@ void Spider::update(float deltaTime)
         break;
     }
 
-    if (m_sprite.getPosition().x >= m_bounds.left + m_bounds.width) {
+    if (m_sprite.getPosition().x >= m_bounds.left + m_bounds.width)
+    {
         m_canMoveLeft = true;
     }
 
     m_moveTimer += deltaTime;
     // time to pick a new direction?
-    if (m_moveTimer >= m_moveDuration) {
+    if (m_moveTimer >= m_moveDuration)
+    {
         // Construct the possible next directions
         std::vector<Moving> allowedDirections;
-        if (m_sprite.getPosition().x >= m_bounds.left + m_bounds.width) {
+        if (m_sprite.getPosition().x >= m_bounds.left + m_bounds.width)
+        {
             // on right edge
             allowedDirections = {Moving::Up, Moving::Down, Moving::UpLeft, Moving::DownLeft};
-        } else if (m_sprite.getPosition().x < m_bounds.left) {
+        }
+        else if (m_sprite.getPosition().x < m_bounds.left)
+        {
             // on left edge
             allowedDirections = {Moving::Up, Moving::Down, Moving::UpRight, Moving::DownRight};
-        } else {
+        }
+        else
+        {
             // can move anywhere if not on edges
             allowedDirections = {Moving::Up, Moving::Down, Moving::UpRight, Moving::DownRight};
-            if (m_canMoveLeft) {
+            if (m_canMoveLeft)
+            {
                 allowedDirections.assign({Moving::UpLeft, Moving::DownLeft});
             }
         }
@@ -113,9 +125,11 @@ void Spider::update(float deltaTime)
     }
 
     // bounce off the edges predictably
-    if (m_sprite.getPosition().y < m_bounds.top) {
+    if (m_sprite.getPosition().y < m_bounds.top)
+    {
         // On top edge
-        switch (m_direction) {
+        switch (m_direction)
+        {
         case Moving::UpLeft:
             m_direction = Moving::DownLeft;
             break;
@@ -128,9 +142,12 @@ void Spider::update(float deltaTime)
         default:
             break;
         }
-    } else if (m_sprite.getPosition().y >= m_bounds.top + m_bounds.height) {
+    }
+    else if (m_sprite.getPosition().y >= m_bounds.top + m_bounds.height)
+    {
         // On bottom edge
-        switch (m_direction) {
+        switch (m_direction)
+        {
         case Moving::Down:
             m_direction = Moving::Up;
             break;
@@ -151,7 +168,8 @@ bool Spider::checkLaserCollision(sf::FloatRect other)
 {
     // only living spiders can be hit
     bool wasHit = m_alive && m_sprite.getGlobalBounds().intersects(other);
-    if (wasHit) {
+    if (wasHit)
+    {
         m_alive = false;
     }
     return wasHit;
