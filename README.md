@@ -6,7 +6,7 @@
 - compile:   `cmake --build build/`
 - run: `./build/bin/centipede`
 
-CMake will automatically clone and build the SFML dependency.
+SMFL dependency must be installed before building.
 
 
 ## Details
