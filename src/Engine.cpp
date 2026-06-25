@@ -159,7 +159,7 @@ void Engine::input()
             {
                 m_lasers[m_currentLaser].shoot(m_player.getGunPosition());
                 m_currentLaser++;
-                if (m_currentLaser > m_lasers.size())
+                if (m_currentLaser >= m_lasers.size())
                 {
                     m_currentLaser = 0;
                 }
