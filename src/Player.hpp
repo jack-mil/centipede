@@ -67,13 +67,13 @@ class Player : public sf::Sprite
 
   private:
     /** Player movement speed in pixels/second */
-    static constexpr float Speed = 400;
+    static constexpr float Speed = 1600;
 
     /** How many lives the player has at start */
     static constexpr int StartingLives = 3;
 
     /** Location of the player texture in sprite-sheet */
-    static inline const sf::IntRect PlayerTexOffset{12, 171, 7, 8};
+    static inline const sf::IntRect PlayerTexOffset{48, 684, 28, 32};
 
     /** Move back to the starting position. */
     void reset();

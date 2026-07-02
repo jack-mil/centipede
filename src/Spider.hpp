@@ -49,9 +49,9 @@ class Spider : public sf::Drawable
 
   private:
     /** The location of the spider texture in the sprite-sheet */
-    static inline const sf::IntRect SpiderTexOffset{8, 75, 15, 8};
+    static inline const sf::IntRect SpiderTexOffset{32, 300, 60, 32};
     /** Speed of movement in px/s for both x and y components */
-    static constexpr float Speed = 60;
+    static constexpr float Speed = 240;
     /**Move for 1 second before changing directions on average */
     static constexpr float AverageMoveDuration = 0.5;
 

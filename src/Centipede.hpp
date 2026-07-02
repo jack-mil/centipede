@@ -78,8 +78,8 @@ class Segment : public sf::Sprite
 
   private:
     // Texture positions
-    static inline const sf::IntRect HeadTexOffset{12, 43, 8, 8};   // head texture
-    static inline const sf::IntRect BodyTexOffset{116, 251, 8, 8}; // body texture
+    static inline const sf::IntRect HeadTexOffset{48, 172, 32, 32};   // head texture
+    static inline const sf::IntRect BodyTexOffset{464, 1004, 32, 32}; // body texture
 
     /** The current direction this segment is moving in */
     Moving m_direction = Moving::Left;
@@ -107,7 +107,7 @@ class Centipede : public sf::Drawable
     static constexpr float Speed = Game::GridSize * 15;
 
     /** Collision animation is always 2 px/tick */
-    static constexpr float AnimSpeed = 2;
+    static constexpr float AnimSpeed = 8;
 
     /** Starting number of Centipede segments */
     static constexpr int MaxLength = 12;

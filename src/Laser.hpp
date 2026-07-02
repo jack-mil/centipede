@@ -69,13 +69,13 @@ class Laser : public sf::Drawable
     // Static properties common to all lasers
 
     /** Laser speed in px/second. Original game had 7px per frame (60fps). */
-    static constexpr float Speed = 7 * 60;
+    static constexpr float Speed = 28 * 60;
 
     /** Color of all lasers (Red) */
     static inline const sf::Color Color = sf::Color::Red;
 
     /** Size of all lasers (px) */
-    static inline const sf::Vector2f Size{1.0, 6.0};
+    static inline const sf::Vector2f Size{4.0, 24.0};
 
     /** Only draw active lasers. */
     bool m_active = false;

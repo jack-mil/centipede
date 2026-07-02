@@ -184,7 +184,7 @@ void Segment::update(float deltaTime)
 /** Sets the state of the segment from colliding with the game edges */
 void Segment::detectEdgeCollisions()
 {
-    const float spacing = 3.0; // 3px from anything is "collision"
+    const float spacing = 12.0; // 12px from anything is "collision"
 
     static const float width     = this->getLocalBounds().width;
     const auto&        centerPos = this->getPosition();
@@ -233,7 +233,7 @@ void Segment::detectEdgeCollisions()
 /** Check for hitting a mushroom, and update state */
 bool Segment::detectMushroomCollisions(const Shroom& shroom)
 {
-    const float spacing = 3.0; // 3px from anything is "collision"
+    const float spacing = 12.0; // 12px from anything is "collision"
 
     const sf::Vector2f& segLeft  = this->getLeftEdge();
     const sf::Vector2f& segRight = this->getRightEdge();

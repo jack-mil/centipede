@@ -30,18 +30,11 @@ Engine::Engine()
       m_lastFired{sf::Time::Zero}
 {
 
-    // calculate the window size to be 3/4 of available height
-
-    const auto& desktop   = sf::VideoMode::getDesktopMode();
-    const uint  maxHeight = 3 * (desktop.height / 4);
-
-    const float gameRatio = Game::GameSize.x / Game::GameSize.y;
-    const uint  maxWidth  = static_cast<uint>(gameRatio * static_cast<float>(maxHeight));
-
-    sf::VideoMode windowSize{maxWidth, maxHeight};
-
-    // (re)create the window (allow resizing)
-    m_window.create(windowSize, Game::Name, sf::Style::Default);
+    // create the window at native game resolution
+    m_window.create(
+        sf::VideoMode(static_cast<unsigned>(Game::GameSize.x), static_cast<unsigned>(Game::GameSize.y)),
+        Game::Name,
+        sf::Style::Fullscreen);
 
     // set some OS window options
     m_window.setMouseCursorVisible(false);
@@ -49,8 +42,9 @@ Engine::Engine()
     m_window.setVerticalSyncEnabled(false);
 
     // place the window in the center of the desktop
-    const auto xpos = (desktop.width / 2u) - (m_window.getSize().x / 2u);
-    const auto ypos = (desktop.height / 2u) - (m_window.getSize().y / 2u);
+    const auto& desktop = sf::VideoMode::getDesktopMode();
+    const auto    xpos    = (desktop.width / 2u) - (static_cast<unsigned>(Game::GameSize.x) / 2u);
+    const auto    ypos    = (desktop.height / 2u) - (static_cast<unsigned>(Game::GameSize.y) / 2u);
     m_window.setPosition(sf::Vector2i(static_cast<int>(xpos), static_cast<int>(ypos)));
 
     m_window.setView(m_view);

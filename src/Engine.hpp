@@ -51,8 +51,7 @@ class Engine
     /** The game RenderWindow */
     sf::RenderWindow m_window;
 
-    /** The game view, always WIDTHxHEIGHT pixels.
-     * Much smaller than the OS Window */
+    /** The game view, sized to match Game::GameSize */
     sf::View m_view;
 
     /** The player-controlled starship */
