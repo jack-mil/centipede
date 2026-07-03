@@ -17,7 +17,7 @@ Spider class definition and implementation
 /** Construction and set up the inherited Sprite properties */
 Spider::Spider(sf::FloatRect bounds) : m_rng{std::random_device{}()}
 {
-    m_sprite.setTexture(TextureManager::GetTexture("graphics/sprites.png"));
+    m_sprite.setTexture(TextureManager::GetTexture("graphics/spider.png"));
     m_animation = 0;
     m_sprite.setTextureRect(Spider::SpiderAnimationOffset[m_animation]);
 
@@ -100,7 +100,7 @@ void Spider::update(float deltaTime)
     if (m_animationTimer >= m_animationDuration)
     {
         m_animation++;
-        m_animation %= 8;
+        m_animation %= AnimationFrames;
         m_sprite.setTextureRect(Spider::SpiderAnimationOffset[m_animation]);
         m_animationTimer = 0;
     }

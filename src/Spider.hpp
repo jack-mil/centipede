@@ -52,11 +52,12 @@ class Spider : public sf::Drawable
     enum class Moving { Up, Down, UpRight, UpLeft, DownLeft, DownRight };
 
   private:
+    static constexpr int AnimationFrames = 4;
+
     /** The location of the spider texture in the sprite-sheet */
-    static inline const sf::IntRect SpiderAnimationOffset[8] =
+    static inline const sf::IntRect SpiderAnimationOffset[AnimationFrames] =
     {
-      {32, 300, 60, 32}, {128, 300, 60, 32}, {224, 300, 60, 32}, {320, 300, 60, 32},
-      {32, 364, 60, 32}, {128, 364, 60, 32}, {224, 364, 60, 32}, {320, 364, 60, 32}
+      {16, 16, 60, 32}, {96, 16, 60, 32}, {176, 16, 60, 32}, {256, 16, 60, 32}
     };
     /** Speed of movement in px/s for both x and y components */
     static constexpr float Speed = 240;

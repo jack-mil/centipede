@@ -17,7 +17,6 @@ Current features are only the minimal required by the grading rubric, there is s
 Future features I would like to have:
 - Score system
 - HUD overlay for lives / score counter
-- Centipede collision with the player
 - Animations for all characters
 - Change the laser system to that of the original game (only one laser on screen at a time)
 - Redesign of the game loop, cleanup of tick based simulation
@@ -33,3 +32,7 @@ Mushrooms
 Created by [SCaydi](https://opengameart.org/content/mushroom-4), hosted by OpenGameArt.org  
 Modified colors and size by Dennis Payne  
 License: CC-BY 3.0, CC-BY 4.0, GPL-3.0  
+
+### spider.png
+Spider  
+Created by Dennis Payne  
