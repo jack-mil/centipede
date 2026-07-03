@@ -31,5 +31,5 @@ Big thanks to these blog posts by the RetroGame Deconstruction Zone:
 ### mushroom.png
 Mushrooms  
 Created by [SCaydi](https://opengameart.org/content/mushroom-4), hosted by OpenGameArt.org  
-Modified colors by Dennis Payne  
+Modified colors and size by Dennis Payne  
 License: CC-BY 3.0, CC-BY 4.0, GPL-3.0  
