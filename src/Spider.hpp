@@ -80,5 +80,5 @@ class Spider : public sf::Drawable
     double m_moveTimer    = 0;
     double m_respawnTimer = 0;
 
-    bool m_canMoveLeft = false;
+    bool m_moveLeft = false;
 };

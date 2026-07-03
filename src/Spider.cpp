@@ -38,6 +38,7 @@ void Spider::spawn()
     m_sprite.setPosition(m_bounds.left, m_bounds.top);
     m_direction = Moving::UpRight;
     m_alive     = true;
+    m_moveLeft = false;
 }
 
 void Spider::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -85,11 +86,6 @@ void Spider::update(float deltaTime)
         break;
     }
 
-    if (m_sprite.getPosition().x >= m_bounds.left + m_bounds.width)
-    {
-        m_canMoveLeft = true;
-    }
-
     m_moveTimer += deltaTime;
     // time to pick a new direction?
     if (m_moveTimer >= m_moveDuration)
@@ -99,20 +95,42 @@ void Spider::update(float deltaTime)
         if (m_sprite.getPosition().x >= m_bounds.left + m_bounds.width)
         {
             // on right edge
-            allowedDirections = {Moving::Up, Moving::Down, Moving::UpLeft, Moving::DownLeft};
+            m_moveLeft = true;
         }
         else if (m_sprite.getPosition().x < m_bounds.left)
         {
             // on left edge
-            allowedDirections = {Moving::Up, Moving::Down, Moving::UpRight, Moving::DownRight};
+            m_moveLeft = false;
+        }
+
+        if (m_moveLeft)
+        {
+            allowedDirections = {Moving::Up, Moving::Down, Moving::UpLeft, Moving::DownLeft};
+            // Slight preference for keeping the same vertical direction
+            if ((m_direction == Moving::UpLeft) || (m_direction == Moving::Up))
+            {
+                allowedDirections.push_back(Moving::Up);
+                allowedDirections.push_back(Moving::UpLeft);
+            }
+            else
+            {
+                allowedDirections.push_back(Moving::Down);
+                allowedDirections.push_back(Moving::DownLeft);
+            }
         }
         else
         {
-            // can move anywhere if not on edges
             allowedDirections = {Moving::Up, Moving::Down, Moving::UpRight, Moving::DownRight};
-            if (m_canMoveLeft)
+            // Slight preference for keeping the same vertical direction
+            if ((m_direction == Moving::UpRight) || (m_direction == Moving::Up))
             {
-                allowedDirections.assign({Moving::UpLeft, Moving::DownLeft});
+                allowedDirections.push_back(Moving::Up);
+                allowedDirections.push_back(Moving::UpRight);
+            }
+            else
+            {
+                allowedDirections.push_back(Moving::Down);
+                allowedDirections.push_back(Moving::DownRight);
             }
         }
 
