@@ -46,10 +46,23 @@ class Shroom : public sf::Sprite
 
   private:
     // Constant regions for mushroom textures in the sprite-sheet
-    static inline const sf::IntRect FullTexOffset{416, 428, 32, 32};
-    static inline const sf::IntRect Damage1TexOffset{608, 428, 32, 32};
-    static inline const sf::IntRect Damage2TexOffset{544, 428, 32, 32};
-    static inline const sf::IntRect Damage3TexOffset{480, 428, 32, 32};
+    static inline const sf::IntRect NormalTexOffset[3][4] = 
+    {
+      {{16, 16, 32, 32}, {64, 16, 32, 32}, {112, 16, 32, 32}, {160, 16, 32, 32}},
+      {{16, 112, 32, 32}, {64, 112, 32, 32}, {112, 112, 32, 32}, {160, 112, 32, 32}},
+      {{16, 208, 32, 32}, {64, 208, 32, 32}, {112, 208, 32, 32}, {160, 208, 32, 32}}
+    };
+    static inline const sf::IntRect PoisonTexOffset[3][4] = 
+    {
+      {{16, 64, 32, 32}, {64, 64, 32, 32}, {112, 64, 32, 32}, {160, 64, 32, 32}},
+      {{16, 160, 32, 32}, {64, 160, 32, 32}, {112, 160, 32, 32}, {160, 160, 32, 32}},
+      {{16, 256, 32, 32}, {64, 256, 32, 32}, {112, 256, 32, 32}, {160, 256, 32, 32}}
+    };
+    static inline const sf::IntRect Damage1TexOffset;
+    static inline const sf::IntRect Damage2TexOffset;
+    static inline const sf::IntRect Damage3TexOffset;
+
+    int m_type = 0;
 
     /** The health of mushroom (starts at 4) */
     int m_health = 4;

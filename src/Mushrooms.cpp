@@ -21,9 +21,9 @@ The MushroomManager and Shroom class definition.
 Shroom::Shroom(float x, float y)
 {
 
-    const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
+    const auto& tex = TextureManager::GetTexture("graphics/mushroom.png");
     this->setTexture(tex);
-    this->setTextureRect(FullTexOffset);
+    this->setTextureRect(NormalTexOffset[m_type][0]);
 
     const auto& size = this->getLocalBounds().getSize();
     this->setOrigin(size.x / 2.f, size.y / 2.f);
@@ -53,13 +53,13 @@ int Shroom::damage()
     switch (m_health)
     {
     case 3:
-        this->setTextureRect(Damage3TexOffset);
+        this->setTextureRect(NormalTexOffset[m_type][1]);
         break;
     case 2:
-        this->setTextureRect(Damage2TexOffset);
+        this->setTextureRect(NormalTexOffset[m_type][2]);
         break;
     case 1:
-        this->setTextureRect(Damage1TexOffset);
+        this->setTextureRect(NormalTexOffset[m_type][3]);
         break;
     case 0:
         // nothing to do, dead now. will get removed by manager

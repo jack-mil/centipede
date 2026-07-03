@@ -25,3 +25,11 @@ Future features I would like to have:
 Big thanks to these blog posts by the RetroGame Deconstruction Zone:
 - [Character Breakdown](https://www.retrogamedeconstructionzone.com/2020/08/the-characters-of-centipede.html)
 - [Descent Mechanics](https://www.retrogamedeconstructionzone.com/2020/11/the-descent-of-centipede-part-1.html)
+
+## Sprite License
+
+### mushroom.png
+Mushrooms  
+Created by [SCaydi](https://opengameart.org/content/mushroom-4), hosted by OpenGameArt.org  
+Modified colors by Dennis Payne  
+License: CC-BY 3.0, CC-BY 4.0, GPL-3.0  
