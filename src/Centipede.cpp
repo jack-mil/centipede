@@ -22,20 +22,7 @@ Centipede class definition.
  */
 Centipede::Centipede(const sf::FloatRect& bounds, MushroomManager& shroomMan) : m_bounds{bounds}, m_shroomMan{shroomMan}
 {
-
-    // set starting position of the head (center in the grid)
-    sf::Vector2f startPos{m_bounds.left + (m_bounds.width / 2.f), m_bounds.top + Game::GridSize / 2.f};
-
-    // construct the sprite segments in-place using  list iterator
-    for (int i = 0; i < Centipede::MaxLength; i++)
-    {
-        auto&       new_seg = m_segments.emplace_back(m_bounds);
-        const float spacing = static_cast<float>(Game::GridSize * i);
-        new_seg.setPosition(startPos.x + spacing, startPos.y);
-    }
-
-    // (Re)set the head texture
-    m_segments.front().setHead();
+    reset();
 }
 
 /** Move the segment positions */
@@ -56,6 +43,29 @@ void Centipede::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         target.draw(seg, states);
     }
+}
+
+void Centipede::reset()
+{
+    // set starting position of the head (center in the grid)
+    sf::Vector2f startPos{m_bounds.left + (m_bounds.width / 2.f), m_bounds.top + Game::GridSize / 2.f};
+    m_segments.clear();
+
+    // construct the sprite segments in-place using  list iterator
+    for (int i = 0; i < Centipede::MaxLength; i++)
+    {
+        auto&       new_seg = m_segments.emplace_back(m_bounds);
+        const float spacing = static_cast<float>(Game::GridSize * i);
+        new_seg.setPosition(startPos.x + spacing, startPos.y);
+    }
+
+    // (Re)set the head texture
+    m_segments.front().setHead();
+}
+
+bool Centipede::isDead() const
+{
+    return m_segments.size() == 0;
 }
 
 /** Check all segments against all mushrooms

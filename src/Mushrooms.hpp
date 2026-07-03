@@ -18,11 +18,12 @@ class Shroom : public sf::Sprite
   public:
     /**
      * Construct a new Shroom centered at postion (x,y)
+     * @param type type of mushroom
      * @param x coordinate of center
      * @param y coordinate of center
      */
-    Shroom(float x, float y);
-    Shroom(sf::Vector2f location);
+    Shroom(int type, float x, float y);
+    Shroom(int type, sf::Vector2f location);
     Shroom() = delete; // no default constructor
 
     /** Decrement the health of this mushroom, and cycle through the textures.
@@ -44,6 +45,8 @@ class Shroom : public sf::Sprite
      */
     sf::Vector2f getRightEdge() const;
 
+    void setType(int type);
+
   private:
     // Constant regions for mushroom textures in the sprite-sheet
     static inline const sf::IntRect NormalTexOffset[3][4] = 
@@ -62,7 +65,7 @@ class Shroom : public sf::Sprite
     static inline const sf::IntRect Damage2TexOffset;
     static inline const sf::IntRect Damage3TexOffset;
 
-    int m_type = 0;
+    int m_type;
 
     /** The health of mushroom (starts at 4) */
     int m_health = 4;
@@ -117,7 +120,17 @@ class MushroomManager : public sf::Drawable
      */
     const std::list<Shroom>& getShrooms() const;
 
+    void nextLevel();
+
+    /** Update mushrooms for next level */
+    bool update(float deltaTime);
+
+    void reset();
+
   private:
+    /** Seconds to wait before updating level */
+    const double m_levelChangeDuration = 1;
+
     /** Collection of mushroom sprites that this class manages */
     std::list<Shroom> m_shrooms;
 
@@ -126,4 +139,7 @@ class MushroomManager : public sf::Drawable
 
     /** Mersenne twister random number engine (for random positioning) */
     std::mt19937 m_rng;
+
+    int m_type = 0;
+    double m_levelChangeTimer = 0;
 };

@@ -21,6 +21,8 @@ class Spider : public sf::Drawable
     // no default constructor
     Spider() = delete;
 
+    void reset();
+
     /** Set the starting position and state */
     void spawn();
 
@@ -43,6 +45,8 @@ class Spider : public sf::Drawable
      * @return sf::FloatRect
      */
     sf::FloatRect getCollider() const;
+
+    bool isDead() const;
 
     /** States for the movement state-machine */
     enum class Moving { Up, Down, UpRight, UpLeft, DownLeft, DownRight };

@@ -142,6 +142,10 @@ class Centipede : public sf::Drawable
     /** Draw all segments to the target window or texture */
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
+    void reset();
+
+    bool isDead() const;
+
   private:
     /**
      * Split the centipede at the given segment, removing it.

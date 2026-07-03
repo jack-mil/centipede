@@ -123,6 +123,13 @@ void Engine::input()
                 state = State::Playing;
                 std::cout << "Started" << std::endl;
                 m_clock.restart(); // restart clock to prevent frame skip
+                m_shroomMan.reset();
+                m_centipede.reset();
+                for (auto& laser : m_lasers)
+                {
+                    laser.deactivate();
+                }
+                m_spider.reset();
 
                 m_player.spawn(); // respawn the player if they are dead
             }
@@ -137,7 +144,7 @@ void Engine::input()
     } // end event polling
 
     // Keyboard polling for smooth player movement
-    if (state == State::Playing)
+    if ((state == State::Playing) || (state == State::LevelChange))
     {
 
         // Handle player movement with WASD keys
@@ -171,14 +178,17 @@ void Engine::input()
 void Engine::update(const float dtSeconds)
 {
     // only update during the actual game
-    if (state != State::Playing)
+    if ((state != State::Playing) && (state != State::LevelChange))
     {
         return;
     }
 
     m_shroomMan.checkSpiderCollision(m_spider.getCollider());
 
-    m_player.checkSpiderCollision(m_spider.getCollider());
+    if (!m_spider.isDead())
+    {
+        m_player.checkSpiderCollision(m_spider.getCollider());
+    }
 
     if (m_centipede.checkPlayerCollision(m_player.getCollider()))
     {
@@ -218,6 +228,20 @@ void Engine::update(const float dtSeconds)
     m_spider.update(dtSeconds);
     m_player.update(dtSeconds);
 
+    if (state == State::LevelChange)
+    {
+        if (m_shroomMan.update(dtSeconds))
+        {
+            state = State::Playing;
+            m_centipede.reset();
+        }
+    }
+    else if (m_centipede.isDead())
+    {
+        state = State::LevelChange;
+        m_shroomMan.nextLevel();
+    }
+
     // when the player dies, restart the game
     if (m_player.isDead())
     {
@@ -239,7 +263,7 @@ void Engine::draw()
         // draw the start screen at beginning
         m_window.draw(m_startSprite);
     }
-    else if (state == State::Playing)
+    else if ((state == State::Playing) || (state == State::LevelChange))
     {
         // draw all the objects during game-play
 

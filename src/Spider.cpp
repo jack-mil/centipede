@@ -30,7 +30,13 @@ Spider::Spider(sf::FloatRect bounds) : m_rng{std::random_device{}()}
     bounds.height -= size.y;
     m_bounds = bounds;
 
-    this->spawn();
+    this->reset();
+}
+
+void Spider::reset()
+{
+    m_respawnTimer = 0;
+    m_alive = false;
 }
 
 void Spider::spawn()
@@ -207,4 +213,9 @@ bool Spider::checkLaserCollision(sf::FloatRect other)
 sf::FloatRect Spider::getCollider() const
 {
     return m_sprite.getGlobalBounds();
+}
+
+bool Spider::isDead() const
+{
+    return !m_alive;
 }

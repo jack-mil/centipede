@@ -37,7 +37,7 @@ class Engine
     /**
      * Used to control the game loop state-machine
      */
-    enum class State { Start, Playing, GameOver };
+    enum class State { Start, Playing, LevelChange, GameOver };
 
   private:
     /** Color for the game world background */
