@@ -49,14 +49,19 @@ class Spider : public sf::Drawable
 
   private:
     /** The location of the spider texture in the sprite-sheet */
-    static inline const sf::IntRect SpiderTexOffset{32, 300, 60, 32};
+    static inline const sf::IntRect SpiderAnimationOffset[8] =
+    {
+      {32, 300, 60, 32}, {128, 300, 60, 32}, {224, 300, 60, 32}, {320, 300, 60, 32},
+      {32, 364, 60, 32}, {128, 364, 60, 32}, {224, 364, 60, 32}, {320, 364, 60, 32}
+    };
     /** Speed of movement in px/s for both x and y components */
     static constexpr float Speed = 240;
-    /**Move for 1 second before changing directions on average */
-    static constexpr float AverageMoveDuration = 0.5;
 
     /** Seconds between changing direction */
     const double m_moveDuration = 0.5;
+
+    /** Seconds between changing animation */
+    const double m_animationDuration = 0.05;
 
     /** Seconds to wait before re-spawning */
     const double m_respawnDuration = 5;
@@ -73,11 +78,14 @@ class Spider : public sf::Drawable
     /** Current direction of movement */
     Moving m_direction;
 
+    int m_animation;
+
     /** If the spider is alive or note */
     bool m_alive = true;
 
     // A bunch of properties for controlling the spider movement state-machine
     double m_moveTimer    = 0;
+    double m_animationTimer = 0;
     double m_respawnTimer = 0;
 
     bool m_moveLeft = false;

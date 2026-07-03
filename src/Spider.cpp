@@ -18,7 +18,8 @@ Spider class definition and implementation
 Spider::Spider(sf::FloatRect bounds) : m_rng{std::random_device{}()}
 {
     m_sprite.setTexture(TextureManager::GetTexture("graphics/sprites.png"));
-    m_sprite.setTextureRect(Spider::SpiderTexOffset);
+    m_animation = 0;
+    m_sprite.setTextureRect(Spider::SpiderAnimationOffset[m_animation]);
 
     const auto& size = m_sprite.getLocalBounds().getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
@@ -39,6 +40,8 @@ void Spider::spawn()
     m_direction = Moving::UpRight;
     m_alive     = true;
     m_moveLeft = false;
+    m_animation = 0;
+    m_sprite.setTextureRect(Spider::SpiderAnimationOffset[m_animation]);
 }
 
 void Spider::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -87,6 +90,14 @@ void Spider::update(float deltaTime)
     }
 
     m_moveTimer += deltaTime;
+    m_animationTimer += deltaTime;
+    if (m_animationTimer >= m_animationDuration)
+    {
+        m_animation++;
+        m_animation %= 8;
+        m_sprite.setTextureRect(Spider::SpiderAnimationOffset[m_animation]);
+        m_animationTimer = 0;
+    }
     // time to pick a new direction?
     if (m_moveTimer >= m_moveDuration)
     {
