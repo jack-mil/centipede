@@ -180,6 +180,11 @@ void Engine::update(const float dtSeconds)
 
     m_player.checkSpiderCollision(m_spider.getCollider());
 
+    if (m_centipede.checkPlayerCollision(m_player.getCollider()))
+    {
+        m_player.die();
+    }
+
     for (auto& laser : m_lasers)
     {
         // skip updating or colliding with inactive lasers

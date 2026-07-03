@@ -51,12 +51,17 @@ class Player : public sf::Sprite
     bool checkMushroomCollision(sf::FloatRect shroom);
 
     /**
+     * Causes player to lose a life
+     */
+    void die();
+
+    /**
      * Determine if all the lives are used up.
      *
      * @return true if lives < 0
      * @return false otherwise
      */
-    bool isDead() const;
+     bool isDead() const;
 
     /**
      * Return the location that the lasers should spawn from.
@@ -64,6 +69,13 @@ class Player : public sf::Sprite
      * @return sf::Vector2f
      */
     sf::Vector2f getGunPosition() const;
+
+    /**
+     * Get the player collider for collisions
+     *
+     * @return sf::FloatRect
+     */
+     sf::FloatRect getCollider() const;
 
   private:
     /** Player movement speed in pixels/second */

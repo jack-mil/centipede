@@ -96,6 +96,21 @@ bool Centipede::checkLaserCollision(sf::FloatRect laser)
     return false;
 }
 
+bool Centipede::checkPlayerCollision(sf::FloatRect player)
+{
+    // find the first segment that this player hits
+    for (auto seg = m_segments.begin(); seg != m_segments.end(); seg++)
+    {
+        if (player.intersects(seg->getGlobalBounds()))
+        {
+            return true;
+        }
+    }
+
+    // Didn't hit anything
+    return false;
+}
+
 void Centipede::splitAt(std::list<Segment>::iterator seg_it)
 {
     // Add a mushroom at the location of the destroyed segment

@@ -133,6 +133,9 @@ class Centipede : public sf::Drawable
     /** Check if a laser hits any centipede segments*/
     bool checkLaserCollision(sf::FloatRect laser);
 
+    /** Check if a player hits any centipede segments*/
+    bool checkPlayerCollision(sf::FloatRect player);
+
     /** Update the centipede position based on elapsed seconds */
     void update(float deltaTime);
 

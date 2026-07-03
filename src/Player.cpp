@@ -108,8 +108,7 @@ bool Player::checkSpiderCollision(sf::FloatRect spider)
 {
     if (this->getGlobalBounds().intersects(spider))
     {
-        m_lives--;
-        this->reset();
+        die();
         return true;
     };
     return false;
@@ -128,6 +127,12 @@ bool Player::checkMushroomCollision(sf::FloatRect shroom)
     return m_colliding;
 }
 
+void Player::die()
+{
+    m_lives--;
+    this->reset();
+}
+
 bool Player::isDead() const
 {
     return m_lives <= 0;
@@ -137,4 +142,9 @@ bool Player::isDead() const
 sf::Vector2f Player::getGunPosition() const
 {
     return this->getPosition() + sf::Vector2f(0.0, this->getLocalBounds().height / 2.f);
+}
+
+sf::FloatRect Player::getCollider() const
+{
+    return getGlobalBounds();
 }
