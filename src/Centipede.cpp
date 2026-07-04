@@ -49,7 +49,17 @@ void Centipede::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     for (const auto& seg : m_segments)
     {
-        target.draw(seg, states);
+        if (!seg.isHead())
+        {
+            target.draw(seg, states);
+        }
+    }
+    for (const auto& seg : m_segments)
+    {
+        if (seg.isHead())
+        {
+            target.draw(seg, states);
+        }
     }
 }
 
@@ -344,7 +354,7 @@ void Segment::setHead()
     m_isHead = true;
 }
 
-bool Segment::isHead()
+bool Segment::isHead() const
 {
     return m_isHead;
 }

@@ -71,7 +71,7 @@ class Segment : public sf::Sprite
     void setHead();
 
     /** Check if this is a centipede head */
-    bool isHead();
+    bool isHead() const;
 
     /** Check if this segment is currently in a collision animation */
     bool isAnimating();
