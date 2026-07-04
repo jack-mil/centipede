@@ -65,10 +65,6 @@ Engine::Engine()
  */
 void Engine::run()
 {
-    if (!sf::Shader::isAvailable())
-    {
-        throw std::runtime_error("Shaders are not available");
-    }
     // reset the clock for first run
     m_clock.restart();
     while (m_window.isOpen())
