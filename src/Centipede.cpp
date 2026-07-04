@@ -28,11 +28,19 @@ Centipede::Centipede(const sf::FloatRect& bounds, MushroomManager& shroomMan) : 
 /** Move the segment positions */
 void Centipede::update(float deltaTime)
 {
+    bool updateFrame = false;
+    m_animationTimer += deltaTime;
+    if (m_animationTimer >= m_animationDuration)
+    {
+        updateFrame = true;
+        m_animationTimer = 0;
+    }
+
     // move the segments
     for (auto& seg : m_segments)
     {
         this->checkMushroomCollision();
-        seg.update(deltaTime);
+        seg.update(deltaTime, updateFrame);
     }
 }
 
@@ -146,22 +154,36 @@ void Centipede::splitAt(std::list<Segment>::iterator seg_it)
 Segment::Segment(sf::FloatRect bounds) : m_bounds{bounds}
 {
     // All characters on the same sprite-sheet
-    const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
+    const auto& tex = TextureManager::GetTexture("graphics/centipede.png");
     this->setTexture(tex);
-    this->setTextureRect(Segment::BodyTexOffset);
+    this->setTextureRect(Segment::BodyAnimationOffset[m_animationFrame]);
 
     const auto& size = this->getLocalBounds().getSize();
     this->setOrigin(size.x / 2.f, size.y / 2.f);
 }
 
 /** Move the segment according to the state machine */
-void Segment::update(float deltaTime)
+void Segment::update(float deltaTime, bool updateFrame)
 {
     // Detect collisions with boundary edges,
     // and update the state machine
     this->detectEdgeCollisions();
 
     const float distance = Centipede::Speed * deltaTime;
+
+    if (updateFrame)
+    {
+        m_animationFrame++;
+        m_animationFrame %= AnimationFrames;
+        if (isHead())
+        {
+            this->setTextureRect(Segment::HeadAnimationOffset[m_animationFrame]);
+        }
+        else
+        {
+            this->setTextureRect(Segment::BodyAnimationOffset[m_animationFrame]);
+        }
+    }
 
     // Movement while going straight
     if (m_animation == Animation::None)
@@ -197,10 +219,15 @@ void Segment::update(float deltaTime)
         m_animation = Animation::Final;
         break;
     case Animation::Final:
+    {
         this->move(xDisp, yDisp);
         m_animation = Animation::None;
-        this->rotate(180);
+        auto scale = getScale();
+        scale.x *= -1;
+        setScale(scale);
+        //this->rotate(180);
         break;
+    }
     case Animation::None: // specifically do nothing if
         break;            // not in an animation state
     }
@@ -311,7 +338,9 @@ sf::Vector2f Segment::getLeftEdge() const
 
 void Segment::setHead()
 {
-    this->setTextureRect(Segment::HeadTexOffset);
+    /*const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
+    this->setTexture(tex);*/
+    this->setTextureRect(Segment::HeadAnimationOffset[m_animationFrame]);
     m_isHead = true;
 }
 

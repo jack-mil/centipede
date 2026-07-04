@@ -41,7 +41,7 @@ class Segment : public sf::Sprite
     enum class Animation { None, Start, Mid1, Mid2, Final };
 
     /** Move the segment according to it's current state */
-    void update(float deltaTime);
+    void update(float deltaTime, bool updateFrame);
 
     /** Check for hitting the bound edges, and update state */
     void detectEdgeCollisions();
@@ -77,9 +77,17 @@ class Segment : public sf::Sprite
     bool isAnimating();
 
   private:
-    // Texture positions
-    static inline const sf::IntRect HeadTexOffset{48, 172, 32, 32};   // head texture
-    static inline const sf::IntRect BodyTexOffset{464, 1004, 32, 32}; // body texture
+    static constexpr int AnimationFrames = 4;
+
+    /** The location of the centipede body texture in the sprite-sheet */
+    static inline const sf::IntRect HeadAnimationOffset[AnimationFrames] =
+    {
+      {208, 16, 32, 32}, {256, 16, 32, 32}, {304, 16, 32, 32}, {352, 16, 32, 32}
+    };
+    static inline const sf::IntRect BodyAnimationOffset[AnimationFrames] =
+    {
+      {16, 16, 32, 32}, {64, 16, 32, 32}, {112, 16, 32, 32}, {160, 16, 32, 32}
+    };
 
     /** The current direction this segment is moving in */
     Moving m_direction = Moving::Left;
@@ -94,6 +102,8 @@ class Segment : public sf::Sprite
 
     /* Marks a segment as a head type*/
     bool m_isHead = false;
+
+    int m_animationFrame = 0;
 };
 
 /**
@@ -147,6 +157,9 @@ class Centipede : public sf::Drawable
     bool isDead() const;
 
   private:
+    /** Seconds between animation direction */
+    const double m_animationDuration = 0.1;
+
     /**
      * Split the centipede at the given segment, removing it.
      * A mushroom is added at the location of the removed segment.
@@ -167,6 +180,8 @@ class Centipede : public sf::Drawable
     /** All of the segments that make up this centipede.
      * The first element is always the head sprite. The other's trail behind. */
     std::list<Segment> m_segments;
+
+    double m_animationTimer = 0;
 };
 
 /**
