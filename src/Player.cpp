@@ -17,8 +17,8 @@ If a enemy collides with the player, a life is lost.
 /** Constructor initializes the Sprite and other members and sets the origin to the center. */
 Player::Player(sf::FloatRect bounds)
 {
-    this->setTexture(TextureManager::GetTexture("graphics/sprites.png"));
-    this->setTextureRect(Player::PlayerTexOffset);
+    this->setTexture(TextureManager::GetTexture("graphics/fairy.png"));
+    this->setTextureRect(Player::PlayerAnimationOffset[m_animation]);
 
     // use the sprite size to center the origin
     const auto& size = this->getLocalBounds();
@@ -67,6 +67,14 @@ void Player::handleInput()
  */
 void Player::update(float deltaTime)
 {
+    m_animationTimer += deltaTime;
+    if (m_animationTimer > m_animationDuration)
+    {
+        m_animation++;
+        m_animation %= AnimationFrames;
+        m_animationTimer = 0;
+        this->setTextureRect(Player::PlayerAnimationOffset[m_animation]);
+    }
     // moves `Speed` pixels every second.
     // opposite directions cancel out.
     const float  distance = Player::Speed * deltaTime;

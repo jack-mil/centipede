@@ -84,11 +84,19 @@ class Player : public sf::Sprite
     /** How many lives the player has at start */
     static constexpr int StartingLives = 3;
 
+    static constexpr int AnimationFrames = 2;
+
     /** Location of the player texture in sprite-sheet */
-    static inline const sf::IntRect PlayerTexOffset{48, 684, 28, 32};
+    static inline const sf::IntRect PlayerAnimationOffset[AnimationFrames] =
+    {
+      {16, 16, 28, 32}, {64, 16, 28, 32}
+    };
 
     /** Move back to the starting position. */
     void reset();
+
+    /** Seconds between animation direction */
+    const double m_animationDuration = 0.1;
 
     /** The bounds of player movement */
     sf::FloatRect m_bounds;
@@ -103,6 +111,10 @@ class Player : public sf::Sprite
     bool m_movingRight = false;
 
     bool m_colliding = false;
+
+    int m_animation = 0;
+
+    double m_animationTimer = 0;
 
     /** The current lives remaining */
     int m_lives = Player::StartingLives;
