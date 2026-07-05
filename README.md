@@ -17,7 +17,6 @@ Current features are only the minimal required by the grading rubric, there is s
 Future features I would like to have:
 - Score system
 - HUD overlay for lives / score counter
-- Animations for all characters
 - Change the laser system to that of the original game (only one laser on screen at a time)
 - Redesign of the game loop, cleanup of tick based simulation
 
@@ -36,3 +35,13 @@ License: CC-BY 3.0, CC-BY 4.0, GPL-3.0
 ### spider.png
 Spider  
 Created by Dennis Payne  
+
+### centipede.png
+Centipede  
+Created by Dennis Payne  
+
+### fairy.png
+Fairy  
+Created by [sqbr](https://opengameart.org/content/fairy-princesses), GrafxKid, and cabbit as Svetlana Kushnariova with email address lana-chan@yandex.ru, hosted by OpenGameArt.org  
+Modified by Dennis Payne  
+License: CC-BY 4.0  
