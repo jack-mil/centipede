@@ -42,14 +42,16 @@ class Laser : public sf::Drawable
      * Make this Laser active, and set it's position to (x,y)
      * @param x pos of start
      * @param y pos of start
+     * @param player person shooting
      */
-    void shoot(float xStart, float yStart);
+    void shoot(float xStart, float yStart, int player);
 
     /**
      * Make this Laser active, and set it's position to `start`
      * @param start vector position to start from
+     * @param player person shooting
      */
-    void shoot(sf::Vector2f);
+    void shoot(sf::Vector2f, int player);
 
     /**
      * Get the boundary collider for this laser.
@@ -82,4 +84,6 @@ class Laser : public sf::Drawable
 
     /** Shape of the laser (rectangle) */
     sf::RectangleShape m_shape;
+
+    int m_player = 0;
 };

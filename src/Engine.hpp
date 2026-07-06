@@ -55,7 +55,7 @@ class Engine
     sf::View m_view;
 
     /** The player-controlled starship */
-    Player m_player;
+    Player m_player[2];
 
     /** Manager for all the mushrooms in the scene */
     MushroomManager m_shroomMan;
@@ -88,9 +88,6 @@ class Engine
 
     /** Elapsed game time */
     double m_elapsedTime = 0;
-
-    /** Time a laser was fired */
-    sf::Time m_lastFired;
 
     /** Poll player input and hand-off to objects */
     void input();

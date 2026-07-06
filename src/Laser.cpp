@@ -60,22 +60,25 @@ void Laser::draw(sf::RenderTarget& target, sf::RenderStates states) const
  * Make this Laser active, and set it's position to (x,y)
  * @param x pos of start
  * @param y pos of start
+ * @param player person shooting
  */
-void Laser::shoot(float x, float y)
+void Laser::shoot(float x, float y, int player)
 {
     m_active = true;
 
     m_shape.setPosition(x, y);
+    m_player = player;
 }
 
 /**
  * Make this Laser active, and set it's position to `start`.
  * Overload for vector start position
  * @param start  position to start from
+ * @param player person shooting
  */
-void Laser::shoot(sf::Vector2f start)
+void Laser::shoot(sf::Vector2f start, int player)
 {
-    shoot(start.x, start.y);
+    shoot(start.x, start.y, player);
 }
 
 /** Return the boundary collider of this laser object. */

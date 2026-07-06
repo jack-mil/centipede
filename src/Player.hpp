@@ -18,13 +18,15 @@ class Player : public sf::Sprite
 {
   public:
     /** Construct a new Player object */
-    Player(sf::FloatRect bounds);
+    Player(sf::FloatRect bounds, int number);
 
     // no default constructor
     Player() = delete;
 
     /** Start the player in the middle of defined player area */
     void spawn();
+
+    void disable();
 
     /** Do player movement */
     void handleInput();
@@ -77,6 +79,10 @@ class Player : public sf::Sprite
      */
      sf::FloatRect getCollider() const;
 
+     int getNumber() const;
+
+     bool shouldFire(const sf::Time& totalGameTime);
+
   private:
     /** Player movement speed in pixels/second */
     static constexpr float Speed = 1600;
@@ -87,9 +93,10 @@ class Player : public sf::Sprite
     static constexpr int AnimationFrames = 2;
 
     /** Location of the player texture in sprite-sheet */
-    static inline const sf::IntRect PlayerAnimationOffset[AnimationFrames] =
+    static inline const sf::IntRect PlayerAnimationOffset[2][AnimationFrames] =
     {
-      {16, 16, 28, 32}, {64, 16, 28, 32}
+      { {16, 16, 28, 32}, {64, 16, 28, 32} },
+      { {16, 64, 28, 32}, {64, 64, 28, 32} },
     };
 
     /** Move back to the starting position. */
@@ -101,6 +108,14 @@ class Player : public sf::Sprite
     /** The bounds of player movement */
     sf::FloatRect m_bounds;
 
+    int m_number;
+
+    sf::Keyboard::Key m_up;
+    sf::Keyboard::Key m_down;
+    sf::Keyboard::Key m_left;
+    sf::Keyboard::Key m_right;
+    sf::Keyboard::Key m_fire;
+
     /** Up movement key is pressed */
     bool m_movingUp = false;
     /** Down movement key is pressed */
@@ -109,6 +124,11 @@ class Player : public sf::Sprite
     bool m_movingLeft = false;
     /** Right movement key is pressed */
     bool m_movingRight = false;
+
+    bool m_fireLaser = false;
+
+    /** Time a laser was fired */
+    sf::Time m_lastFired;
 
     bool m_colliding = false;
 
