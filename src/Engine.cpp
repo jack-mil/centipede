@@ -22,26 +22,18 @@ Defines the main game Engine and game loop logic.
 Engine::Engine()
     : texMan(),
       m_view{Game::GameCenter, Game::GameSize},
-      m_player{Game::PlayerArea},
+      m_player{{Game::PlayerArea, 0}, {Game::PlayerArea, 1}},
       m_shroomMan{Game::ShroomArea},
       m_centipede{Game::EnemyArea, m_shroomMan},
       m_spider{Game::SpiderArea},
-      m_totalGameTime{sf::Time::Zero},
-      m_lastFired{sf::Time::Zero}
+      m_totalGameTime{sf::Time::Zero}
 {
 
-    // calculate the window size to be 3/4 of available height
-
-    const auto& desktop   = sf::VideoMode::getDesktopMode();
-    const uint  maxHeight = 3 * (desktop.height / 4);
-
-    const float gameRatio = Game::GameSize.x / Game::GameSize.y;
-    const uint  maxWidth  = static_cast<uint>(gameRatio * static_cast<float>(maxHeight));
-
-    sf::VideoMode windowSize{maxWidth, maxHeight};
-
-    // (re)create the window (allow resizing)
-    m_window.create(windowSize, Game::Name, sf::Style::Default);
+    // create the window at native game resolution
+    m_window.create(
+        sf::VideoMode(static_cast<unsigned>(Game::GameSize.x), static_cast<unsigned>(Game::GameSize.y)),
+        Game::Name,
+        sf::Style::Fullscreen);
 
     // set some OS window options
     m_window.setMouseCursorVisible(false);
@@ -49,8 +41,9 @@ Engine::Engine()
     m_window.setVerticalSyncEnabled(false);
 
     // place the window in the center of the desktop
-    const auto xpos = (desktop.width / 2u) - (m_window.getSize().x / 2u);
-    const auto ypos = (desktop.height / 2u) - (m_window.getSize().y / 2u);
+    const auto& desktop = sf::VideoMode::getDesktopMode();
+    const auto    xpos    = (desktop.width / 2u) - (static_cast<unsigned>(Game::GameSize.x) / 2u);
+    const auto    ypos    = (desktop.height / 2u) - (static_cast<unsigned>(Game::GameSize.y) / 2u);
     m_window.setPosition(sf::Vector2i(static_cast<int>(xpos), static_cast<int>(ypos)));
 
     m_window.setView(m_view);
@@ -71,10 +64,6 @@ Engine::Engine()
  */
 void Engine::run()
 {
-    if (!sf::Shader::isAvailable())
-    {
-        throw std::runtime_error("Shaders are not available");
-    }
     // reset the clock for first run
     m_clock.restart();
     while (m_window.isOpen())
@@ -123,14 +112,40 @@ void Engine::input()
         {
 
             // Start game from "menu" with "ENTER"
-            if (state == State::Start && (event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space))
+            if (state == State::Start &&
+                (event.key.code == sf::Keyboard::Return ||
+                    event.key.code == sf::Keyboard::Space ||
+                    event.key.code == sf::Keyboard::Q ||
+                    event.key.code == sf::Keyboard::Num1 ||
+                    event.key.code == sf::Keyboard::Num2))
             {
+                int players = 1;
+
+                if (event.key.code == sf::Keyboard::Q || event.key.code == sf::Keyboard::Num2)
+                {
+                    players = 2;
+                }
 
                 state = State::Playing;
                 std::cout << "Started" << std::endl;
                 m_clock.restart(); // restart clock to prevent frame skip
+                m_shroomMan.reset();
+                m_centipede.reset();
+                for (auto& laser : m_lasers)
+                {
+                    laser.deactivate();
+                }
+                m_spider.reset();
 
-                m_player.spawn(); // respawn the player if they are dead
+                m_player[0].spawn(); // respawn the player if they are dead
+                if (players == 2)
+                {
+                    m_player[1].spawn();
+                }
+                else
+                {
+                    m_player[1].disable();
+                }
             }
 
             // Quit game whenever "ESC" pressed
@@ -143,27 +158,23 @@ void Engine::input()
     } // end event polling
 
     // Keyboard polling for smooth player movement
-    if (state == State::Playing)
+    if ((state == State::Playing) || (state == State::LevelChange))
     {
 
-        // Handle player movement with WASD keys
-        m_player.handleInput();
-
-        // Handle shooting lasers (TODO: move to Player (?) probably)
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        for (auto& player : m_player)
         {
-            auto elapsed = m_totalGameTime.asMilliseconds() - m_lastFired.asMilliseconds();
+            // Handle player movement with WASD keys
+            player.handleInput();
 
-            // only fire after the firing period has elapsed
-            if (elapsed > static_cast<int>(1000 / Laser::FireRate))
+            // Handle shooting lasers (TODO: move to Player (?) probably)
+            if (player.shouldFire(m_totalGameTime))
             {
-                m_lasers[m_currentLaser].shoot(m_player.getGunPosition());
+                m_lasers[m_currentLaser].shoot(player.getGunPosition(), player.getNumber());
                 m_currentLaser++;
-                if (m_currentLaser > m_lasers.size())
+                if (m_currentLaser >= m_lasers.size())
                 {
                     m_currentLaser = 0;
                 }
-                m_lastFired = m_totalGameTime;
             }
         }
     } // end input while playing
@@ -177,14 +188,29 @@ void Engine::input()
 void Engine::update(const float dtSeconds)
 {
     // only update during the actual game
-    if (state != State::Playing)
+    if ((state != State::Playing) && (state != State::LevelChange))
     {
         return;
     }
 
     m_shroomMan.checkSpiderCollision(m_spider.getCollider());
 
-    m_player.checkSpiderCollision(m_spider.getCollider());
+    for (auto& player : m_player)
+    {
+        if (player.isDead())
+        {
+            continue;
+        }
+        if (!m_spider.isDead())
+        {
+            player.checkSpiderCollision(m_spider.getCollider());
+        }
+
+        if (m_centipede.checkPlayerCollision(player.getCollider()))
+        {
+            player.die();
+        }
+    }
 
     for (auto& laser : m_lasers)
     {
@@ -217,10 +243,30 @@ void Engine::update(const float dtSeconds)
 
     m_centipede.update(dtSeconds);
     m_spider.update(dtSeconds);
-    m_player.update(dtSeconds);
+    for (auto& player : m_player)
+    {
+        if (!player.isDead())
+        {
+            player.update(dtSeconds);
+        }
+    }
+
+    if (state == State::LevelChange)
+    {
+        if (m_shroomMan.update(dtSeconds))
+        {
+            state = State::Playing;
+            m_centipede.reset();
+        }
+    }
+    else if (m_centipede.isDead())
+    {
+        state = State::LevelChange;
+        m_shroomMan.nextLevel();
+    }
 
     // when the player dies, restart the game
-    if (m_player.isDead())
+    if ((m_player[0].isDead()) && (m_player[1].isDead()))
     {
         state = State::Start;
     }
@@ -240,7 +286,7 @@ void Engine::draw()
         // draw the start screen at beginning
         m_window.draw(m_startSprite);
     }
-    else if (state == State::Playing)
+    else if ((state == State::Playing) || (state == State::LevelChange))
     {
         // draw all the objects during game-play
 
@@ -257,7 +303,13 @@ void Engine::draw()
             m_window.draw(laser);
         }
 
-        m_window.draw(m_player);
+        for (auto& player : m_player)
+        {
+            if (!player.isDead())
+            {
+                m_window.draw(player);
+            }
+        }
     }
 
     m_window.display();

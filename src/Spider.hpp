@@ -21,6 +21,8 @@ class Spider : public sf::Drawable
     // no default constructor
     Spider() = delete;
 
+    void reset();
+
     /** Set the starting position and state */
     void spawn();
 
@@ -44,19 +46,27 @@ class Spider : public sf::Drawable
      */
     sf::FloatRect getCollider() const;
 
+    bool isDead() const;
+
     /** States for the movement state-machine */
     enum class Moving { Up, Down, UpRight, UpLeft, DownLeft, DownRight };
 
   private:
+    static constexpr int AnimationFrames = 4;
+
     /** The location of the spider texture in the sprite-sheet */
-    static inline const sf::IntRect SpiderTexOffset{8, 75, 15, 8};
+    static inline const sf::IntRect SpiderAnimationOffset[AnimationFrames] =
+    {
+      {16, 16, 60, 32}, {96, 16, 60, 32}, {176, 16, 60, 32}, {256, 16, 60, 32}
+    };
     /** Speed of movement in px/s for both x and y components */
-    static constexpr float Speed = 60;
-    /**Move for 1 second before changing directions on average */
-    static constexpr float AverageMoveDuration = 0.5;
+    static constexpr float Speed = 240;
 
     /** Seconds between changing direction */
     const double m_moveDuration = 0.5;
+
+    /** Seconds between changing animation */
+    const double m_animationDuration = 0.05;
 
     /** Seconds to wait before re-spawning */
     const double m_respawnDuration = 5;
@@ -73,12 +83,15 @@ class Spider : public sf::Drawable
     /** Current direction of movement */
     Moving m_direction;
 
+    int m_animation;
+
     /** If the spider is alive or note */
     bool m_alive = true;
 
     // A bunch of properties for controlling the spider movement state-machine
     double m_moveTimer    = 0;
+    double m_animationTimer = 0;
     double m_respawnTimer = 0;
 
-    bool m_canMoveLeft = false;
+    bool m_moveLeft = false;
 };

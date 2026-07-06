@@ -18,12 +18,12 @@ The MushroomManager and Shroom class definition.
 #include "TextureManager.hpp"
 
 /** Base constructor from x,y coordinates */
-Shroom::Shroom(float x, float y)
+Shroom::Shroom(int type, float x, float y) : m_type(type)
 {
 
-    const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
+    const auto& tex = TextureManager::GetTexture("graphics/mushroom.png");
     this->setTexture(tex);
-    this->setTextureRect(FullTexOffset);
+    this->setTextureRect(NormalTexOffset[m_type][0]);
 
     const auto& size = this->getLocalBounds().getSize();
     this->setOrigin(size.x / 2.f, size.y / 2.f);
@@ -31,7 +31,7 @@ Shroom::Shroom(float x, float y)
 }
 
 /** Constructor overload for Vector parameter*/
-Shroom::Shroom(sf::Vector2f location) : Shroom{location.x, location.y}
+Shroom::Shroom(int type, sf::Vector2f location) : Shroom{type, location.x, location.y}
 {
 }
 
@@ -53,13 +53,13 @@ int Shroom::damage()
     switch (m_health)
     {
     case 3:
-        this->setTextureRect(Damage3TexOffset);
+        this->setTextureRect(NormalTexOffset[m_type][1]);
         break;
     case 2:
-        this->setTextureRect(Damage2TexOffset);
+        this->setTextureRect(NormalTexOffset[m_type][2]);
         break;
     case 1:
-        this->setTextureRect(Damage1TexOffset);
+        this->setTextureRect(NormalTexOffset[m_type][3]);
         break;
     case 0:
         // nothing to do, dead now. will get removed by manager
@@ -86,6 +86,15 @@ sf::Vector2f Shroom::getLeftEdge() const
     return sf::Vector2f(center.x - size.width / 2.f, center.y);
 }
 
+void Shroom::setType(int type)
+{
+    m_type = type;
+    if (m_health > 0)
+    {
+        this->setTextureRect(NormalTexOffset[m_type][4 - m_health]);
+    }
+}
+
 /**
  * Manager constructor initializes the members and
  * creates 30 mushroom sprites randomly scattered in the given bounds.
@@ -96,23 +105,6 @@ sf::Vector2f Shroom::getLeftEdge() const
  */
 MushroomManager::MushroomManager(sf::FloatRect bounds) : m_bounds(bounds), m_rng(std::random_device{}())
 {
-    // Need a random distribution aligned in the 30x30 grid
-    auto                               x_range = static_cast<int>(m_bounds.width / Game::GridSize) - 1;
-    auto                               y_range = static_cast<int>(m_bounds.height / Game::GridSize) - 1;
-    std::uniform_int_distribution<int> random_x(0, x_range);
-    std::uniform_int_distribution<int> random_y(0, y_range);
-
-    // Create 30 mushroom sprites in random locations
-    for (size_t i = 0; i < 30; ++i)
-    {
-        // random grid cells need to be offset so they refer to the center
-        const float gridx = static_cast<float>(Game::GridSize * random_x(m_rng));
-        const float gridy = static_cast<float>(Game::GridSize * random_y(m_rng));
-        const float xPos  = m_bounds.left + gridx + Game::GridSize / 2.f;
-        const float yPos  = m_bounds.top + gridy + Game::GridSize / 2.f;
-        // Create and add to list in-place
-        m_shrooms.emplace_back(xPos, yPos);
-    }
 }
 
 /** Constant reference getter prevents modification */
@@ -179,5 +171,50 @@ bool MushroomManager::checkLaserCollision(sf::FloatRect laser)
  */
 void MushroomManager::addMushroom(sf::Vector2f location)
 {
-    m_shrooms.emplace_back(location);
+    m_shrooms.emplace_back(m_type, location);
+}
+
+void MushroomManager::nextLevel()
+{
+    m_type++;
+    m_type %= 3;
+    m_levelChangeTimer = 0;
+}
+
+bool MushroomManager::update(float deltaTime)
+{
+    m_levelChangeTimer += deltaTime;
+    if (m_levelChangeTimer >= m_levelChangeDuration)
+    {
+        for (auto& shroom : m_shrooms)
+        {
+            shroom.setType(m_type);
+        }
+        return true;
+    }
+    return false;
+}
+
+void MushroomManager::reset()
+{
+    m_type = 0;
+    m_shrooms.clear();
+
+    // Need a random distribution aligned in the 30x30 grid
+    auto                               x_range = static_cast<int>(m_bounds.width / Game::GridSize) - 1;
+    auto                               y_range = static_cast<int>(m_bounds.height / Game::GridSize) - 1;
+    std::uniform_int_distribution<int> random_x(0, x_range);
+    std::uniform_int_distribution<int> random_y(0, y_range);
+
+    // Create 30 mushroom sprites in random locations
+    for (size_t i = 0; i < 30; ++i)
+    {
+        // random grid cells need to be offset so they refer to the center
+        const float gridx = static_cast<float>(Game::GridSize * random_x(m_rng));
+        const float gridy = static_cast<float>(Game::GridSize * random_y(m_rng));
+        const float xPos  = m_bounds.left + gridx + Game::GridSize / 2.f;
+        const float yPos  = m_bounds.top + gridy + Game::GridSize / 2.f;
+        // Create and add to list in-place
+        m_shrooms.emplace_back(m_type, xPos, yPos);
+    }
 }

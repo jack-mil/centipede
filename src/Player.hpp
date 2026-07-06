@@ -18,13 +18,15 @@ class Player : public sf::Sprite
 {
   public:
     /** Construct a new Player object */
-    Player(sf::FloatRect bounds);
+    Player(sf::FloatRect bounds, int number);
 
     // no default constructor
     Player() = delete;
 
     /** Start the player in the middle of defined player area */
     void spawn();
+
+    void disable();
 
     /** Do player movement */
     void handleInput();
@@ -51,12 +53,17 @@ class Player : public sf::Sprite
     bool checkMushroomCollision(sf::FloatRect shroom);
 
     /**
+     * Causes player to lose a life
+     */
+    void die();
+
+    /**
      * Determine if all the lives are used up.
      *
      * @return true if lives < 0
      * @return false otherwise
      */
-    bool isDead() const;
+     bool isDead() const;
 
     /**
      * Return the location that the lasers should spawn from.
@@ -65,21 +72,49 @@ class Player : public sf::Sprite
      */
     sf::Vector2f getGunPosition() const;
 
+    /**
+     * Get the player collider for collisions
+     *
+     * @return sf::FloatRect
+     */
+     sf::FloatRect getCollider() const;
+
+     int getNumber() const;
+
+     bool shouldFire(const sf::Time& totalGameTime);
+
   private:
     /** Player movement speed in pixels/second */
-    static constexpr float Speed = 400;
+    static constexpr float Speed = 1600;
 
     /** How many lives the player has at start */
     static constexpr int StartingLives = 3;
 
+    static constexpr int AnimationFrames = 2;
+
     /** Location of the player texture in sprite-sheet */
-    static inline const sf::IntRect PlayerTexOffset{12, 171, 7, 8};
+    static inline const sf::IntRect PlayerAnimationOffset[2][AnimationFrames] =
+    {
+      { {16, 16, 28, 32}, {64, 16, 28, 32} },
+      { {16, 64, 28, 32}, {64, 64, 28, 32} },
+    };
 
     /** Move back to the starting position. */
     void reset();
 
+    /** Seconds between animation direction */
+    const double m_animationDuration = 0.1;
+
     /** The bounds of player movement */
     sf::FloatRect m_bounds;
+
+    int m_number;
+
+    sf::Keyboard::Key m_up;
+    sf::Keyboard::Key m_down;
+    sf::Keyboard::Key m_left;
+    sf::Keyboard::Key m_right;
+    sf::Keyboard::Key m_fire;
 
     /** Up movement key is pressed */
     bool m_movingUp = false;
@@ -90,7 +125,16 @@ class Player : public sf::Sprite
     /** Right movement key is pressed */
     bool m_movingRight = false;
 
+    bool m_fireLaser = false;
+
+    /** Time a laser was fired */
+    sf::Time m_lastFired;
+
     bool m_colliding = false;
+
+    int m_animation = 0;
+
+    double m_animationTimer = 0;
 
     /** The current lives remaining */
     int m_lives = Player::StartingLives;

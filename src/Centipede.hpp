@@ -41,7 +41,7 @@ class Segment : public sf::Sprite
     enum class Animation { None, Start, Mid1, Mid2, Final };
 
     /** Move the segment according to it's current state */
-    void update(float deltaTime);
+    void update(float deltaTime, bool updateFrame);
 
     /** Check for hitting the bound edges, and update state */
     void detectEdgeCollisions();
@@ -71,15 +71,23 @@ class Segment : public sf::Sprite
     void setHead();
 
     /** Check if this is a centipede head */
-    bool isHead();
+    bool isHead() const;
 
     /** Check if this segment is currently in a collision animation */
     bool isAnimating();
 
   private:
-    // Texture positions
-    static inline const sf::IntRect HeadTexOffset{12, 43, 8, 8};   // head texture
-    static inline const sf::IntRect BodyTexOffset{116, 251, 8, 8}; // body texture
+    static constexpr int AnimationFrames = 4;
+
+    /** The location of the centipede body texture in the sprite-sheet */
+    static inline const sf::IntRect HeadAnimationOffset[AnimationFrames] =
+    {
+      {208, 16, 32, 32}, {256, 16, 32, 32}, {304, 16, 32, 32}, {352, 16, 32, 32}
+    };
+    static inline const sf::IntRect BodyAnimationOffset[AnimationFrames] =
+    {
+      {16, 16, 32, 32}, {64, 16, 32, 32}, {112, 16, 32, 32}, {160, 16, 32, 32}
+    };
 
     /** The current direction this segment is moving in */
     Moving m_direction = Moving::Left;
@@ -94,6 +102,8 @@ class Segment : public sf::Sprite
 
     /* Marks a segment as a head type*/
     bool m_isHead = false;
+
+    int m_animationFrame = 0;
 };
 
 /**
@@ -107,7 +117,7 @@ class Centipede : public sf::Drawable
     static constexpr float Speed = Game::GridSize * 15;
 
     /** Collision animation is always 2 px/tick */
-    static constexpr float AnimSpeed = 2;
+    static constexpr float AnimSpeed = 8;
 
     /** Starting number of Centipede segments */
     static constexpr int MaxLength = 12;
@@ -133,13 +143,23 @@ class Centipede : public sf::Drawable
     /** Check if a laser hits any centipede segments*/
     bool checkLaserCollision(sf::FloatRect laser);
 
+    /** Check if a player hits any centipede segments*/
+    bool checkPlayerCollision(sf::FloatRect player);
+
     /** Update the centipede position based on elapsed seconds */
     void update(float deltaTime);
 
     /** Draw all segments to the target window or texture */
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
+    void reset();
+
+    bool isDead() const;
+
   private:
+    /** Seconds between animation direction */
+    const double m_animationDuration = 0.1;
+
     /**
      * Split the centipede at the given segment, removing it.
      * A mushroom is added at the location of the removed segment.
@@ -160,6 +180,8 @@ class Centipede : public sf::Drawable
     /** All of the segments that make up this centipede.
      * The first element is always the head sprite. The other's trail behind. */
     std::list<Segment> m_segments;
+
+    double m_animationTimer = 0;
 };
 
 /**

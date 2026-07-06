@@ -17,8 +17,9 @@ Spider class definition and implementation
 /** Construction and set up the inherited Sprite properties */
 Spider::Spider(sf::FloatRect bounds) : m_rng{std::random_device{}()}
 {
-    m_sprite.setTexture(TextureManager::GetTexture("graphics/sprites.png"));
-    m_sprite.setTextureRect(Spider::SpiderTexOffset);
+    m_sprite.setTexture(TextureManager::GetTexture("graphics/spider.png"));
+    m_animation = 0;
+    m_sprite.setTextureRect(Spider::SpiderAnimationOffset[m_animation]);
 
     const auto& size = m_sprite.getLocalBounds().getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
@@ -29,7 +30,13 @@ Spider::Spider(sf::FloatRect bounds) : m_rng{std::random_device{}()}
     bounds.height -= size.y;
     m_bounds = bounds;
 
-    this->spawn();
+    this->reset();
+}
+
+void Spider::reset()
+{
+    m_respawnTimer = 0;
+    m_alive = false;
 }
 
 void Spider::spawn()
@@ -38,6 +45,9 @@ void Spider::spawn()
     m_sprite.setPosition(m_bounds.left, m_bounds.top);
     m_direction = Moving::UpRight;
     m_alive     = true;
+    m_moveLeft = false;
+    m_animation = 0;
+    m_sprite.setTextureRect(Spider::SpiderAnimationOffset[m_animation]);
 }
 
 void Spider::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -85,12 +95,15 @@ void Spider::update(float deltaTime)
         break;
     }
 
-    if (m_sprite.getPosition().x >= m_bounds.left + m_bounds.width)
-    {
-        m_canMoveLeft = true;
-    }
-
     m_moveTimer += deltaTime;
+    m_animationTimer += deltaTime;
+    if (m_animationTimer >= m_animationDuration)
+    {
+        m_animation++;
+        m_animation %= AnimationFrames;
+        m_sprite.setTextureRect(Spider::SpiderAnimationOffset[m_animation]);
+        m_animationTimer = 0;
+    }
     // time to pick a new direction?
     if (m_moveTimer >= m_moveDuration)
     {
@@ -99,20 +112,42 @@ void Spider::update(float deltaTime)
         if (m_sprite.getPosition().x >= m_bounds.left + m_bounds.width)
         {
             // on right edge
-            allowedDirections = {Moving::Up, Moving::Down, Moving::UpLeft, Moving::DownLeft};
+            m_moveLeft = true;
         }
         else if (m_sprite.getPosition().x < m_bounds.left)
         {
             // on left edge
-            allowedDirections = {Moving::Up, Moving::Down, Moving::UpRight, Moving::DownRight};
+            m_moveLeft = false;
+        }
+
+        if (m_moveLeft)
+        {
+            allowedDirections = {Moving::Up, Moving::Down, Moving::UpLeft, Moving::DownLeft};
+            // Slight preference for keeping the same vertical direction
+            if ((m_direction == Moving::UpLeft) || (m_direction == Moving::Up))
+            {
+                allowedDirections.push_back(Moving::Up);
+                allowedDirections.push_back(Moving::UpLeft);
+            }
+            else
+            {
+                allowedDirections.push_back(Moving::Down);
+                allowedDirections.push_back(Moving::DownLeft);
+            }
         }
         else
         {
-            // can move anywhere if not on edges
             allowedDirections = {Moving::Up, Moving::Down, Moving::UpRight, Moving::DownRight};
-            if (m_canMoveLeft)
+            // Slight preference for keeping the same vertical direction
+            if ((m_direction == Moving::UpRight) || (m_direction == Moving::Up))
             {
-                allowedDirections.assign({Moving::UpLeft, Moving::DownLeft});
+                allowedDirections.push_back(Moving::Up);
+                allowedDirections.push_back(Moving::UpRight);
+            }
+            else
+            {
+                allowedDirections.push_back(Moving::Down);
+                allowedDirections.push_back(Moving::DownRight);
             }
         }
 
@@ -178,4 +213,9 @@ bool Spider::checkLaserCollision(sf::FloatRect other)
 sf::FloatRect Spider::getCollider() const
 {
     return m_sprite.getGlobalBounds();
+}
+
+bool Spider::isDead() const
+{
+    return !m_alive;
 }

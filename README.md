@@ -6,7 +6,7 @@
 - compile:   `cmake --build build/`
 - run: `./build/bin/centipede`
 
-CMake will automatically clone and build the SFML dependency.
+SMFL dependency must be installed before building.
 
 
 ## Details
@@ -17,11 +17,31 @@ Current features are only the minimal required by the grading rubric, there is s
 Future features I would like to have:
 - Score system
 - HUD overlay for lives / score counter
-- Centipede collision with the player
-- Animations for all characters
 - Change the laser system to that of the original game (only one laser on screen at a time)
 - Redesign of the game loop, cleanup of tick based simulation
 
 Big thanks to these blog posts by the RetroGame Deconstruction Zone:
 - [Character Breakdown](https://www.retrogamedeconstructionzone.com/2020/08/the-characters-of-centipede.html)
 - [Descent Mechanics](https://www.retrogamedeconstructionzone.com/2020/11/the-descent-of-centipede-part-1.html)
+
+## Sprite License
+
+### mushroom.png
+Mushrooms  
+Created by [SCaydi](https://opengameart.org/content/mushroom-4), hosted by OpenGameArt.org  
+Modified colors and size by Dennis Payne  
+License: CC-BY 3.0, CC-BY 4.0, GPL-3.0  
+
+### spider.png
+Spider  
+Created by Dennis Payne  
+
+### centipede.png
+Centipede  
+Created by Dennis Payne  
+
+### fairy.png
+Fairy  
+Created by [sqbr](https://opengameart.org/content/fairy-princesses), GrafxKid, and cabbit as Svetlana Kushnariova with email address lana-chan@yandex.ru, hosted by OpenGameArt.org  
+Modified by Dennis Payne  
+License: CC-BY 4.0  

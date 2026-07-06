@@ -42,14 +42,16 @@ class Laser : public sf::Drawable
      * Make this Laser active, and set it's position to (x,y)
      * @param x pos of start
      * @param y pos of start
+     * @param player person shooting
      */
-    void shoot(float xStart, float yStart);
+    void shoot(float xStart, float yStart, int player);
 
     /**
      * Make this Laser active, and set it's position to `start`
      * @param start vector position to start from
+     * @param player person shooting
      */
-    void shoot(sf::Vector2f);
+    void shoot(sf::Vector2f, int player);
 
     /**
      * Get the boundary collider for this laser.
@@ -69,17 +71,19 @@ class Laser : public sf::Drawable
     // Static properties common to all lasers
 
     /** Laser speed in px/second. Original game had 7px per frame (60fps). */
-    static constexpr float Speed = 7 * 60;
+    static constexpr float Speed = 28 * 60;
 
     /** Color of all lasers (Red) */
     static inline const sf::Color Color = sf::Color::Red;
 
     /** Size of all lasers (px) */
-    static inline const sf::Vector2f Size{1.0, 6.0};
+    static inline const sf::Vector2f Size{4.0, 24.0};
 
     /** Only draw active lasers. */
     bool m_active = false;
 
     /** Shape of the laser (rectangle) */
     sf::RectangleShape m_shape;
+
+    int m_player = 0;
 };

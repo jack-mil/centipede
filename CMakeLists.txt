@@ -10,26 +10,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# set(OPENAL_LIBRARY ${PROJECT_SOURCE_DIR}/../SFML/extlibs/libs-msvc/x64/openal32.lib)
-
-# Configure SFML options
-option(SFML_BUILD_AUDIO FALSE)
-# Static linking wasn't wuite working right
-# Laser's aren't visible, no errors tho... strange
-# option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-# set(SFML_STATIC_LIBRARIES TRUE)
-
-# Fetch the SFML source code dependencies from github
-include(FetchContent)
-FetchContent_Declare(SFML
-GIT_REPOSITORY https://github.com/SFML/SFML.git
-GIT_TAG 2.6.x
-GIT_SHALLOW ON
-EXCLUDE_FROM_ALL
-SYSTEM)
-FetchContent_MakeAvailable(SFML)
-
-
 # Add the executable
 add_executable(${PROJECT_NAME}
                 src/main.cpp
@@ -41,7 +21,7 @@ add_executable(${PROJECT_NAME}
                 src/Spider.cpp
                 src/Centipede.cpp)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics)
+target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-audio sfml-window sfml-system)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 # Enable warning and errors
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wsign-conversion -Wconversion -Wextra -Werror -pedantic -pedantic-errors)

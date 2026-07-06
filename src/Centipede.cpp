@@ -22,9 +22,52 @@ Centipede class definition.
  */
 Centipede::Centipede(const sf::FloatRect& bounds, MushroomManager& shroomMan) : m_bounds{bounds}, m_shroomMan{shroomMan}
 {
+    reset();
+}
 
+/** Move the segment positions */
+void Centipede::update(float deltaTime)
+{
+    bool updateFrame = false;
+    m_animationTimer += deltaTime;
+    if (m_animationTimer >= m_animationDuration)
+    {
+        updateFrame = true;
+        m_animationTimer = 0;
+    }
+
+    // move the segments
+    for (auto& seg : m_segments)
+    {
+        this->checkMushroomCollision();
+        seg.update(deltaTime, updateFrame);
+    }
+}
+
+/** Draw all segments to the screen */
+void Centipede::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{
+    for (const auto& seg : m_segments)
+    {
+        if (!seg.isHead())
+        {
+            target.draw(seg, states);
+        }
+    }
+    for (const auto& seg : m_segments)
+    {
+        if (seg.isHead())
+        {
+            target.draw(seg, states);
+        }
+    }
+}
+
+void Centipede::reset()
+{
     // set starting position of the head (center in the grid)
     sf::Vector2f startPos{m_bounds.left + (m_bounds.width / 2.f), m_bounds.top + Game::GridSize / 2.f};
+    m_segments.clear();
 
     // construct the sprite segments in-place using  list iterator
     for (int i = 0; i < Centipede::MaxLength; i++)
@@ -38,24 +81,9 @@ Centipede::Centipede(const sf::FloatRect& bounds, MushroomManager& shroomMan) : 
     m_segments.front().setHead();
 }
 
-/** Move the segment positions */
-void Centipede::update(float deltaTime)
+bool Centipede::isDead() const
 {
-    // move the segments
-    for (auto& seg : m_segments)
-    {
-        this->checkMushroomCollision();
-        seg.update(deltaTime);
-    }
-}
-
-/** Draw all segments to the screen */
-void Centipede::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{
-    for (const auto& seg : m_segments)
-    {
-        target.draw(seg, states);
-    }
+    return m_segments.size() == 0;
 }
 
 /** Check all segments against all mushrooms
@@ -96,6 +124,21 @@ bool Centipede::checkLaserCollision(sf::FloatRect laser)
     return false;
 }
 
+bool Centipede::checkPlayerCollision(sf::FloatRect player)
+{
+    // find the first segment that this player hits
+    for (auto seg = m_segments.begin(); seg != m_segments.end(); seg++)
+    {
+        if (player.intersects(seg->getGlobalBounds()))
+        {
+            return true;
+        }
+    }
+
+    // Didn't hit anything
+    return false;
+}
+
 void Centipede::splitAt(std::list<Segment>::iterator seg_it)
 {
     // Add a mushroom at the location of the destroyed segment
@@ -121,22 +164,36 @@ void Centipede::splitAt(std::list<Segment>::iterator seg_it)
 Segment::Segment(sf::FloatRect bounds) : m_bounds{bounds}
 {
     // All characters on the same sprite-sheet
-    const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
+    const auto& tex = TextureManager::GetTexture("graphics/centipede.png");
     this->setTexture(tex);
-    this->setTextureRect(Segment::BodyTexOffset);
+    this->setTextureRect(Segment::BodyAnimationOffset[m_animationFrame]);
 
     const auto& size = this->getLocalBounds().getSize();
     this->setOrigin(size.x / 2.f, size.y / 2.f);
 }
 
 /** Move the segment according to the state machine */
-void Segment::update(float deltaTime)
+void Segment::update(float deltaTime, bool updateFrame)
 {
     // Detect collisions with boundary edges,
     // and update the state machine
     this->detectEdgeCollisions();
 
     const float distance = Centipede::Speed * deltaTime;
+
+    if (updateFrame)
+    {
+        m_animationFrame++;
+        m_animationFrame %= AnimationFrames;
+        if (isHead())
+        {
+            this->setTextureRect(Segment::HeadAnimationOffset[m_animationFrame]);
+        }
+        else
+        {
+            this->setTextureRect(Segment::BodyAnimationOffset[m_animationFrame]);
+        }
+    }
 
     // Movement while going straight
     if (m_animation == Animation::None)
@@ -172,10 +229,15 @@ void Segment::update(float deltaTime)
         m_animation = Animation::Final;
         break;
     case Animation::Final:
+    {
         this->move(xDisp, yDisp);
         m_animation = Animation::None;
-        this->rotate(180);
+        auto scale = getScale();
+        scale.x *= -1;
+        setScale(scale);
+        //this->rotate(180);
         break;
+    }
     case Animation::None: // specifically do nothing if
         break;            // not in an animation state
     }
@@ -184,7 +246,7 @@ void Segment::update(float deltaTime)
 /** Sets the state of the segment from colliding with the game edges */
 void Segment::detectEdgeCollisions()
 {
-    const float spacing = 3.0; // 3px from anything is "collision"
+    const float spacing = 12.0; // 12px from anything is "collision"
 
     static const float width     = this->getLocalBounds().width;
     const auto&        centerPos = this->getPosition();
@@ -233,7 +295,7 @@ void Segment::detectEdgeCollisions()
 /** Check for hitting a mushroom, and update state */
 bool Segment::detectMushroomCollisions(const Shroom& shroom)
 {
-    const float spacing = 3.0; // 3px from anything is "collision"
+    const float spacing = 12.0; // 12px from anything is "collision"
 
     const sf::Vector2f& segLeft  = this->getLeftEdge();
     const sf::Vector2f& segRight = this->getRightEdge();
@@ -286,11 +348,13 @@ sf::Vector2f Segment::getLeftEdge() const
 
 void Segment::setHead()
 {
-    this->setTextureRect(Segment::HeadTexOffset);
+    /*const auto& tex = TextureManager::GetTexture("graphics/sprites.png");
+    this->setTexture(tex);*/
+    this->setTextureRect(Segment::HeadAnimationOffset[m_animationFrame]);
     m_isHead = true;
 }
 
-bool Segment::isHead()
+bool Segment::isHead() const
 {
     return m_isHead;
 }

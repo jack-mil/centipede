@@ -12,13 +12,15 @@ If a enemy collides with the player, a life is lost.
 #include "SFML/Graphics.hpp"
 
 #include "Player.hpp"
+#include "Laser.hpp"
 #include "TextureManager.hpp"
 
 /** Constructor initializes the Sprite and other members and sets the origin to the center. */
-Player::Player(sf::FloatRect bounds)
+Player::Player(sf::FloatRect bounds, int number) : m_lastFired{sf::Time::Zero}
 {
-    this->setTexture(TextureManager::GetTexture("graphics/sprites.png"));
-    this->setTextureRect(Player::PlayerTexOffset);
+    m_number = number;
+    this->setTexture(TextureManager::GetTexture("graphics/fairy.png"));
+    this->setTextureRect(Player::PlayerAnimationOffset[m_number][m_animation]);
 
     // use the sprite size to center the origin
     const auto& size = this->getLocalBounds();
@@ -32,6 +34,23 @@ Player::Player(sf::FloatRect bounds)
     bounds.height -= size.height;
     m_bounds = bounds;
 
+    if (number == 0)
+    {
+        m_up    = sf::Keyboard::Up;
+        m_down  = sf::Keyboard::Down;
+        m_left  = sf::Keyboard::Left;
+        m_right = sf::Keyboard::Right;
+        m_fire  = sf::Keyboard::Space;
+    }
+    else
+    {
+        m_up    = sf::Keyboard::R;
+        m_down  = sf::Keyboard::F;
+        m_left  = sf::Keyboard::D;
+        m_right = sf::Keyboard::G;
+        m_fire  = sf::Keyboard::Q;
+    }
+
     // move to starting position
     this->spawn();
 }
@@ -43,8 +62,14 @@ void Player::spawn()
     this->reset();
 }
 
+void Player::disable()
+{
+    m_lives = 0;
+}
+
 void Player::reset()
 {
+    m_lastFired = sf::Time::Zero;
     // reset position
     sf::Vector2f start{m_bounds.left + (m_bounds.width / 2), // center
                        m_bounds.top + m_bounds.height};      // bottom row
@@ -55,10 +80,11 @@ void Player::reset()
 void Player::handleInput()
 {
     // Can be moved with arrows or WASD
-    m_movingUp    = sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
-    m_movingDown  = sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
-    m_movingLeft  = sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
-    m_movingRight = sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
+    m_movingUp    = sf::Keyboard::isKeyPressed(m_up);
+    m_movingDown  = sf::Keyboard::isKeyPressed(m_down);
+    m_movingLeft  = sf::Keyboard::isKeyPressed(m_left);
+    m_movingRight = sf::Keyboard::isKeyPressed(m_right);
+    m_fireLaser   = sf::Keyboard::isKeyPressed(m_fire);
 }
 
 /**
@@ -67,6 +93,14 @@ void Player::handleInput()
  */
 void Player::update(float deltaTime)
 {
+    m_animationTimer += deltaTime;
+    if (m_animationTimer > m_animationDuration)
+    {
+        m_animation++;
+        m_animation %= AnimationFrames;
+        m_animationTimer = 0;
+        this->setTextureRect(Player::PlayerAnimationOffset[m_number][m_animation]);
+    }
     // moves `Speed` pixels every second.
     // opposite directions cancel out.
     const float  distance = Player::Speed * deltaTime;
@@ -108,8 +142,7 @@ bool Player::checkSpiderCollision(sf::FloatRect spider)
 {
     if (this->getGlobalBounds().intersects(spider))
     {
-        m_lives--;
-        this->reset();
+        die();
         return true;
     };
     return false;
@@ -128,6 +161,12 @@ bool Player::checkMushroomCollision(sf::FloatRect shroom)
     return m_colliding;
 }
 
+void Player::die()
+{
+    m_lives--;
+    this->reset();
+}
+
 bool Player::isDead() const
 {
     return m_lives <= 0;
@@ -137,4 +176,30 @@ bool Player::isDead() const
 sf::Vector2f Player::getGunPosition() const
 {
     return this->getPosition() + sf::Vector2f(0.0, this->getLocalBounds().height / 2.f);
+}
+
+sf::FloatRect Player::getCollider() const
+{
+    return getGlobalBounds();
+}
+
+int Player::getNumber() const
+{
+    return m_number;
+}
+
+bool Player::shouldFire(const sf::Time& totalGameTime)
+{
+    if (m_fireLaser)
+    {
+        auto elapsed = totalGameTime.asMilliseconds() - m_lastFired.asMilliseconds();
+
+        // only fire after the firing period has elapsed
+        if (elapsed > static_cast<int>(1000 / Laser::FireRate))
+        {
+            m_lastFired = totalGameTime;
+            return true;
+        }
+    }
+    return false;
 }
