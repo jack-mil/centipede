@@ -1,12 +1,12 @@
 /*
-Author: Jackson Miller
-Class: ECE6122 A
-Last Date Modifed: 2024-09-30
+SPDX-License-Identifier: BSD-3-Clause
+Copyright (c) 2024 Jackson Miller
 
 Description:
 The Centipede class controls it's descent down the game area every update.
 Multiple Centipedes may be present in the game area with different segment lengths
 */
+
 #pragma once
 #include <list>
 
