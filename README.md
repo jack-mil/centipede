@@ -10,6 +10,9 @@ Current Developer: dulsi@identicalsoftware.com
 
 SMFL dependency must be installed before building.
 
+Debian: `sudo apt install build-essential cmake git libsfml-dev`
+
+Fedora: `sudo dnf install gcc-c++ cmake git SFML-devel`
 
 ## Details
 The centipede it going to destroy the fairy glade. Other bugs like spiders aid the invaders. You are a fairy tasked with stopping the
