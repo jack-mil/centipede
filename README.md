@@ -1,4 +1,6 @@
-# Atari Centipede Clone
+# Centicrawler
+
+Current Developer: dulsi@identicalsoftware.com
 
 ## Made with SFML and C++17
 
@@ -10,19 +12,29 @@ SMFL dependency must be installed before building.
 
 
 ## Details
-Uses the original sprite sheet from the 1981 arcade game. There is a lot I want to add, but was too large a scope for regular class assignment. May revisit this at some point.
+The centipede it going to destroy the fairy glade. Other bugs like spiders aid the invaders. You are a fairy tasked with stopping the
+threat. Use your magic to transform the centipede into mushroom. Beware the centipede can split into multiple threats if you hit it
+in the middle.
 
-Current features are only the minimal required by the grading rubric, there is still a bit to be done before I would consider it a 'full game'.
+## History
+Centicrawler was originally designed as a class assignment by Jackson Miller. It was intended to be a clone of Centipede. It used
+the original sprite sheet from the 1981 arcade game. Only a minimal set of features were implemented to meet the grading rubric.
 
-Future features I would like to have:
-- Score system
-- HUD overlay for lives / score counter
-- Change the laser system to that of the original game (only one laser on screen at a time)
-- Redesign of the game loop, cleanup of tick based simulation
+The sprites have been replaced with new graphics. Some elements from Centipede are still missing.
+
+Centicrawler is adding new elements like a 2 player simultaneous mode.
 
 Big thanks to these blog posts by the RetroGame Deconstruction Zone:
 - [Character Breakdown](https://www.retrogamedeconstructionzone.com/2020/08/the-characters-of-centipede.html)
 - [Descent Mechanics](https://www.retrogamedeconstructionzone.com/2020/11/the-descent-of-centipede-part-1.html)
+
+## Missing Features
+- Score system
+- HUD overlay for lives / score counter
+- Change the laser system to that of the original game (only one laser on screen at a time)
+- Flea (drop mushrooms)
+- Scorpion (poisons mushrooms)
+- Players collide with mushrooms
 
 ## Sprite License
 
