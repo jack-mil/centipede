@@ -10,7 +10,9 @@ If a enemy collides with the player, a life is lost.
 */
 
 #include "SFML/Graphics.hpp"
+#include <unordered_set>
 
+#include "Engine.hpp"
 #include "Player.hpp"
 #include "Laser.hpp"
 #include "TextureManager.hpp"
@@ -71,7 +73,8 @@ void Player::reset()
 {
     m_lastFired = sf::Time::Zero;
     // reset position
-    sf::Vector2f start{m_bounds.left + (m_bounds.width / 2), // center
+    const auto& size = this->getLocalBounds();
+    sf::Vector2f start{m_bounds.left + (m_bounds.width / 2) - size.width * 1.5f + size.width * (float)m_number, // center
                        m_bounds.top + m_bounds.height};      // bottom row
     this->setPosition(start);
 }
@@ -91,7 +94,7 @@ void Player::handleInput()
  * Move the player position according to movement flags.
  * Prevent going out of bounds.
  */
-void Player::update(float deltaTime)
+void Player::update(float deltaTime, Engine& engine)
 {
     m_animationTimer += deltaTime;
     if (m_animationTimer > m_animationDuration)
@@ -103,27 +106,29 @@ void Player::update(float deltaTime)
     }
     // moves `Speed` pixels every second.
     // opposite directions cancel out.
-    const float  distance = Player::Speed * deltaTime;
-    sf::Vector2f pos      = this->getPosition();
+    const float distance = Player::Speed * deltaTime;
+
+    const sf::Vector2f oldPos = this->getPosition();
+    sf::Vector2f       newPos  = oldPos;
 
     if (m_movingUp)
     {
-        pos.y -= distance;
+        newPos.y -= distance;
     }
 
     if (m_movingDown)
     {
-        pos.y += distance;
+        newPos.y += distance;
     }
 
     if (m_movingRight)
     {
-        pos.x += distance;
+        newPos.x += distance;
     }
 
     if (m_movingLeft)
     {
-        pos.x -= distance;
+        newPos.x -= distance;
     }
 
     // simple inplace saturation check
@@ -131,10 +136,43 @@ void Player::update(float deltaTime)
 
     // prevent movement out of the player bounding area
     // not using sf::Rec.contains() because of 'sticky' walls issue
-    pos.x = saturate(pos.x, m_bounds.left, m_bounds.width + m_bounds.left);
-    pos.y = saturate(pos.y, m_bounds.top, m_bounds.height + m_bounds.top);
+    newPos.x = saturate(newPos.x, m_bounds.left, m_bounds.width + m_bounds.left);
+    newPos.y = saturate(newPos.y, m_bounds.top, m_bounds.height + m_bounds.top);
 
-    this->setPosition(pos);
+    const float dx = newPos.x - oldPos.x;
+    const float dy = newPos.y - oldPos.y;
+
+    sf::FloatRect collider = this->getGlobalBounds();
+    collider.left += dx;
+    collider.top += dy;
+
+    const std::unordered_set<Engine::CollisionTarget> targets{
+        Engine::CollisionTarget::Mushroom,
+        m_number == 0 ? Engine::CollisionTarget::Player2 : Engine::CollisionTarget::Player1,
+    };
+
+    if (!engine.CheckCollision(collider, targets))
+    {
+        this->setPosition(newPos);
+    }
+    else if (dx != 0.f && dy != 0.f)
+    {
+        sf::FloatRect xRect = this->getGlobalBounds();
+        xRect.left += dx;
+        if (!engine.CheckCollision(xRect, targets))
+        {
+            this->setPosition({newPos.x, oldPos.y});
+        }
+        else
+        {
+            sf::FloatRect yRect = this->getGlobalBounds();
+            yRect.top += dy;
+            if (!engine.CheckCollision(yRect, targets))
+            {
+                this->setPosition({oldPos.x, newPos.y});
+            }
+        }
+    }
 }
 
 /** Detect if hit by the spider and lose a life */
@@ -146,19 +184,6 @@ bool Player::checkSpiderCollision(sf::FloatRect spider)
         return true;
     };
     return false;
-}
-
-bool Player::checkMushroomCollision(sf::FloatRect shroom)
-{
-    if (this->getGlobalBounds().intersects(shroom))
-    {
-        m_colliding = true;
-    }
-    else
-    {
-        m_colliding = false;
-    }
-    return m_colliding;
 }
 
 void Player::die()

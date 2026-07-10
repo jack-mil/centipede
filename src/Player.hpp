@@ -10,6 +10,8 @@ Player character declaration.
 
 #include <SFML/Graphics.hpp>
 
+class Engine;
+
 /**
  * The Player class inherits from SFML Sprite and implements:
  * user input, spider collisions, and keeping track of lives
@@ -33,8 +35,9 @@ class Player : public sf::Sprite
 
     /** Update player sprite position based on elapsed seconds
      * @param deltaTime time in seconds since last update
+     * @param engine game engine for collision checks
      */
-    void update(float deltaTime);
+    void update(float deltaTime, Engine& engine);
 
     /**
      * Check for collisions with spider and decrement life counter
@@ -43,14 +46,6 @@ class Player : public sf::Sprite
      * @return false otherwise
      */
     bool checkSpiderCollision(sf::FloatRect spider);
-
-    /**
-     * Check fo collisions with mushrooms, and prevent movement
-     * @param shroom mushroom collider
-     * @return true if colliding
-     * @return false
-     */
-    bool checkMushroomCollision(sf::FloatRect shroom);
 
     /**
      * Causes player to lose a life
@@ -85,7 +80,7 @@ class Player : public sf::Sprite
 
   private:
     /** Player movement speed in pixels/second */
-    static constexpr float Speed = 1600;
+    static constexpr float Speed = 600;
 
     /** How many lives the player has at start */
     static constexpr int StartingLives = 3;
@@ -129,8 +124,6 @@ class Player : public sf::Sprite
 
     /** Time a laser was fired */
     sf::Time m_lastFired;
-
-    bool m_colliding = false;
 
     int m_animation = 0;
 

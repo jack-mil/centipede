@@ -247,7 +247,7 @@ void Engine::update(const float dtSeconds)
     {
         if (!player.isDead())
         {
-            player.update(dtSeconds);
+            player.update(dtSeconds, *this);
         }
     }
 
@@ -344,4 +344,37 @@ void Engine::setViewport(unsigned int width, unsigned int height)
 
     m_view.setViewport(sf::FloatRect(posX, posY, sizeX, sizeY));
     m_window.setView(m_view);
+}
+
+bool Engine::CheckCollision(const sf::FloatRect& rect,
+                              const std::unordered_set<CollisionTarget>& targets) const
+{
+    if (targets.count(CollisionTarget::Mushroom) != 0U)
+    {
+        for (const auto& shroom : m_shroomMan.getShrooms())
+        {
+            if (rect.intersects(shroom.getGlobalBounds()))
+            {
+                return true;
+            }
+        }
+    }
+
+    if (targets.count(CollisionTarget::Player1) != 0U && !m_player[0].isDead())
+    {
+        if (rect.intersects(m_player[0].getCollider()))
+        {
+            return true;
+        }
+    }
+
+    if (targets.count(CollisionTarget::Player2) != 0U && !m_player[1].isDead())
+    {
+        if (rect.intersects(m_player[1].getCollider()))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }

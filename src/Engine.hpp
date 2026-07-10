@@ -8,6 +8,7 @@ Declare the Game Engine. Engine::run() is the main entrypoint into the game.
 */
 #pragma once
 #include <array>
+#include <unordered_set>
 
 #include "SFML/Graphics.hpp"
 
@@ -38,6 +39,17 @@ class Engine
      * Used to control the game loop state-machine
      */
     enum class State { Start, Playing, LevelChange, GameOver };
+
+    enum class CollisionTarget { Mushroom, Player1, Player2 };
+
+    /**
+     * Check if a rect collides with any of the specified targets.
+     * @param rect The collider to test
+     * @param targets Which object types to check against
+     * @return true if any target intersects rect
+     */
+    bool CheckCollision(const sf::FloatRect& rect,
+                        const std::unordered_set<CollisionTarget>& targets) const;
 
   private:
     /** Color for the game world background */
