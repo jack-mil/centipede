@@ -1,7 +1,6 @@
 /*
-Author: Jackson Miller
-Class: ECE6122 A
-Last Date Modifed: 2024-09-30
+SPDX-License-Identifier: BSD-3-Clause
+Copyright (c) 2024 Jackson Miller
 
 Description:
 Defines the main game Engine and game loop logic.

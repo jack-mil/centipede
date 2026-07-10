@@ -2,7 +2,7 @@
 
 Current Developer: dulsi@identicalsoftware.com
 
-## Made with SFML and C++17
+## Made with SFML 2.6 and C++17
 
 - configure: `cmake -B build/`
 - compile:   `cmake --build build/`

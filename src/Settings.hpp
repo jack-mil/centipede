@@ -1,7 +1,14 @@
+/*
+SPDX-License-Identifier: BSD-3-Clause
+Copyright (c) 2024 Jackson Miller
+
+Description:
+Settings and Constants for the Centipede game
+*/
+
 #pragma once
 #include <SFML/Graphics.hpp>
 
-/** Settings and Constants for the Centipede game */
 namespace Game
 {
 

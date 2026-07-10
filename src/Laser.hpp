@@ -1,13 +1,13 @@
 /*
-Author: Jackson Miller
-Class: ECE6122 A
-Last Date Modifed: 2024-09-30
+SPDX-License-Identifier: BSD-3-Clause
+Copyright (c) 2024 Jackson Miller
 
 Description:
 Laser object declaration. These are activated when the <SPACE> key is pressed.
 The actual Atari Centipede game only allowed one laser sprite on screen at a time.
 I might go that route, it would simplify the fire-rate timing.
 */
+
 #pragma once
 #include <SFML/Graphics.hpp>
 
