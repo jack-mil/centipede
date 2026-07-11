@@ -156,6 +156,10 @@ void Engine::input()
         }
     } // end event polling
 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) && sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
+    {
+        m_window.close();
+    }
     // Keyboard polling for smooth player movement
     if ((state == State::Playing) || (state == State::LevelChange))
     {
