@@ -8,6 +8,8 @@ Player character declaration.
 
 #pragma once
 
+#include <array>
+
 #include <SFML/Graphics.hpp>
 
 class Engine;
@@ -39,6 +41,9 @@ class Player : public sf::Sprite
      */
     void update(float deltaTime, Engine& engine);
 
+    /** Draw the player sprite. */
+    void drawLives(sf::RenderWindow& window) const;
+
     /**
      * Check for collisions with spider and decrement life counter
      * @param spider Collider of the spider
@@ -51,6 +56,11 @@ class Player : public sf::Sprite
      * Causes player to lose a life
      */
     void die();
+
+    /**
+     * Causes player to gain a life
+     */
+    void extraLife();
 
     /**
      * Determine if all the lives are used up.
@@ -94,6 +104,12 @@ class Player : public sf::Sprite
       { {16, 64, 28, 32}, {64, 64, 28, 32} },
     };
 
+    static inline const sf::IntRect PlayerPlusOffset[2] =
+    {
+      {112, 16, 28, 32},
+      {112, 64, 28, 32}
+    };
+
     /** Move back to the starting position. */
     void reset();
 
@@ -124,6 +140,8 @@ class Player : public sf::Sprite
 
     /** Time a laser was fired */
     sf::Time m_lastFired;
+
+    std::array<sf::Sprite, 5> m_lifeSprites;
 
     int m_animation = 0;
 

@@ -10,6 +10,7 @@ If a enemy collides with the player, a life is lost.
 
 #include "SFML/Graphics.hpp"
 #include <unordered_set>
+#include <ranges>
 
 #include "Engine.hpp"
 #include "Player.hpp"
@@ -22,6 +23,19 @@ Player::Player(sf::FloatRect bounds, int number) : m_lastFired{sf::Time::Zero}
     m_number = number;
     this->setTexture(TextureManager::GetTexture("graphics/fairy.png"));
     this->setTextureRect(Player::PlayerAnimationOffset[m_number][m_animation]);
+
+    if (const auto* texture = this->getTexture())
+    {
+        int index = 0;
+        for (auto& lifeSprite : m_lifeSprites)
+        {
+            lifeSprite.setTexture(*texture);
+            lifeSprite.setTextureRect(Player::PlayerAnimationOffset[m_number][1]);
+            lifeSprite.setPosition((float)(m_number ? (1024 - 256 - (index * 28)) : (256 + (index * 28))), 0);
+            index++;
+        }
+        m_lifeSprites.back().setTextureRect(Player::PlayerPlusOffset[m_number]);
+    }
 
     // use the sprite size to center the origin
     const auto& size = this->getLocalBounds();
@@ -61,6 +75,14 @@ void Player::spawn()
     // reset lives and position
     m_lives = Player::StartingLives;
     this->reset();
+}
+
+void Player::drawLives(sf::RenderWindow& window) const
+{
+    for (size_t i = 0 ; (int)(i + 1) < m_lives && i < m_lifeSprites.size(); i++)
+    {
+        window.draw(m_lifeSprites[(size_t)i]);
+    }
 }
 
 void Player::disable()
@@ -189,6 +211,11 @@ void Player::die()
 {
     m_lives--;
     this->reset();
+}
+
+void Player::extraLife()
+{
+    m_lives++;
 }
 
 bool Player::isDead() const

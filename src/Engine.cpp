@@ -311,6 +311,7 @@ void Engine::draw()
             if (!player.isDead())
             {
                 m_window.draw(player);
+                player.drawLives(m_window);
             }
         }
     }
