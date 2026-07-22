@@ -88,6 +88,8 @@ class Player : public sf::Sprite
 
      bool shouldFire(const sf::Time& totalGameTime);
 
+     void addScore(unsigned long points);
+
   private:
     /** Player movement speed in pixels/second */
     static constexpr float Speed = 600;
@@ -149,4 +151,6 @@ class Player : public sf::Sprite
 
     /** The current lives remaining */
     int m_lives = Player::StartingLives;
+
+    unsigned long m_score = 0;
 };

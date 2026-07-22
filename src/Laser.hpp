@@ -67,6 +67,8 @@ class Laser : public sf::Drawable
     /** @return if this laser is currently active */
     bool isActive() const;
 
+    int getPlayer() const;
+
   private:
     // Static properties common to all lasers
 

@@ -74,6 +74,7 @@ void Player::spawn()
 {
     // reset lives and position
     m_lives = Player::StartingLives;
+    m_score = 0;
     this->reset();
 }
 
@@ -253,4 +254,9 @@ bool Player::shouldFire(const sf::Time& totalGameTime)
         }
     }
     return false;
+}
+
+void Player::addScore(unsigned long points)
+{
+    m_score += points;
 }

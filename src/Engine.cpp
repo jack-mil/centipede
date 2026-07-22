@@ -232,12 +232,14 @@ void Engine::update(const float dtSeconds)
         if (m_shroomMan.checkLaserCollision(laser.getCollider()))
         {
             laser.deactivate();
+            m_player[laser.getPlayer()].addScore(1);
             continue;
         }
 
         if (m_centipede.checkLaserCollision(laser.getCollider()))
         {
             laser.deactivate();
+            m_player[laser.getPlayer()].addScore(10);
             continue;
         }
 

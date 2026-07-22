@@ -95,3 +95,8 @@ void Laser::deactivate()
 {
     m_active = false;
 }
+
+int Laser::getPlayer() const
+{
+    return m_player;
+}
