@@ -60,3 +60,9 @@ Fairy
 Created by [sqbr](https://opengameart.org/content/fairy-princesses), GrafxKid, and cabbit as Svetlana Kushnariova with email address lana-chan@yandex.ru, hosted by OpenGameArt.org  
 Modified by Dennis Payne  
 License: CC-BY 4.0  
+
+### font.png
+Intrepid Monochrome 8-bit Font  
+[Font "Intrepid Monochrome"](https://opengameart.org/content/intrepid-monochrome-8-bit-font) by Hammer Forged Games  
+Scaled up 4 times original size  
+License: CC0  

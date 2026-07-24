@@ -166,6 +166,11 @@ void Engine::input()
 
         for (auto& player : m_player)
         {
+            if (player.isDead())
+            {
+                continue;
+            }
+
             // Handle player movement with WASD keys
             player.handleInput();
 
@@ -314,6 +319,7 @@ void Engine::draw()
             {
                 m_window.draw(player);
                 player.drawLives(m_window);
+                player.drawScore(m_window);
             }
         }
     }

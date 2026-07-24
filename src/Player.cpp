@@ -37,6 +37,9 @@ Player::Player(sf::FloatRect bounds, int number) : m_lastFired{sf::Time::Zero}
         m_lifeSprites.back().setTextureRect(Player::PlayerPlusOffset[m_number]);
     }
 
+    m_scoreSprite.setTexture(TextureManager::GetTexture("graphics/font.png"));
+    m_scoreSprite.setTextureRect(sf::IntRect(0, 32, 32, 32));
+
     // use the sprite size to center the origin
     const auto& size = this->getLocalBounds();
     this->setOrigin(size.width / 2.f, size.height / 2.f);
@@ -83,6 +86,28 @@ void Player::drawLives(sf::RenderWindow& window) const
     for (size_t i = 0 ; (int)(i + 1) < m_lives && i < m_lifeSprites.size(); i++)
     {
         window.draw(m_lifeSprites[(size_t)i]);
+    }
+}
+
+void Player::drawScore(sf::RenderWindow& window)
+{
+    unsigned long value = m_score;
+    bool firstDigit = true;
+
+    int x = 224;
+    if (m_number == 1)
+    {
+        x = static_cast<int>(Game::GameSize.x) - 32;
+    }
+    while (value > 0 || firstDigit)
+    {
+        firstDigit = false;
+        const int digit = static_cast<int>(value % 10);
+        m_scoreSprite.setTextureRect(sf::IntRect(digit * 32, 32, 32, 32));
+        m_scoreSprite.setPosition(static_cast<float>(x), 0.0f);
+        window.draw(m_scoreSprite);
+        value /= 10;
+        x -= 32;
     }
 }
 

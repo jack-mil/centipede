@@ -41,8 +41,9 @@ class Player : public sf::Sprite
      */
     void update(float deltaTime, Engine& engine);
 
-    /** Draw the player sprite. */
     void drawLives(sf::RenderWindow& window) const;
+
+    void drawScore(sf::RenderWindow& window);
 
     /**
      * Check for collisions with spider and decrement life counter
@@ -144,6 +145,8 @@ class Player : public sf::Sprite
     sf::Time m_lastFired;
 
     std::array<sf::Sprite, 5> m_lifeSprites;
+
+    sf::Sprite m_scoreSprite;
 
     int m_animation = 0;
 
